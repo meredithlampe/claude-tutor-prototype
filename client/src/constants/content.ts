@@ -39,6 +39,7 @@ export const content = {
       afternoon: "Afternoon",
       evening: "Evening",
     },
+    greetingWithName: (greeting: string, name: string) => `${greeting}, ${name}`,
     incognito: "Incognito chat",
     recentArtifacts: "Recent artifacts",
     viewAll: "View all",

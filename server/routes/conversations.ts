@@ -89,7 +89,12 @@ conversationsRouter.post("/:id/messages", async (req, res) => {
     onText: (text) => sendEvent(res, { type: "text", text }),
   });
 
-  if (result.type === "aborted") return;
+  // The client stopped the reply. Keep what streamed so Claude sees it on the next turn.
+  // The API rejects whitespace-only text blocks, so those are dropped.
+  if (result.type === "aborted") {
+    if (result.text.trim()) await appendMessage(conversation.id, "assistant", result.text);
+    return;
+  }
 
   if (result.type === "done") {
     if (result.text) await appendMessage(conversation.id, "assistant", result.text);

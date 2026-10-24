@@ -3,7 +3,8 @@ import Anthropic from "@anthropic-ai/sdk";
 export type ReplyResult =
   | { type: "done"; text: string }
   | { type: "refusal" }
-  | { type: "aborted" }
+  // `text` is whatever streamed before the client disconnected.
+  | { type: "aborted"; text: string }
   | { type: "error" };
 
 interface StreamReplyOptions {
@@ -25,6 +26,7 @@ export async function streamReply({
   signal,
   onText,
 }: StreamReplyOptions): Promise<ReplyResult> {
+  let streamedText = "";
   try {
     const stream = getClient().messages.stream(
       {
@@ -39,6 +41,7 @@ export async function streamReply({
 
     for await (const event of stream) {
       if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+        streamedText += event.delta.text;
         onText(event.delta.text);
       }
     }
@@ -55,7 +58,7 @@ export async function streamReply({
     return { type: "done", text };
   } catch (error) {
     if (error instanceof Anthropic.APIUserAbortError) {
-      return { type: "aborted" };
+      return { type: "aborted", text: streamedText };
     }
     if (error instanceof Anthropic.AuthenticationError) {
       console.error("Claude API: authentication failed. Check ANTHROPIC_API_KEY.");

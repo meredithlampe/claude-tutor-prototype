@@ -39,6 +39,9 @@ export type StreamEvent =
   | { type: "refusal" }
   | { type: "error" };
 
+// Mirrors FeatureEvent in server/features.ts: an event a feature sends alongside the above.
+export type FeatureEvent = { type: string } & Record<string, unknown>;
+
 // A message as shown in the chat view. Stored messages load as "complete".
 export type ChatMessageStatus = "complete" | "streaming" | "stopped" | "refusal" | "error";
 

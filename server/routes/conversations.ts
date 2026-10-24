@@ -5,13 +5,15 @@ import {
   getConversation,
   listConversations,
 } from "../repo/conversations";
+import { collectCallOptions, handleToolUses, type ChatTurn, type FeatureEvent } from "../features";
 import { streamReply } from "../services/claude";
 
 type StreamEvent =
   | { type: "text"; text: string }
   | { type: "done" }
   | { type: "refusal" }
-  | { type: "error" };
+  | { type: "error" }
+  | FeatureEvent;
 
 function sendEvent(res: Response, event: StreamEvent) {
   res.write(`data: ${JSON.stringify(event)}\n\n`);
@@ -72,6 +74,9 @@ conversationsRouter.post("/:id/messages", async (req, res) => {
     return;
   }
 
+  const turn: ChatTurn = { conversation, message: content };
+  const { system, tools, toolOwners } = await collectCallOptions(turn);
+
   res.writeHead(200, {
     "Content-Type": "text/event-stream",
     "Cache-Control": "no-cache",
@@ -85,6 +90,8 @@ conversationsRouter.post("/:id/messages", async (req, res) => {
 
   const result = await streamReply({
     messages: conversation.messages.map(({ role, content }) => ({ role, content })),
+    system,
+    tools,
     signal: abortController.signal,
     onText: (text) => sendEvent(res, { type: "text", text }),
   });
@@ -98,6 +105,8 @@ conversationsRouter.post("/:id/messages", async (req, res) => {
 
   if (result.type === "done") {
     if (result.text) await appendMessage(conversation.id, "assistant", result.text);
+    // Feature events arrive before "done", so the client still has the reply open.
+    await handleToolUses(result.toolUses, toolOwners, turn, (event) => sendEvent(res, event));
     sendEvent(res, { type: "done" });
   } else {
     sendEvent(res, { type: result.type });

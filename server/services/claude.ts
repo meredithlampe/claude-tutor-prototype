@@ -1,7 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 
 export type ReplyResult =
-  | { type: "done"; text: string }
+  // `toolUses` is empty unless `tools` were passed and Claude called one.
+  | { type: "done"; text: string; toolUses: Anthropic.ToolUseBlock[] }
   | { type: "refusal" }
   // `text` is whatever streamed before the client disconnected.
   | { type: "aborted"; text: string }
@@ -9,6 +10,8 @@ export type ReplyResult =
 
 interface StreamReplyOptions {
   messages: Anthropic.MessageParam[];
+  system?: Anthropic.MessageCreateParams["system"];
+  tools?: Anthropic.MessageCreateParams["tools"];
   signal: AbortSignal;
   onText: (text: string) => void;
 }
@@ -23,6 +26,8 @@ function getClient(): Anthropic {
 
 export async function streamReply({
   messages,
+  system,
+  tools,
   signal,
   onText,
 }: StreamReplyOptions): Promise<ReplyResult> {
@@ -34,6 +39,9 @@ export async function streamReply({
         max_tokens: 64000,
         thinking: { type: "adaptive" },
         output_config: { effort: "medium" },
+        // Only sent when given, so a plain chat turn's request is unchanged.
+        ...(system ? { system } : {}),
+        ...(tools?.length ? { tools } : {}),
         messages,
       },
       { signal },
@@ -55,7 +63,12 @@ export async function streamReply({
       .filter((block): block is Anthropic.TextBlock => block.type === "text")
       .map((block) => block.text)
       .join("");
-    return { type: "done", text };
+    // A tool call ends the turn (stop_reason "tool_use"). No tool result is sent back, so
+    // the turn is treated as finished: the text is the reply, and the caller handles the calls.
+    const toolUses = final.content.filter(
+      (block): block is Anthropic.ToolUseBlock => block.type === "tool_use",
+    );
+    return { type: "done", text, toolUses };
   } catch (error) {
     if (error instanceof Anthropic.APIUserAbortError) {
       return { type: "aborted", text: streamedText };

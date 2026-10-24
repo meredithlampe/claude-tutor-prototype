@@ -1,8 +1,9 @@
-import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
 import type { AppOutletContext } from "@/components/AppLayout";
 import { content } from "@/constants/content";
-import { fetchConversation, sendMessage } from "@/lib/api";
+import { useChatFeatures } from "@/features";
+import { fetchConversation, isCoreEvent, sendMessage } from "@/lib/api";
 import type { ChatMessage, ChatMessageStatus, NewChatLocationState } from "@/types";
 import { Composer } from "./Composer";
 import { MessageList } from "./MessageList";
@@ -49,6 +50,19 @@ export function ChatThread({ conversationId, newChat: newChatProp }: ChatThreadP
   const stickToBottomRef = useRef(true);
   const newChatSentRef = useRef(false);
 
+  const featureSlots = useChatFeatures({
+    conversationId,
+    isStreaming,
+    send: handleSubmit,
+    stop: handleStop,
+  });
+  const activeFeature = featureSlots.find((slots) => slots.active);
+  // A reply reads the latest slots while it streams, not the ones from when it started.
+  const featureSlotsRef = useRef(featureSlots);
+  useLayoutEffect(() => {
+    featureSlotsRef.current = featureSlots;
+  });
+
   async function streamReply(text: string, retry: boolean) {
     const controller = new AbortController();
     abortRef.current = controller;
@@ -66,14 +80,18 @@ export function ChatThread({ conversationId, newChat: newChatProp }: ChatThreadP
     setIsStreaming(true);
     stickToBottomRef.current = true;
 
+    const send =
+      featureSlotsRef.current.find((slots) => slots.active)?.sendMessage ?? sendMessage;
     let status: ChatMessageStatus = "error";
     try {
-      for await (const event of sendMessage(conversationId, {
+      for await (const event of send(conversationId, {
         content: text,
         retry,
         signal: controller.signal,
       })) {
-        if (event.type === "text") {
+        if (!isCoreEvent(event)) {
+          for (const slots of featureSlotsRef.current) slots.onEvent?.(event, reply.id);
+        } else if (event.type === "text") {
           updateReply((message) => ({ ...message, content: message.content + event.text }));
         } else {
           status = event.type === "done" ? "complete" : event.type;
@@ -179,28 +197,50 @@ export function ChatThread({ conversationId, newChat: newChatProp }: ChatThreadP
     );
   }
 
+  function renderAfterMessage(message: ChatMessage) {
+    return featureSlots.map((slots) => (
+      <Fragment key={slots.id}>{slots.renderAfterMessage?.(message)}</Fragment>
+    ));
+  }
+
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <header className="flex h-12 shrink-0 items-center px-4 md:px-6">
         <h1 className="min-w-0 truncate text-sm font-medium text-foreground">{title}</h1>
       </header>
-      <div ref={scrollRef} onScroll={handleScroll} className="min-h-0 flex-1 overflow-y-auto">
-        <div className="px-4 pt-4 pb-8">
-          <div className="mx-auto w-full max-w-[70ch]">
-            <MessageList messages={messages} onRetry={handleRetry} />
+      {featureSlots.map((slots) => (
+        <Fragment key={slots.id}>{slots.banner}</Fragment>
+      ))}
+      <div className="flex min-h-0 flex-1 flex-col md:flex-row">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+          <div ref={scrollRef} onScroll={handleScroll} className="min-h-0 flex-1 overflow-y-auto">
+            <div className="px-4 pt-4 pb-8">
+              <div className="mx-auto w-full max-w-[70ch]">
+                <MessageList
+                  messages={messages}
+                  onRetry={handleRetry}
+                  renderAfterMessage={renderAfterMessage}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="shrink-0 px-4 pb-4">
+            <div className="mx-auto w-full max-w-[70ch]">
+              {activeFeature?.composer ?? (
+                <Composer
+                  onSubmit={handleSubmit}
+                  isStreaming={isStreaming}
+                  onStop={handleStop}
+                  focusOnMount={Boolean(newChat)}
+                  inputRef={inputRef}
+                />
+              )}
+            </div>
           </div>
         </div>
-      </div>
-      <div className="shrink-0 px-4 pb-4">
-        <div className="mx-auto w-full max-w-[70ch]">
-          <Composer
-            onSubmit={handleSubmit}
-            isStreaming={isStreaming}
-            onStop={handleStop}
-            focusOnMount={Boolean(newChat)}
-            inputRef={inputRef}
-          />
-        </div>
+        {featureSlots.map((slots) => (
+          <Fragment key={slots.id}>{slots.panel}</Fragment>
+        ))}
       </div>
     </div>
   );

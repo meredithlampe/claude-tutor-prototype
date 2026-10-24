@@ -1,4 +1,5 @@
 import express from "express";
+import { features } from "./features";
 import { listArtifacts } from "./repo/artifacts";
 import { getUser } from "./repo/user";
 import { conversationsRouter } from "./routes/conversations";
@@ -13,6 +14,10 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.use("/api/conversations", conversationsRouter);
+
+for (const feature of features) {
+  if (feature.router) app.use(`/api/${feature.id}`, feature.router);
+}
 
 app.get("/api/artifacts", async (_req, res) => {
   res.json(await listArtifacts());

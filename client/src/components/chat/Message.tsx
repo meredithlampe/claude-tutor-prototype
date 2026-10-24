@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { CircleAlert, Ban, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { content } from "@/constants/content";
@@ -7,12 +8,14 @@ import { Markdown } from "./Markdown";
 type MessageProps = {
   message: ChatMessage;
   onRetry?: () => void;
+  // Feature content shown after the message, inside its list item.
+  after?: ReactNode;
 };
 
 const noticeClasses =
   "flex items-start gap-2.5 rounded-xl border border-input bg-card px-4 py-3 text-sm text-secondary-foreground";
 
-export function Message({ message, onRetry }: MessageProps) {
+export function Message({ message, onRetry, after }: MessageProps) {
   const { chat } = content;
 
   if (message.role === "user") {
@@ -22,6 +25,7 @@ export function Message({ message, onRetry }: MessageProps) {
         <p className="max-w-[85%] rounded-2xl bg-accent px-4 py-2.5 leading-7 break-words whitespace-pre-wrap text-accent-foreground">
           {message.content}
         </p>
+        {after}
       </li>
     );
   }
@@ -76,6 +80,8 @@ export function Message({ message, onRetry }: MessageProps) {
           </div>
         </div>
       )}
+
+      {after}
     </li>
   );
 }

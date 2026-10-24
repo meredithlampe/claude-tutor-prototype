@@ -1,4 +1,11 @@
-import type { Artifact, Conversation, ConversationSummary, StreamEvent, User } from "@/types";
+import type {
+  Artifact,
+  Conversation,
+  ConversationSummary,
+  FeatureEvent,
+  StreamEvent,
+  User,
+} from "@/types";
 import { readSseData } from "@/lib/sse";
 
 async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
@@ -40,11 +47,18 @@ type SendMessageOptions = {
   signal: AbortSignal;
 };
 
+const CORE_EVENT_TYPES = new Set<string>(["text", "done", "refusal", "error"]);
+
+// Anything else is a feature's event.
+export function isCoreEvent(event: StreamEvent | FeatureEvent): event is StreamEvent {
+  return CORE_EVENT_TYPES.has(event.type);
+}
+
 // Sends a user message and yields Claude's reply as stream events.
 export async function* sendMessage(
   conversationId: string,
   { content, retry = false, signal }: SendMessageOptions,
-): AsyncGenerator<StreamEvent> {
+): AsyncGenerator<StreamEvent | FeatureEvent> {
   const response = await fetch(`/api/conversations/${encodeURIComponent(conversationId)}/messages`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -55,7 +69,7 @@ export async function* sendMessage(
     throw new Error(`POST message failed with ${response.status}`);
   }
   for await (const data of readSseData(response.body)) {
-    yield JSON.parse(data) as StreamEvent;
+    yield JSON.parse(data) as StreamEvent | FeatureEvent;
   }
 }
 

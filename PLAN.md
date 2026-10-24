@@ -11,7 +11,7 @@ A lightweight clone of the Claude browser chat app, used as a base for prototypi
 ## Stack
 
 - React 18 + TypeScript + Vite
-- Tailwind + shadcn/ui (Button, Textarea, DropdownMenu, ScrollArea, Avatar, Card, Tooltip, Separator)
+- Tailwind + shadcn/ui (Button, Textarea, DropdownMenu, ScrollArea, Avatar, Card, Tooltip, Separator, Sheet for the mobile sidebar drawer)
 - `lucide-react` icons (shadcn default)
 - `react-markdown` + `remark-gfm` for rendering assistant messages
 - Express + `@anthropic-ai/sdk` server; API key in `.env` (`ANTHROPIC_API_KEY`)
@@ -119,7 +119,7 @@ Reference screenshot: `docs/reference/claude-home.png` (dark theme home screen).
   - Don't send `temperature`, `top_p`, or `top_k`: they return a 400.
   - Use SDK types, not custom ones.
   - Catch typed `Anthropic.APIError` subclasses.
-- **Scripts:** `dev`, `build`, `typecheck`, `lint`. Add a short README with setup steps.
+- **Scripts:** `dev`, `build`, `typecheck`, `lint`. Add a short README with setup steps. Lint includes `eslint-plugin-jsx-a11y`.
 
 ## Out of scope (this pass)
 
@@ -127,6 +127,7 @@ Reference screenshot: `docs/reference/claude-home.png` (dark theme home screen).
 - Search, Projects, Artifacts pages; file attachments; voice
 - Light mode (theme tokens are set up as CSS variables, but only dark is styled)
 - Mobile layout polish
+- Unread dots on pinned items
 - Tests beyond typecheck + lint scripts
 
 ## Build order

@@ -2,19 +2,18 @@
 
 A lightweight clone of the Claude browser chat app, used as a base for prototyping a new feature. Connects to the real Claude API; persistence and backend services are mocked/simplified.
 
-## Open decisions
+## Decisions
 
-1. **App shell** — Vite + React + small Express server (recommended) vs. Next.js App Router.
-   - Vite + Express: plain React, minimal framework surface, easy to throw away. Two processes behind one `npm run dev`.
-   - Next.js: API routes colocated, matches usual stack, but heavier than needed here.
-2. **Markdown rendering** — add `react-markdown` + `remark-gfm` for assistant messages. Without it, responses (including code blocks) render as plain text.
-3. **Refusal fallbacks** — enable the server-side `fallbacks: "default"` beta on API calls, or keep the call minimal.
+1. **App shell** — Vite + React client with a small Express server. Plain React, minimal framework surface, easy to throw away. Two processes behind one `npm run dev`.
+2. **Markdown rendering** — `react-markdown` + `remark-gfm` for assistant messages, so formatting and code blocks render properly.
+3. **Refusal fallbacks** — off for now. API calls stay minimal; refusals are surfaced to the user as-is.
 
 ## Stack
 
 - React 18 + TypeScript + Vite
 - Tailwind + shadcn/ui (Button, Textarea, DropdownMenu, ScrollArea, Avatar, Card, Tooltip, Separator)
 - `lucide-react` icons (shadcn default)
+- `react-markdown` + `remark-gfm` for rendering assistant messages
 - Express + `@anthropic-ai/sdk` server; API key in `.env` (`ANTHROPIC_API_KEY`)
 - Mock database: JSON files in `server/data/`, accessed through a small repository module so it can be swapped later without touching routes
 
@@ -72,8 +71,7 @@ server/
 
 ### Claude API call
 - Model `claude-opus-5-5`, `output_config.effort: "medium"`, adaptive thinking, streaming
-- Check `stop_reason` for `refusal` before rendering content
-- Optional server-side fallbacks (see open decision 3)
+- Check `stop_reason` for `refusal` before rendering content; show a simple refusal notice (no fallback model)
 
 ## Out of scope (this pass)
 

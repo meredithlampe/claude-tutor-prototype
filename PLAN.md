@@ -2,6 +2,8 @@
 
 A lightweight clone of the Claude browser chat app, used as a base for prototyping a new feature. Connects to the real Claude API; persistence and backend services are mocked/simplified.
 
+The feature under test, Tutor mode, is planned separately in `TUTOR-PLAN.md` and kept separate from the clone in code.
+
 ## Decisions
 
 1. **App shell** — Vite + React client with a small Express server. Plain React, minimal framework surface, easy to throw away. Two processes behind one `npm run dev`.

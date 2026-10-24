@@ -3,6 +3,7 @@
 A lightweight clone of the Claude web app, used to prototype a learning/education feature. It calls the real Claude API; persistence is mocked with JSON files.
 
 - **Spec:** `PLAN.md` is the source of truth for stack, structure, scope, visual spec, and build order.
+- **Tutor feature spec:** `TUTOR-PLAN.md`. Keep Tutor code in `client/src/features/tutor/` and `server/tutor/`; the clone only gets generic extension points.
 - **Reference images:** `docs/reference/` (Claude home screenshot, Rosenshine's Principles of Instruction).
 
 ## Agents

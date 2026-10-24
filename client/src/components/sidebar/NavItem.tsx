@@ -1,0 +1,59 @@
+import type { ComponentType } from "react";
+import type { LucideProps } from "lucide-react";
+import { NavLink } from "react-router-dom";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+
+type NavItemProps = {
+  icon: ComponentType<LucideProps>;
+  label: string;
+  collapsed: boolean;
+  // When set, the item navigates. Otherwise it renders as a stub button.
+  to?: string;
+  onNavigate?: () => void;
+  className?: string;
+};
+
+const itemClasses =
+  "flex h-8 w-full items-center gap-3 rounded-lg px-2 text-sm text-sidebar-foreground outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring pointer-coarse:h-11";
+
+export function NavItem({ icon: Icon, label, collapsed, to, onNavigate, className }: NavItemProps) {
+  const inner = (
+    <>
+      <Icon className="size-4 shrink-0" aria-hidden="true" />
+      <span className={cn("truncate", collapsed && "sr-only")}>{label}</span>
+    </>
+  );
+
+  const item = to ? (
+    <NavLink
+      to={to}
+      end
+      onClick={onNavigate}
+      className={cn(
+        itemClasses,
+        "aria-[current=page]:bg-sidebar-accent aria-[current=page]:font-medium aria-[current=page]:text-sidebar-accent-foreground",
+        collapsed && "justify-center px-0",
+        className,
+      )}
+    >
+      {inner}
+    </NavLink>
+  ) : (
+    <button
+      type="button"
+      className={cn(itemClasses, collapsed && "justify-center px-0", className)}
+    >
+      {inner}
+    </button>
+  );
+
+  if (!collapsed) return item;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{item}</TooltipTrigger>
+      <TooltipContent side="right">{label}</TooltipContent>
+    </Tooltip>
+  );
+}

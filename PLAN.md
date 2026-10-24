@@ -10,7 +10,7 @@ A lightweight clone of the Claude browser chat app, used as a base for prototypi
 
 ## Stack
 
-- React 18 + TypeScript + Vite
+- React 19 + TypeScript + Vite
 - Tailwind + shadcn/ui (Button, Textarea, DropdownMenu, ScrollArea, Avatar, Card, Tooltip, Separator, Sheet for the mobile sidebar drawer)
 - `lucide-react` icons (shadcn default)
 - `react-markdown` + `remark-gfm` for rendering assistant messages

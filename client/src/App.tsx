@@ -1,10 +1,17 @@
-import { content } from "@/constants/content";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { AppLayout } from "@/components/AppLayout";
+import { ChatPage } from "@/pages/ChatPage";
+import { HomePage } from "@/pages/HomePage";
 
 export default function App() {
   return (
-    <main className="flex min-h-dvh flex-col items-center justify-center gap-3 px-4 text-center">
-      <h1 className="font-serif text-4xl text-foreground">{content.app.name}</h1>
-      <p className="text-muted-foreground">{content.app.scaffoldNotice}</p>
-    </main>
+    <BrowserRouter>
+      <Routes>
+        <Route element={<AppLayout />}>
+          <Route index element={<HomePage />} />
+          <Route path="chat/:id" element={<ChatPage />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }

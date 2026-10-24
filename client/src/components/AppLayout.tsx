@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Menu } from "lucide-react";
 import { Outlet } from "react-router-dom";
 import { IconButton } from "@/components/IconButton";
@@ -13,10 +13,17 @@ import type { ConversationSummary, User } from "@/types";
 export type AppOutletContext = {
   user: ApiState<User>;
   conversations: ApiState<ConversationSummary[]>;
+  // Re-fetches the sidebar list after a conversation is created or updated.
+  refreshConversations: () => void;
 };
 
 export function AppLayout() {
-  const conversations = useApiData(fetchConversations);
+  const [conversationsVersion, setConversationsVersion] = useState(0);
+  const conversations = useApiData(fetchConversations, conversationsVersion);
+  const refreshConversations = useCallback(
+    () => setConversationsVersion((version) => version + 1),
+    [],
+  );
   const user = useApiData(fetchUser);
   const [collapsed, setCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -70,7 +77,9 @@ export function AppLayout() {
           </IconButton>
         </header>
         <main className="relative flex min-h-0 flex-1 flex-col overflow-y-auto">
-          <Outlet context={{ user, conversations } satisfies AppOutletContext} />
+          <Outlet
+            context={{ user, conversations, refreshConversations } satisfies AppOutletContext}
+          />
         </main>
       </div>
     </div>

@@ -9,8 +9,8 @@ type SidebarHeaderProps = {
   onToggle: () => void;
 };
 
-const modeButtonClasses =
-  "text-muted-foreground aria-pressed:bg-sidebar-accent aria-pressed:text-sidebar-accent-foreground";
+// Both modes are stubs, so the pressed one keeps the greyed text on a darker pill for contrast.
+const modeButtonClasses = "aria-pressed:bg-sidebar-border aria-pressed:hover:bg-sidebar-border";
 
 export function SidebarHeader({ collapsed, toggleLabel, onToggle }: SidebarHeaderProps) {
   return (
@@ -33,6 +33,7 @@ export function SidebarHeader({ collapsed, toggleLabel, onToggle }: SidebarHeade
               aria-pressed={true}
               size="icon-xs"
               className={modeButtonClasses}
+              stub
             >
               <MessagesSquare aria-hidden="true" />
             </IconButton>
@@ -41,6 +42,7 @@ export function SidebarHeader({ collapsed, toggleLabel, onToggle }: SidebarHeade
               aria-pressed={false}
               size="icon-xs"
               className={modeButtonClasses}
+              stub
             >
               <CodeXml aria-hidden="true" />
             </IconButton>

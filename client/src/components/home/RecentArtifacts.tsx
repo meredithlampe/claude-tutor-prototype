@@ -1,7 +1,10 @@
+import { StubTooltip } from "@/components/StubTooltip";
 import { Button } from "@/components/ui/button";
 import { content } from "@/constants/content";
 import { fetchArtifacts } from "@/lib/api";
 import { useApiData } from "@/hooks/useApiData";
+import { cn } from "@/lib/utils";
+import { stubClasses } from "@/lib/stub";
 import { ArtifactCard } from "./ArtifactCard";
 
 const CARD_COUNT = 3;
@@ -17,14 +20,16 @@ export function RecentArtifacts() {
         <h2 id="recent-artifacts-heading" className="text-sm text-sidebar-foreground">
           {content.home.recentArtifacts}
         </h2>
-        <Button
-          type="button"
-          variant="link"
-          size="sm"
-          className="px-0 text-muted-foreground hover:text-foreground pointer-coarse:h-11"
-        >
-          {content.home.viewAll}
-        </Button>
+        <StubTooltip>
+          <Button
+            type="button"
+            variant="link"
+            size="sm"
+            className={cn("px-0 pointer-coarse:h-11 hover:no-underline", stubClasses)}
+          >
+            {content.home.viewAll}
+          </Button>
+        </StubTooltip>
       </div>
       {artifacts.status === "error" ? (
         <p role="alert" className="text-sm text-muted-foreground">

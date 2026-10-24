@@ -1,4 +1,5 @@
-import type { Artifact, ConversationSummary, User } from "@/types";
+import type { Artifact, Conversation, ConversationSummary, StreamEvent, User } from "@/types";
+import { readSseData } from "@/lib/sse";
 
 async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
   const response = await fetch(path, { signal });
@@ -8,6 +9,54 @@ async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
 
 export function fetchConversations(signal?: AbortSignal) {
   return getJson<ConversationSummary[]>("/api/conversations", signal);
+}
+
+// Resolves to null when the conversation doesn't exist.
+export async function fetchConversation(
+  id: string,
+  signal?: AbortSignal,
+): Promise<Conversation | null> {
+  const response = await fetch(`/api/conversations/${encodeURIComponent(id)}`, { signal });
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error(`GET conversation failed with ${response.status}`);
+  return (await response.json()) as Conversation;
+}
+
+export async function createConversation(content: string): Promise<Conversation> {
+  const response = await fetch("/api/conversations", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ content }),
+  });
+  if (!response.ok) throw new Error(`POST conversation failed with ${response.status}`);
+  return (await response.json()) as Conversation;
+}
+
+type SendMessageOptions = {
+  content: string;
+  // Re-requests a reply to `content` without storing it again if it is already the
+  // conversation's last message (after an error).
+  retry?: boolean;
+  signal: AbortSignal;
+};
+
+// Sends a user message and yields Claude's reply as stream events.
+export async function* sendMessage(
+  conversationId: string,
+  { content, retry = false, signal }: SendMessageOptions,
+): AsyncGenerator<StreamEvent> {
+  const response = await fetch(`/api/conversations/${encodeURIComponent(conversationId)}/messages`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ content, retry }),
+    signal,
+  });
+  if (!response.ok || !response.body) {
+    throw new Error(`POST message failed with ${response.status}`);
+  }
+  for await (const data of readSseData(response.body)) {
+    yield JSON.parse(data) as StreamEvent;
+  }
 }
 
 export function fetchArtifacts(signal?: AbortSignal) {

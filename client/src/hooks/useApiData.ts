@@ -5,8 +5,12 @@ export type ApiState<T> =
   | { status: "success"; data: T }
   | { status: "error" };
 
-// Loads data once on mount. `load` must be a stable reference (a module-level function).
-export function useApiData<T>(load: (signal: AbortSignal) => Promise<T>): ApiState<T> {
+// Loads data on mount, and again whenever `reloadKey` changes (keeping the previous data
+// until the new data arrives). `load` must be a stable reference (a module-level function).
+export function useApiData<T>(
+  load: (signal: AbortSignal) => Promise<T>,
+  reloadKey?: unknown,
+): ApiState<T> {
   const [state, setState] = useState<ApiState<T>>({ status: "loading" });
 
   useEffect(() => {
@@ -17,7 +21,7 @@ export function useApiData<T>(load: (signal: AbortSignal) => Promise<T>): ApiSta
         if (!controller.signal.aborted) setState({ status: "error" });
       });
     return () => controller.abort();
-  }, [load]);
+  }, [load, reloadKey]);
 
   return state;
 }

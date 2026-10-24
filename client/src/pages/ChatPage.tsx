@@ -1,24 +1,18 @@
-import { useOutletContext, useParams } from "react-router-dom";
-import type { AppOutletContext } from "@/components/AppLayout";
-import { content } from "@/constants/content";
+import { useLocation, useParams } from "react-router-dom";
+import { ChatThread } from "@/components/chat/ChatThread";
+import type { NewChatLocationState } from "@/types";
 
-// Placeholder until build step 4 adds the message list and composer.
 export function ChatPage() {
   const { id } = useParams();
-  const { conversations } = useOutletContext<AppOutletContext>();
-  if (conversations.status === "loading") return null;
+  const location = useLocation();
+  if (!id) return null;
 
-  const conversation =
-    conversations.status === "success"
-      ? conversations.data.find((summary) => summary.id === id)
+  const state = location.state as Partial<NewChatLocationState> | null;
+  const newChat =
+    state?.conversation?.id === id && typeof state.pendingMessage === "string"
+      ? (state as NewChatLocationState)
       : undefined;
 
-  return (
-    <div className="mx-auto flex w-full max-w-[70ch] flex-1 flex-col gap-2 px-4 py-12">
-      <h1 className="font-serif text-2xl text-foreground">
-        {conversation?.title ?? content.chat.notFound}
-      </h1>
-      <p className="text-sm text-muted-foreground">{content.chat.placeholderNotice}</p>
-    </div>
-  );
+  // Keyed so switching conversations starts from a fresh thread.
+  return <ChatThread key={id} conversationId={id} newChat={newChat} />;
 }

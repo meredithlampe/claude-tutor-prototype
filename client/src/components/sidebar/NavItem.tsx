@@ -1,14 +1,16 @@
 import type { ComponentType } from "react";
 import type { LucideProps } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { StubTooltip } from "@/components/StubTooltip";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { stubClasses } from "@/lib/stub";
 
 type NavItemProps = {
   icon: ComponentType<LucideProps>;
   label: string;
   collapsed: boolean;
-  // When set, the item navigates. Otherwise it renders as a stub button.
+  // When set, the item navigates. Otherwise it renders as a greyed-out stub button.
   to?: string;
   onNavigate?: () => void;
   className?: string;
@@ -25,7 +27,20 @@ export function NavItem({ icon: Icon, label, collapsed, to, onNavigate, classNam
     </>
   );
 
-  const item = to ? (
+  if (!to) {
+    return (
+      <StubTooltip label={collapsed ? label : undefined} side="right">
+        <button
+          type="button"
+          className={cn(itemClasses, collapsed && "justify-center px-0", className, stubClasses)}
+        >
+          {inner}
+        </button>
+      </StubTooltip>
+    );
+  }
+
+  const item = (
     <NavLink
       to={to}
       end
@@ -39,13 +54,6 @@ export function NavItem({ icon: Icon, label, collapsed, to, onNavigate, classNam
     >
       {inner}
     </NavLink>
-  ) : (
-    <button
-      type="button"
-      className={cn(itemClasses, collapsed && "justify-center px-0", className)}
-    >
-      {inner}
-    </button>
   );
 
   if (!collapsed) return item;

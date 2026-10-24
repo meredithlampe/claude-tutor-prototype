@@ -1,19 +1,20 @@
 import type { ComponentProps, ReactNode } from "react";
-import type { VariantProps } from "class-variance-authority";
-import { buttonVariants } from "@/components/ui/button";
+import { StubTooltip } from "@/components/StubTooltip";
+import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { stubClasses } from "@/lib/stub";
 
-type IconButtonProps = Omit<ComponentProps<typeof TooltipTrigger>, "aria-label" | "children" | "asChild"> &
-  VariantProps<typeof buttonVariants> & {
-    label: string;
-    children: ReactNode;
-    tooltipSide?: ComponentProps<typeof TooltipContent>["side"];
-  };
+type IconButtonProps = Omit<ComponentProps<typeof Button>, "aria-label" | "children" | "asChild"> & {
+  label: string;
+  children: ReactNode;
+  tooltipSide?: ComponentProps<typeof TooltipContent>["side"];
+  // Renders a greyed-out, non-functional control with the "not available" tooltip.
+  stub?: boolean;
+};
 
 // Icon-only button with an accessible name and a matching tooltip.
-// The Radix trigger renders the <button> itself: the shadcn Button doesn't forward refs
-// under React 18, so it can't be used with asChild. Grows to a 44px target on touch devices.
+// Grows to a 44px target on touch devices.
 export function IconButton({
   label,
   children,
@@ -21,22 +22,37 @@ export function IconButton({
   className,
   variant = "ghost",
   size = "icon-sm",
+  stub = false,
   ...props
 }: IconButtonProps) {
+  const button = (
+    <Button
+      type="button"
+      variant={variant}
+      size={size}
+      aria-label={label}
+      className={cn(
+        "text-muted-foreground hover:text-foreground pointer-coarse:size-11",
+        stub && stubClasses,
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </Button>
+  );
+
+  if (stub) {
+    return (
+      <StubTooltip label={label} side={tooltipSide}>
+        {button}
+      </StubTooltip>
+    );
+  }
+
   return (
     <Tooltip>
-      <TooltipTrigger
-        type="button"
-        aria-label={label}
-        className={cn(
-          buttonVariants({ variant, size }),
-          "text-muted-foreground hover:text-foreground pointer-coarse:size-11",
-          className,
-        )}
-        {...props}
-      >
-        {children}
-      </TooltipTrigger>
+      <TooltipTrigger asChild>{button}</TooltipTrigger>
       <TooltipContent side={tooltipSide}>{label}</TooltipContent>
     </Tooltip>
   );

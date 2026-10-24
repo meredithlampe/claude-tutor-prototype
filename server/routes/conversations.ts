@@ -23,6 +23,12 @@ function readMessage(body: unknown): string | undefined {
   return typeof content === "string" && content.trim() ? content : undefined;
 }
 
+// A retry re-requests a reply after an error. The user message is only stored again if the
+// failed attempt never reached the server.
+function readRetry(body: unknown): boolean {
+  return typeof body === "object" && body !== null && "retry" in body && body.retry === true;
+}
+
 export const conversationsRouter = Router();
 
 conversationsRouter.get("/", async (_req, res) => {
@@ -54,7 +60,13 @@ conversationsRouter.post("/:id/messages", async (req, res) => {
     return;
   }
 
-  const conversation = await appendMessage(req.params.id, "user", content);
+  const existing = await getConversation(req.params.id);
+  const lastMessage = existing?.messages.at(-1);
+  const alreadyStored =
+    readRetry(req.body) && lastMessage?.role === "user" && lastMessage.content === content;
+  const conversation = alreadyStored
+    ? existing
+    : await appendMessage(req.params.id, "user", content);
   if (!conversation) {
     res.status(404).json({ error: "Conversation not found" });
     return;

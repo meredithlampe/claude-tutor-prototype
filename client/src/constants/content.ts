@@ -2,6 +2,9 @@ export const content = {
   app: {
     name: "Claude",
   },
+  stub: {
+    notAvailable: "Not available in this prototype",
+  },
   sidebar: {
     label: "Sidebar",
     openSidebar: "Open sidebar",
@@ -40,6 +43,7 @@ export const content = {
     recentArtifacts: "Recent artifacts",
     viewAll: "View all",
     artifactsLoadFailed: "Couldn't load artifacts.",
+    createFailed: "Couldn't start a new chat. Please try again.",
   },
   composer: {
     label: "Message Claude",
@@ -51,9 +55,20 @@ export const content = {
     model: "Opus 5.5",
     effort: "Medium",
     mode: "Manual",
+    send: "Send message",
+    stop: "Stop response",
   },
   chat: {
-    placeholderNotice: "The chat view arrives in build step 4.",
     notFound: "Conversation not found.",
+    loadFailed: "Couldn't load this conversation.",
+    messagesLabel: "Messages",
+    userAuthor: "You said:",
+    assistantAuthor: "Claude said:",
+    responding: "Claude is responding…",
+    stopped: "Response stopped.",
+    refusal: "Claude declined to respond to this message. Try rephrasing it, or start a new chat.",
+    error: "Something went wrong while Claude was responding.",
+    retry: "Retry",
+    opensInNewTab: "(opens in new tab)",
   },
 } as const;

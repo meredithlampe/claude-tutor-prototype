@@ -1,0 +1,2277 @@
+▗ ▗   ▖ ▖  Claude Code v2.1.310
+           Opus 5.5 · Claude Pro
+ ▘▘   ▝▝   ~/Git/claude-tutor-prototype
+
+
+❯ resume                                                                        
+
+  Listed 1 directory, ran 1 shell command (ctrl+o to expand)
+
+⏺ Resuming at build step 1 (scaffold). The reference image still isn't in the
+  repo, but since PLAN.md already has the color spec, I'll proceed without it
+  and hand the scaffold work to the frontend-engineer agent.
+
+⏺ frontend-engineer(Scaffold build step 1)
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+⏺ The frontend-engineer agent is now scaffolding step 1 (Vite, Tailwind, shadcn,
+  a stub Express server, and dark theme colors). It's only doing step 1, and it
+  won't commit. I'll tell you how it went when it finishes.
+
+  Two things are still open:
+  - Missing screenshot: docs/reference/claude-home.png still isn't in the repo.
+    Without it, the agent can only use the colors written in PLAN.md, so if you
+    save the screenshot there I can check the match against it afterwards.
+  - Stray file: the old session export, 2026-10-24-181958-…txt, is still
+    untracked in the repo root. You may want to delete it or move it out before
+    anything gets committed.
+
+✻ Churned for 22s · done 6:21 PM
+
+❯ [Image #1] here's the missing screenshot. stray file is intentional, we'll    
+  track all of our claude code sessions as we have them. let's commit them.     
+  ⎿  [Image #1]
+
+  Listed 1 directory, ran 2 shell commands (ctrl+o to expand)
+
+⏺ Bash(cp /var/folders/qf/hyg_6wq537xgnkptzz91r2mr0000gn/T/TemporaryItems/NSIRD_
+      screencaptureui_pPjIEc/Screenshot*6.21.37*.png
+      docs/reference/claude-home.png && ls doc…)
+  ⎿  claude-home.png
+     principles-of-instruction.webp
+  ⎿  1 file changed (binary, mode only or too large to show)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Screenshot is saved as docs/reference/claude-home.png. Now committing the docs
+  and session log. I'm leaving out the scaffold files while the agent is still
+  writing them.
+
+⏺ Bash(git add PLAN.md CLAUDE.md docs/
+      2026-10-24-181958-use-this-directory-to-store-a-repository-for-a-pr.txt &&
+      git commit -q -m "Add project CLAUDE.md, reference im…)
+  ⎿  5d7a18d Add project CLAUDE.md, reference images, plan visual spec, and
+      session log
+     ?? .claude/skills/
+     … +4 lines (ctrl+o to expand)
+  ⎿  (another command ran in this repository at the same time; a change 
+     made by either may show under either result)
+
+  Wrote 1 memory (ctrl+o to expand)
+
+⏺ Bash(cd /Users/meredithlampe/.claude/projects/-Users-meredithlampe-Git-claude-
+      tutor-prototype/memory && echo "- [Track session
+      transcripts](track-session-transcripts…)
+  ⎿  Shell cwd was reset to /Users/meredithlampe/Git/claude-tutor-prototype
+  ⎿  (another command ran in this repository at the same time; a change 
+     made by either may show under either result)
+  ⎿  Message queued for delivery to ac6297854640e9d86 at its next tool 
+     round. If it finishes first, it is resumed with the message and 
+     notifies again, so wait for that notification before resending.
+
+⏺ I saved the screenshot to docs/reference/claude-home.png and committed the
+  earlier work as 5d7a18d. That commit has PLAN.md, CLAUDE.md, the reference
+  images and the session log.
+
+  - Left out of the commit: the scaffold files (client/, server/, package.json,
+    .env.example), because the agent is still writing them. .claude/skills/ is
+    also left out, as your CLAUDE.md says.
+  - Session logs: I've saved a note that session logs get committed, so future
+    sessions won't call them stray files.
+  - Theme colors: I sent the frontend-engineer agent the screenshot so it can
+    match the theme colors and fonts to it.
+
+  I'll report back with the agent's results when it finishes.
+
+✻ Sautéed for 38s · done 6:22 PM
+
+⏺ Agent "Scaffold build step 1" finished · 4m 26s
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Step 1 (the scaffold) is done and not committed. Install, typecheck, lint,
+  build and npm run dev all passed for the agent, and I re-ran typecheck and
+  lint myself: both pass. Starting dev showed both the app and the server
+  running, and the browser app can reach the server.
+
+  Theme: the agent took the colors from the screenshot rather than from
+  PLAN.md's spec. Where the two disagree:
+  - Sidebar: the sidebar is a darker neutral than the main area. The plan said
+    it would be a lighter warm grey.
+  - Logo orange: it's #BA7151 as sampled from the screenshot, not the plan's
+    #D97757. If the screenshot's colors are just shifted, it's a one-token
+    change back to #D97757.
+  - Contrast fixes: the grey secondary text and the message box's border were
+    brightened slightly to pass accessibility contrast. The box border will look
+    a little brighter than Claude's.
+
+  Packages: shadcn's setup added two runtime packages:
+  - cn, shadcn's own package in place of the usual clsx + tailwind-merge
+  - shadcn itself, because the generated CSS imports from it
+
+  The plan doesn't list either one, but both come from shadcn's own setup, so
+  I've left them. A third, @fontsource-variable/inter, was removed, and Inter
+  now loads from Google Fonts instead. npm also asked before running the install
+  scripts for esbuild and fsevents; the agent approved them, which added an
+  allowScripts block to the root package.json.
+
+  Setup quirks:
+  - Missing .env: the server won't start without a .env file. The README says to
+    copy .env.example first.
+  - Changing the port: the server's port is set in two places, so changing PORT
+    in .env means also changing client/vite.config.ts.
+
+  Decisions for you, with what I'd pick:
+  1. Mobile sidebar: add shadcn's Sheet component for a pull-out sidebar on
+     phones in step 3? It isn't in the plan's component list. I'd say yes, since
+     it's the standard shadcn way to do a mobile sidebar.
+  2. Accessibility lint check: add eslint-plugin-jsx-a11y? It's a dev-only
+     dependency that catches accessibility mistakes in the code. I'd say yes,
+     given how much the frontend agent's brief stresses accessibility.
+  3. Blue dot on pinned items: the screenshot shows a blue dot on some pinned
+     chats. Build it? I'd skip it for now, because it isn't needed for the
+     learning feature. If we do build it, it needs a label or icon as well as
+     the color.
+
+  Should I commit the scaffold now or after your review? Once you answer the
+  three questions, step 2 (server, mock data, conversation routes) can start.
+
+✻ Sautéed for 5m 5s · done 6:25 PM
+
+❯ 1. yes                                                                        
+  2. yes                                                                        
+  3. skip                                                                       
+                                                                                
+  I added envs, can see the site running when I run npm run dev. commit and     
+  contiue                                                                       
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Recording your three decisions in PLAN.md, then committing the scaffold.
+
+⏺ Bash(sed -i '' 's/^- Tailwind + shadcn\/ui (Button, Textarea, DropdownMenu,
+      ScrollArea, Avatar, Card, Tooltip, Separator)$/- Tailwind + shadcn\/ui
+      (Button, Textarea,…)
+  ⎿   PLAN.md | 5 +++--
+      1 file changed, 3 insertions(+), 2 deletions(-)
+  ⎿  Updated PLAN.md (+3 -2)
+      11  ## Stack
+      12  
+      13  - React 18 + TypeScript + Vite
+      14 -- Tailwind + shadcn/ui (Button, Textarea, DropdownMenu, ScrollA
+         -rea, Avatar, Card, Tooltip, Separator)                         
+      14 +- Tailwind + shadcn/ui (Button, Textarea, DropdownMenu, ScrollA
+         +rea, Avatar, Card, Tooltip, Separator, Sheet for the mobile sid
+         +ebar drawer)                                                   
+      15  - `lucide-react` icons (shadcn default)
+      16  - `react-markdown` + `remark-gfm` for rendering assistant messa
+          ges
+      17  - Express + `@anthropic-ai/sdk` server; API key in `.env` (`ANT
+          HROPIC_API_KEY`)
+     ...
+      119    - Don't send `temperature`, `top_p`, or `top_k`: they return
+            a 400.
+      120    - Use SDK types, not custom ones.
+      121    - Catch typed `Anthropic.APIError` subclasses.
+      122 -- **Scripts:** `dev`, `build`, `typecheck`, `lint`. Add a shor
+          -t README with setup steps.                                    
+      122 +- **Scripts:** `dev`, `build`, `typecheck`, `lint`. Add a shor
+          +t README with setup steps. Lint includes `eslint-plugin-jsx-a1
+          +1y`.                                                          
+      123  
+      124  ## Out of scope (this pass)
+      125  
+     ...
+      127  - Search, Projects, Artifacts pages; file attachments; voice
+      128  - Light mode (theme tokens are set up as CSS variables, but on
+           ly dark is styled)
+      129  - Mobile layout polish
+      130 +- Unread dots on pinned items                                 
+      131  - Tests beyond typecheck + lint scripts
+      132  
+      133  ## Build order
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+⏺ Committed as 9448a84. Starting step 2 (the server) with the frontend-engineer
+  agent. It'll also add the jsx-a11y lint plugin, since that's a small tooling
+  change.
+
+⏺ frontend-engineer(Build step 2 server)
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+⏺ The scaffold is committed as 9448a84, along with a PLAN.md update recording
+  your three answers:
+  - Sheet is added to the component list for the mobile sidebar.
+  - eslint-plugin-jsx-a11y is noted under lint.
+  - Unread dots are moved to out of scope.
+
+  The frontend-engineer agent is now doing two things:
+  - Accessibility lint: adding eslint-plugin-jsx-a11y and fixing anything it
+    flags in the existing code.
+  - Step 2: the server's conversation routes, the mock JSON data, and the code
+    that streams Claude's replies.
+
+  It will test every route with curl, including one real streaming request
+  against your API key, then reset the mock data to its starting state. It won't
+  commit. I'll report back when it finishes.
+✻ Sautéed for 29s · done 6:30 PM
+
+⏺ Agent "Build step 2 server" finished · 5m 28s
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ I haven't committed step 2 yet. It's built and typecheck and lint pass (I
+  re-ran both), but Claude has never actually answered a message through it.
+
+  Blocker: the API key in .env belongs to an organization that has API-key
+  access turned off, so the real call returned 403 permission_error. Until that
+  changes, every message in the app will get an error reply. To fix it, either
+  turn on API-key access in that org's Console settings, or put in a key from a
+  different org. The agent tested streaming against a local fake of the API
+  instead. There, replies arrived and were saved; a refusal saved nothing; a
+  disconnect mid-reply stopped the stream with nothing half-saved; and a failed
+  connection sent an error.
+
+  What's built:
+  - Routes: list conversations, get one, create one, and send a message (which
+    streams the reply). There are also small GET /api/artifacts and GET 
+    /api/user routes for the sidebar.
+  - Edits: there are no rename, pin or delete routes, because PLAN.md doesn't
+    list any.
+  - Mock data: the sample sidebar items are in place, and every data file goes
+    through server/repo/.
+  - Two small extras: titles now cut at a word break, and the server fails
+    loudly if its port is already in use instead of claiming it started.
+  - Lint plugin: the jsx-a11y plugin's latest release doesn't officially support
+    ESLint 10, which this repo uses. The agent added an overrides entry in
+    package.json so it installs, and checked that its rules still fire.
+
+  Decisions:
+  1. Sample conversations: the sample chats in the sidebar have no messages, so
+     opening one shows a blank chat. I'd add a short sample exchange to each so
+     the chat view has something to show.
+  2. Pinned icons: two pinned items show the project icon and the other two a
+     chat bubble. That follows PLAN.md's wording rather than the screenshot.
+     Okay?
+  3. Refusals: if Claude starts answering and then refuses, part of the answer
+     is already on screen. I'll have step 4 replace it with a refusal notice.
+
+  Want me to commit step 2 now and start step 3 (sidebar and home screen)? Step
+  3 doesn't need the API key, so the key can be fixed in the meantime.
+
+✻ Worked for 6m 9s · done 6:35 PM
+
+※ recap: We're building the Claude tutor prototype, and step 2 (the server) is built but not committed, because your API key's org blocks API-key access. Next, tell me whether to commit step 2 and start step 3, the sidebar and home screen. (disable recaps in /config)
+
+❯ I added a new key. try the API again, commit step 2 and move on               
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Bash(cd /Users/meredithlampe/Git/claude-tutor-prototype/server && (npx tsx
+      --env-file=../.env index.ts >
+      /private/tmp/claude-501/-Users-meredithlampe-Git-claude-tuto…)
+  ⎿  id=f8d1a17c-930a-4b64-b786-21efa048880c
+     data: {"type":"text","text":"Hello"}
+     … +28 lines (ctrl+o to expand)
+  ⎿  Updated server/data/conversations.json (+22 -0)
+      106      "messages": [],
+      107      "createdAt": "2026-10-22T15:00:00.000Z",
+      108      "updatedAt": "2026-10-22T15:00:00.000Z"
+      109 +  },                                                          
+      110 +  {                                                           
+      111 +    "id": "f8d1a17c-930a-4b64-b786-21efa048880c",             
+      112 +    "title": "Say hello in five words.",                      
+      113 +    "pinned": false,                                          
+      114 +    "icon": null,                                             
+      115 +    "messages": [                                             
+      116 +      {                                                       
+      117 +        "id": "7e59eec0-b457-42d7-8a44-30cc56844af2",         
+      118 +        "role": "user",                                       
+      119 +        "content": "Say hello in five words.",                
+      120 +        "createdAt": "2026-10-24T22:42:08.999Z"               
+      121 +      },                                                      
+      122 +      {                                                       
+      123 +        "id": "23fe1566-2ee1-418e-9f04-085358bb029d",         
+      124 +        "role": "assistant",                                  
+      125 +        "content": "Hello there, how are you?",               
+      126 +        "createdAt": "2026-10-24T22:42:10.159Z"               
+      127 +      }                                                       
+      128 +    ],                                                        
+      129 +    "createdAt": "2026-10-24T22:42:08.987Z",                  
+      130 +    "updatedAt": "2026-10-24T22:42:10.159Z"                   
+      131    }
+      132  ]
+
+⏺ The real API works now. Restoring the seed data, stopping the server, and
+  committing.
+
+⏺ Bash(cd /Users/meredithlampe/Git/claude-tutor-prototype && pkill -f "tsx
+      --env-file=../.env index.ts";
+      S=/private/tmp/claude-501/-Users-meredithlampe-Git-claude-tuto…)
+  ⎿  0
+     {"ok":true}a095f4d Add Express API: JSON repo, seed data, conversation
+      routes, Claude streaming
+     ?? .claude/skills/
+  ⎿  Updated server/data/conversations.json (+0 -22)
+      106      "messages": [],
+      107      "createdAt": "2026-10-22T15:00:00.000Z",
+      108      "updatedAt": "2026-10-22T15:00:00.000Z"
+      109 -  },                                                          
+      110 -  {                                                           
+      111 -    "id": "f8d1a17c-930a-4b64-b786-21efa048880c",             
+      112 -    "title": "Say hello in five words.",                      
+      113 -    "pinned": false,                                          
+      114 -    "icon": null,                                             
+      115 -    "messages": [                                             
+      116 -      {                                                       
+      117 -        "id": "7e59eec0-b457-42d7-8a44-30cc56844af2",         
+      118 -        "role": "user",                                       
+      119 -        "content": "Say hello in five words.",                
+      120 -        "createdAt": "2026-10-24T22:42:08.999Z"               
+      121 -      },                                                      
+      122 -      {                                                       
+      123 -        "id": "23fe1566-2ee1-418e-9f04-085358bb029d",         
+      124 -        "role": "assistant",                                  
+      125 -        "content": "Hello there, how are you?",               
+      126 -        "createdAt": "2026-10-24T22:42:10.159Z"               
+      127 -      }                                                       
+      128 -    ],                                                        
+      129 -    "createdAt": "2026-10-24T22:42:08.987Z",                  
+      130 -    "updatedAt": "2026-10-24T22:42:10.159Z"                   
+      109    }
+      110  ]
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Committed as a095f4d. My test server is stopped and the seed data is back to
+  its starting state. Starting step 3 now.
+
+⏺ frontend-engineer(Build step 3 sidebar + home)
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+⏺ The new key works. I sent "Say hello in five words." through the server, and
+  Claude's reply streamed back ("Hello there, how are you?") and was saved to
+  the conversation. I then removed that test conversation from the mock data.
+
+  Step 2 is committed as a095f4d, and step 3 has started: the frontend-engineer
+  agent is building the sidebar and home screen. They'll use data from the
+  server routes, page routing, and the pull-out sidebar on phones. I'll report
+  back when it finishes.
+
+  Two questions from step 2 are still open:
+  1. Sample conversations: should I add a short sample exchange to each sample
+     chat? Right now opening one shows a blank chat.
+  2. Pinned icons: are you okay with the icons following PLAN.md's wording
+     rather than the screenshot?
+
+✻ Crunched for 35s · done 6:42 PM
+
+❯ 1. sure                                                                       
+  2. yes                                                                        
+  ⎿  Message queued for delivery to ac60caacf58d8f690 at its next tool 
+     round. If it finishes first, it is resumed with the message and 
+     notifies again, so wait for that notification before resending.
+
+⏺ I've added both to the step 3 agent's task, since it's already working in that
+  area:
+
+  1. Sample conversations: each sample chat will get a short sample exchange.
+     Claude's replies will include some formatting, like lists and bold text, so
+     the chat view in step 4 has something to display.
+  2. Pinned icons: they stay as they are.
+
+  The agent is still running, and I'll report back when it finishes.
+
+✻ Crunched for 7s · done 6:45 PM
+
+⏺ Agent "Build step 3 sidebar + home" finished · 7m 26s
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Step 3 is built, and typecheck and lint pass (I re-ran both). In headless
+  Chrome, the home page loaded its data from the server, with no console errors
+  at desktop or phone width. Each sample chat now has a short exchange. I
+  haven't committed this yet because you haven't okayed this step.
+
+  Problem from step 1: the shadcn components it installed are written for React
+  19, but PLAN.md sets React 18. When a shadcn Button sits inside a tooltip (as
+  all the icon buttons do), the tooltip breaks. The pull-out sidebar's overlay
+  had the same fault. The agent patched the three affected places, and any new
+  component used the same way will break the same way. I recommend upgrading to
+  React 19, since that's what current shadcn expects, instead of patching each
+  case. That changes a PLAN.md decision, so it's your call.
+
+  Where it differs from the screenshot or the plan:
+  - Matching the screenshot:
+    - the sidebar is 288px wide, not the plan's ~380px
+    - "More" uses a chevron icon
+    - Recents rows have no icon on the left
+  - Left out: the filter icon next to "Recents".
+  - Stand-ins: Search is a button that looks like a text box. The top-right icon
+    is labelled "Incognito chat", which is a guess.
+
+  Decisions:
+  1. React: upgrade to React 19? I'd say yes.
+  2. Non-working buttons: they look real but do nothing, which may confuse test
+     participants. I'd give them a "Not available in this prototype" tooltip.
+  3. Phone sidebar close button: the agent hid shadcn's built-in "×" because the
+     sidebar's own toggle and Escape already close it. I'd keep it hidden.
+
+  Port 5173: an older Vite process is still running on it, probably your own npm
+  run dev, and the agent left it alone.
+
+  Should I commit step 3? If you agree with 1 and 2, I'd do those before step 4
+  (sending messages and streaming replies), then have the design-reviewer agent
+  look over the UI.
+
+✻ Sautéed for 8m 14s · done 6:50 PM
+
+❯ 1. problem from step 1: upgrade to react 19                                   
+     sidebar matches screenshot close enough!                                   
+     we don't need the filter next to 'recents'                                 
+  2. add that tooltip and gray out buttons                                      
+  3. keep it hidden                                                             
+                                                                                
+  i'm using port 5173 to test changes as we go. it will stay up. commit step 3  
+  and keep going                                                                
+
+⏺ Bash(sed -i '' 's/^- React 18 + TypeScript + Vite$/- React 19 + TypeScript +
+      Vite/' PLAN.md && grep -n "React 19" PLAN.md && git add PLAN.md client
+      package-lock.json…)
+  ⎿  13:- React 19 + TypeScript + Vite
+     2c40570 Build sidebar and home view with routing; seed sample exchange
+     s
+     ?? .claude/skills/
+  ⎿  Updated PLAN.md (+1 -1)
+      10  
+      11  ## Stack
+      12  
+      13 -- React 18 + TypeScript + Vite                                 
+      13 +- React 19 + TypeScript + Vite                                 
+      14  - Tailwind + shadcn/ui (Button, Textarea, DropdownMenu, ScrollA
+          rea, Avatar, Card, Tooltip, Separator, Sheet for the mobile sid
+          ebar drawer)
+      15  - `lucide-react` icons (shadcn default)
+      16  - `react-markdown` + `remark-gfm` for rendering assistant messa
+          ges
+
+  Ran 1 shell command, wrote 1 memory (ctrl+o to expand)
+
+⏺ Committed step 3 as 2c40570 and changed React 18 to 19 in PLAN.md. Starting
+  the next batch now: the React 19 upgrade, greyed-out stub buttons with a
+  tooltip, and then step 4.
+
+⏺ frontend-engineer(React 19, stubs, step 4 chat)
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+⏺ Step 3 is committed as 2c40570, and PLAN.md now says React 19. The
+  frontend-engineer agent is working through three things in order:
+
+  1. React 19 upgrade: it'll also remove the three step-3 workarounds so the
+     shadcn components run unmodified.
+  2. Non-working buttons: these get greyed out, with a "Not available in this
+     prototype" tooltip that shows on hover and when tabbed to. Greying them out
+     this way keeps them reachable with the keyboard, so the tooltip can still
+     be read.
+  3. Step 4:
+     - Sending from the home screen opens the new chat and streams the reply,
+       formatted from markdown.
+     - The new chat appears in Recents.
+     - There's a Stop button and an error message with a retry option.
+     - A refusal replaces any half-streamed text with a notice.
+
+  The agent will test against your server on 5173 and won't stop or restart it.
+  It will tell you if the dependency changes mean the server needs a manual
+  restart. It will also remove any conversations it creates while testing. I've
+  noted for future sessions that your server on 5173 stays up.
+
+  When it finishes, I'll have the design-reviewer agent look over the UI before
+  step 5 (moving the remaining text into content.ts and a final lint and
+  typecheck pass).
+
+✻ Sautéed for 33s · done 6:55 PM
+
+⏺ Agent "React 19, stubs, step 4 chat" finished · 14m 21s
+
+  Read 2 files, ran 1 shell command (ctrl+o to expand)
+
+⏺ Step 4 is done but not committed yet. I re-ran typecheck and lint and both
+  pass, client now uses a single copy of React (19.3.1), and the agent's test
+  conversations are gone from the mock data. I looked at its screenshots of the
+  home screen and a finished chat, and both look right. The agent also checked
+  the following against your server on 5173:
+  - sending from home opens the new chat
+  - the reply streams in formatted and the chat shows up in Recents
+  - Stop works
+  - the error message's Retry works
+  - sample chats open with their messages
+  - the greyed-out buttons show their tooltip when hovered or tabbed to
+
+  Your server didn't need a restart.
+
+  Additions you didn't ask for:
+  - Send button: it sits next to the voice icon and turns into Stop while a
+    reply streams. The screenshot doesn't show one, but test participants need
+    something visible to click.
+  - Retry: the server now accepts a retry flag, so retrying doesn't save the
+    message twice.
+  - Chat title bar: the chat view has one, and links in replies open in a new
+    tab.
+
+  Decisions, with what I'd pick:
+  1. Stopped replies: right now the partial text is thrown away, so Claude never
+     sees it. Its next answer may then respond to the stopped prompt as well.
+     I'd save the partial text (a small server change).
+  2. Leaving mid-reply: if you leave a chat while Claude is answering and come
+     back, you won't see the reply until it finishes. I'd leave this as is for a
+     prototype.
+  3. Single line breaks: a single line break in a reply doesn't start a new
+     line, which is standard markdown. Fixing it needs a new package,
+     remark-breaks. I'd skip it. Claude usually formats lists properly, and
+     Claude.ai behaves the same way.
+  4. Touchscreens: the greyed-out buttons' tooltips don't open on touch. I'd 
+     skip it unless participants test on phones.
+
+  Should I commit step 4? If you're fine with my picks, I'll then have the
+  frontend-engineer agent save partial replies on Stop and do step 5. The
+  design-reviewer agent would look over the UI after that.
+✻ Churned for 15m 12s · done 7:09 PM
+
+❯ Let's add some detail to our plan document while the frontend engineer is     
+  working explaining the feature that we're looking to test with this           
+  prototype. We currently have a clone of Claude in the browser, and the        
+  prototype we're looking to test will be a feature built on top of this clone. 
+  The feature we're testing is an interactive learning mode called Tutor that   
+  the chat can transition to if it detects that the user is attempting to learn 
+  about an academic subject. The flow is as follows:                            
+                                                                                
+  User sends message to Claude                                                  
+  If message indicates that user is attempting to learn about an academic       
+  subject, Claude asks user if they'd like to enter "Tutor" mode. A short       
+  description about Tutor mode is provided (I will fill).                       
+  If user opts in, Claude:                                                      
+  1. switches to response style "concise"                                       
+  2. switches to 'voice mode'                                                   
+  3. builds a learning battery about the subject user is studying. Some back    
+  and forth may be required here to determine what kind of battery should be    
+  built.                                                                        
+  4. battery should include a brief evaluation of user's existing skill level   
+  (i.e. "what about problem X is confusing? multiple choice answer, or          
+  freeform"), then a series of brief instruction portions followed by questions 
+  (instruction, question, instruction, question, etc.)                          
+  5. visual artifacts should be used as much as possible to explain concepts.   
+                                                                                
+  add a separate plan doc for this 'tutor' feature. we may build this and       
+  decide to start over on top of the claude clone, so keep features specific to 
+  Tutor as separate as possible from the Claude clone.                          
+
+  Read 1 file (ctrl+o to expand)
+
+⏺ The frontend-engineer agent isn't currently running, and step 4 is done,
+  awaiting your approval to commit along with the four decisions noted earlier.
+  Since writing the Tutor plan doesn't depend on any of that, I'll go ahead and
+  start on it.
+
+⏺ Write(TUTOR-PLAN.md)
+  ⎿  Wrote 155 lines to TUTOR-PLAN.md
+      1 # Plan: Tutor Mode
+      3 An interactive learning mode built on top of the Claude clone (`P
+        LAN.md`). When Claude detects that the user is trying to learn an
+        tor** mode. In Tutor mode, Claude assesses what the user already 
+        knows, then teaches in short steps (instruction, question, instru
+      4 
+      5 This is the feature under test. The clone is the base it sits on.
+      7 ## Separation from the clone
+      8 
+        hould come out cleanly.
+     … +264 lines (ctrl+o to expand)
+
+⏺ Linking it from PLAN.md and CLAUDE.md so future sessions find it.
+
+⏺ Bash(sed -i '' 's/^A lightweight clone of the Claude browser chat app, used as
+      a base for prototyping a new feature. Connects to the real Claude API;
+      persistence and…)
+  ⎿  +- **Tutor feature spec:** `TUTOR-PLAN.md`. Keep Tutor code in `client
+     /src/features/tutor/` and `server/tutor/`; the clone only gets generic
+      extension points.
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated CLAUDE.md (+1 -0)
+      3  A lightweight clone of the Claude web app, used to prototype a l
+         earning/education feature. It calls the real Claude API; persist
+         ence is mocked with JSON files.
+      4  
+      5  - **Spec:** `PLAN.md` is the source of truth for stack, structur
+         e, scope, visual spec, and build order.
+      6 +- **Tutor feature spec:** `TUTOR-PLAN.md`. Keep Tutor code in `c
+        +lient/src/features/tutor/` and `server/tutor/`; the clone only g
+        +ets generic extension points.                                   
+      7  - **Reference images:** `docs/reference/` (Claude home screensho
+         t, Rosenshine's Principles of Instruction).
+      8  
+      9  ## Agents
+  ⎿  Updated PLAN.md (+2 -0)
+      2  
+      3  A lightweight clone of the Claude browser chat app, used as a ba
+         se for prototyping a new feature. Connects to the real Claude AP
+         I; persistence and backend services are mocked/simplified.
+      4  
+      5 +The feature under test, Tutor mode, is planned separately in `TU
+        +TOR-PLAN.md` and kept separate from the clone in code.          
+      6 +                                                                
+      7  ## Decisions
+      8  
+      9  1. **App shell** — Vite + React client with a small Express serv
+         er. Plain React, minimal framework surface, easy to throw away. 
+         Two processes behind one `npm run dev`.
+
+⏺ I wrote the Tutor plan as TUTOR-PLAN.md at the repo root, and linked it from
+  PLAN.md and CLAUDE.md. Nothing is committed yet, and the plan's design calls
+  are still open for your review.
+
+  Keeping Tutor separate:
+  - All Tutor code goes in client/src/features/tutor/ and server/tutor/.
+  - Tutor's data lives in its own server/data/tutor-*.json files.
+  - The clone only gets four general-purpose hooks that any future feature could
+    use. One example: features can add instructions and tools to the server's
+    call to Claude.
+  - To remove Tutor, you delete those folders and one line in each of two
+    registration files, and the clone still works.
+  - Tutor's text goes in its own content.ts rather than the clone's. That's a
+    deliberate exception to the project's "all copy in one file" rule.
+
+  Recommendations in the plan:
+  - Detection: Tutor adds an offer_tutor_mode tool to Claude's normal chat call,
+    and Claude calls it when it judges the user is trying to learn. The
+    alternative is a separate classifier call on every message. That keeps the
+    main call untouched but adds an extra call and some delay per message.
+  - Battery: generated as structured data (assessment questions, then
+    instruction and question steps), so each step can show as a card with
+    multiple-choice or free-text answers. A wrong answer brings a re-teach in
+    smaller steps, following Rosenshine.
+  - Visuals: Claude draws SVG diagrams, shown as images. That needs no new
+    packages and runs no scripts.
+  - Voice mode: the browser's built-in speech features, for reading aloud and
+    spoken answers. Speech input only works in Chrome and Safari, and the screen
+    stays visible because multiple-choice options and visuals need it.
+
+  Open questions: these are listed in the doc, and none of them block starting.
+  1. Your Tutor mode description.
+  2. Speech over the normal screen, or a full-screen voice UI like Claude's?
+  3. Visuals inside the step card, or in a side panel?
+  4. Should concise style stay after the user leaves Tutor mode?
+  5. Should Claude offer Tutor again if the subject changes?
+  6. A fixed number of steps for test sessions, or open-ended?
+
+  Two things are still waiting on you from before:
+  - Commit: may I commit step 4? It can go together with these plan docs, or
+    separately.
+  - Next steps: are you fine with my picks on the four step-4 decisions? Those
+    are save partial replies on Stop, leave the mid-reply case, skip
+    remark-breaks, and skip touch tooltips. If so, I'll have the
+    frontend-engineer agent do the partial-reply save and step 5.
+
+  Before any Tutor building starts, I'd also have the user-researcher agent
+  review the flow in TUTOR-PLAN.md.
+
+✻ Crunched for 1m 27s · done 7:14 PM
+
+❯ 1. "Tutor mode uses education best practies to assist with deeper             
+  comprehension and recall. You may switch back to normal chat at any time. Try 
+  it out?"                                                                      
+  2. restate question, I don't understand                                       
+     3 Side panel                                                               
+  4. No, should revert to users settings                                        
+  5. Yes. Claude should offer to rebuild learning materials if subject shifts   
+  meaningfully away from initial subject and start a new tutor session. If user 
+  has declined tutor session, Claude should not ask again unless explicitly     
+  prompted with the word 'Tutor'. When a user declines, Claude should tell the  
+  user that if they want to try tutor mode, they should use the word "tutor."   
+  6. let's use 3 for now.                                                       
+                                                                                
+  yes you can commit step 4. I'm fine with your step-4 decisions. yes please    
+  have the user-researcher agent review the tutor plan.                         
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Committed step 4 as 4b60b62. Now adding your answers to TUTOR-PLAN.md.
+
+⏺ Bash(python3 - <<'EOF'
+      p='TUTOR-PLAN.md'; s=open(p).read()…)
+  ⎿  25:   Offer copy: "Tutor mode uses education best practices to assist
+     with deeper comprehension and recall. You may switch back to normal ch
+     at at any time. Try it out?"
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated TUTOR-PLAN.md (+25 -15)
+      20  ## Flow
+      21  
+      22  1. **User sends a message** in a normal chat.
+      23 -2. **Detection:** if the message shows the user trying to learn
+         - an academic subject, Claude offers Tutor mode. The offer is a 
+         -card in the thread with a short description of Tutor mode (*cop
+         -y TBD: Meredith to supply*) and two buttons: **Start Tutor** an
+         -d **No thanks**. Claude still answers the message normally eith
+         -er way.                                                        
+      23 +2. **Detection:** if the message shows the user trying to learn
+         + an academic subject, Claude offers Tutor mode. The offer is a 
+         +card in the thread with a short description of Tutor mode and t
+         +wo buttons: **Start Tutor** and **No thanks**. Claude still ans
+         +wers the message normally either way.                          
+      24 +                                                               
+      25 +   Offer copy: "Tutor mode uses education best practices to ass
+         +ist with deeper comprehension and recall. You may switch back t
+         +o normal chat at any time. Try it out?"                        
+      26  3. **Opt-in:** if the user accepts, the conversation enters Tut
+          or mode:
+      27     1. **Response style switches to "concise".**
+      28     2. **Voice mode turns on** (see Voice mode below).
+     ...
+      30     4. **Battery:** Claude builds a learning battery for the sub
+          ject (see Battery below).
+      31     5. **Assessment:** a short check of the user's current level
+          , e.g. "What about problem X is confusing?", answered by multip
+          le choice or freeform. The result sets where instruction starts
+          .
+      32     6. **Teaching loop:** short instruction, then a question, th
+          en the next instruction, and so on. Each question is multiple c
+          hoice or freeform. Claude gives brief feedback after each answe
+          r. If the user gets it wrong, Claude re-teaches the step in sma
+          ller pieces before moving on.
+      31 -   7. **Visuals:** instruction steps use a visual artifact when
+         -ever the concept allows it.                                    
+      32 -4. **Exit:** the user can leave Tutor mode at any time from a b
+         -anner at the top of the chat. Leaving returns to a normal chat 
+         -in the same conversation. When the battery is complete, Claude 
+         -gives a short summary of what was covered and offers to continu
+         -e or exit.                                                     
+      33 +   7. **Visuals:** instruction steps use a visual artifact when
+         +ever the concept allows it, shown in a side panel.             
+      34 +4. **Exit:** the user can leave Tutor mode at any time from a b
+         +anner at the top of the chat. Leaving returns to a normal chat 
+         +in the same conversation, and response style and voice revert t
+         +o what they were before Tutor mode. When the battery is complet
+         +e, Claude gives a short summary of what was covered and offers 
+         +to continue or exit.                                           
+      35  
+      36  ## Detection
+      37  
+     ...
+      42  
+      43  Recommendation: A, because it's cheaper and the judgment is bet
+          ter. B is the fallback if the extra tool noticeably changes Cla
+          ude's normal answers.
+      44  
+      43 -Offer rules: offer at most once per conversation (unless the us
+         -er asks), and never re-offer after "No thanks".                
+      45 +Offer rules:                                                   
+      46 +                                                               
+      47 +- **Subject shift:** during a Tutor session, if the user's subj
+         +ect moves meaningfully away from the session's subject, Claude 
+         +offers to build new learning materials and start a new Tutor se
+         +ssion for the new subject.                                     
+      48 +- **After a decline:** Claude tells the user that if they want 
+         +to try Tutor mode later, they can use the word "tutor". It then
+         + doesn't offer again in that conversation unless the user's mes
+         +sage contains the word "tutor" (case-insensitive). The server e
+         +nforces this, not just the prompt: once a conversation has a `d
+         +eclined` session, the detection tool is only included on turns 
+         +whose message contains "tutor".                                
+      49 +- **Explicit request:** a message containing "tutor" that asks 
+         +for tutoring starts the offer flow at any point.               
+      50  
+      51  ## Battery
+      52  
+     ...
+      57    subject: string;
+      58    goal: string;
+      59    assessment: TutorQuestion[];  // 2–4 diagnostic questions
+      54 -  steps: TutorStep[];           // ordered; starting point set 
+         -by assessment                                                  
+      60 +  steps: TutorStep[];           // 3 for now; starting point se
+         +t by assessment                                                
+      61  };
+      62  
+      63  type TutorStep = {
+     … 55 more lines (ctrl+o to expand)
+
+⏺ The plan is updated. Starting the frontend-engineer agent (partial-reply save
+  plus step 5) and the user-researcher agent's review of the Tutor plan, both at
+  once.
+
+⏺ 2 background agents launched (↓ to manage)
+   ├ frontend-engineer (Partial save + step 5)
+   └ user-researcher (Review Tutor plan)
+
+⏺ Step 4 is committed as 4b60b62, and your answers are now in TUTOR-PLAN.md:
+  - Offer copy: added as written, except I corrected "practies" to "practices".
+  - Visuals: a side panel to the right of the chat, which becomes a full-width
+    sheet on phones. Each step's card links to its visual.
+  - On exit: the response style and voice go back to what they were before Tutor
+    started. Tutor stores those settings when it begins so it can restore them.
+  - Re-offering:
+    - If the subject shifts meaningfully, Claude offers to build new material
+      and start a new Tutor session.
+    - After "No thanks", Claude tells the user they can say "tutor" to try it
+      later.
+    - It won't offer again unless a message contains "tutor". The server
+      enforces that, so it doesn't depend on Claude following the instructions.
+  - Battery: 3 instruction-and-question steps for now.
+
+  The plan docs (TUTOR-PLAN.md and the links to it in PLAN.md and CLAUDE.md)
+  aren't committed yet. I'll commit them once the review comes back and the plan
+  settles.
+
+  Question 2, restated: when Tutor turns voice on, what should the screen look
+  like?
+  - (a) Voice added to the normal chat: the chat, step cards, multiple-choice
+    options and visuals panel all stay on screen. Claude also reads each step
+    aloud, and the user can answer by speaking instead of typing. This is what I
+    recommend, because multiple choice and diagrams need to be seen.
+  - (b) A dedicated voice screen like Claude's own voice mode: a mostly empty
+    screen with an animated orb, where the conversation is spoken and the chat
+    is mostly hidden.
+
+  Two agents are running now:
+  - frontend-engineer: saving partial replies on Stop, then step 5 (moving the
+    remaining text into content.ts and a final lint and typecheck pass).
+  - user-researcher: reviewing TUTOR-PLAN.md for flow problems, teaching
+    quality, voice risks and anything that would block a test. It will also give
+    a voice recommendation as a second opinion on question 2.
+
+  I'll report back when each one finishes.
+
+✻ Brewed for 46s · done 7:21 PM
+
+⏺ Agent "Review Tutor plan" finished · 48s
+
+⏺ The user-researcher review of TUTOR-PLAN.md is back. It doesn't challenge your
+  decisions, with one exception (item 6). It suggests these changes, most
+  important first:
+
+  1. Show that learning happened. Every question comes straight after its
+     instruction, so a right answer only shows short-term understanding. Add a
+     2-question final check at the end with no teaching before it, mixing
+     earlier steps and repeating one assessment question. That gives a
+     before/after comparison.
+  2. Assess before building the steps. Right now the steps are built first, and
+     skipping steps could leave a 3-step battery with only 1. Also:
+     - "What's confusing?" is a self-report, so the assessment should add 1–2
+       real test questions.
+     - Scoping plus assessment should take about 4 turns at most, with tappable
+       answers for goal and time.
+  3. Spell out what happens after a wrong answer:
+     a. Feedback names the likely misconception.
+     b. A short worked example.
+     c. A similar but different question, not the same one again.
+     d. After 2 misses, show the answer and move on.
+     - Freeform answers also get a "partly right" result.
+  4. Make the 3 steps get harder: understand → apply → explain. Step 3 should be
+     a free-text answer ("explain why"). With that and the final check, 3 steps
+     is enough for a test session.
+  5. Add a "Show me" button on every question that reveals the answer, since
+     many students come wanting the answer. Log how often it's used.
+  6. Voice: don't start speaking or ask for the microphone right after "Start
+     Tutor", since it's jarring in a lab or library. Keep voice off at the start
+     with a clear toggle in the banner. This changes your step 2 ("switches to
+     voice mode"), so it's your call.
+  7. On accepting, the first Tutor message should acknowledge the answer the 
+     student already got, e.g. "You have the answer. Let's make sure you could
+     solve the next one."
+  8. Completion and exit:
+     - At the end, the learner summarises before Claude does.
+     - "Continue" means a few more practice questions.
+     - Exiting leaves a "Tutor paused — resume" card in the chat.
+
+  On your voice question: it agrees with option (a), voice added to the normal
+  chat screen, because a dedicated voice screen would hide the options and
+  diagrams. It also suggests:
+  - Multiple choice: answered by click or keyboard only, never by voice, because
+    "B" and "be" get misheard.
+  - Spoken answers: voice input only for free-text answers.
+  - Spoken script: a separate one for each step, so Claude doesn't read the
+    screen word for word or read out markdown and math symbols.
+
+  Missing before testing:
+  - Saying "tutor" in the very first message should start Tutor reliably, so the
+    test script doesn't depend on detection firing.
+  - Test subjects from several disciplines, not just computer science.
+  - A loading state while the steps are being generated.
+  - Answer keys kept on the server, not sent to the browser.
+  - A design-reviewer pass once all the Tutor UI is on screen together.
+
+  It also gave a list of rules for Tutor's instructions to Claude, which I'd add
+  to the plan as written.
+
+  I recommend adding everything to the plan except item 6, which needs your
+  decision. Should voice start on or off when Tutor begins? And is option (a)
+  settled? The frontend-engineer agent is still working on partial replies and
+  step 5.
+
+✻ Cooked for 11s · done 7:22 PM
+
+⏺ Agent "Partial save + step 5" finished · 3m 19s
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ The frontend-engineer agent is done, so all five steps of the Claude clone are
+  now built. I re-ran typecheck and lint and both pass, and the mock data is
+  clean.
+
+  - Stop: stopping a reply now saves the text that had arrived, as long as it
+    isn't empty. The agent stopped a reply partway through and reloaded, and the
+    partial text was still there. It then asked Claude to quote its last few
+    words, and Claude did, so Claude sees the saved text on the next turn.
+  - Step 5: almost all text was already in content.ts. Only the greeting was
+    hard-coded, and it's moved now.
+  - Left outside content.ts: a few things stay where they are on purpose:
+    - the server's "Untitled" default
+    - the server's own error messages, which the browser never shows
+    - the unused "Close" label in shadcn's sheet.tsx
+    - the page <title> in index.html
+
+  Side effects of saving partial replies, all of which I'd accept for a
+  prototype:
+  1. The saved text can run about 20 characters past what was on screen at Stop,
+     since some text was already on its way. Claude sees that small extra bit.
+  2. Reloading or closing the tab partway through a reply also saves the partial
+     text, because the server can't tell that apart from Stop. Switching to
+     another chat in the app still lets the full reply finish and save.
+  3. The "Response stopped." notice disappears after a reload.
+
+  Waiting on you:
+  - Commit: should I commit step 5 and the partial-reply change? The plan docs
+    can go in the same commit or wait until the Tutor plan is settled.
+  - Tutor plan: from my last message, should I fold in the review's changes
+    except item 6? And should voice start on or off when Tutor begins? Is option
+    (a), voice added to the normal chat screen, settled?
+
+✻ Brewed for 4m 5s · done 7:24 PM
+
+❯ 1. sounds good                                                                
+  2. yes                                                                        
+  3. after a wrong answer, user should be able to either reveal the right       
+  answer or explain why they thought their answer was correct                   
+  4. sounds good                                                                
+  5. yes                                                                        
+  6. I wanted to enable voice mode at the start so that the experience would    
+  feel more like working with a human tutor, where questions like a             
+  conversation. Do you think that justification is enough to enable voice mode  
+  right away or do you think we should keep it to text as that's what most      
+  people are used to?                                                           
+  7. sounds good                                                                
+  8. yes                                                                        
+                                                                                
+  i like the decision to have to ansewr questions by typing or clicking         
+                                                                                
+  add the rest of your suggestions to the plan, but before we make that change, 
+  I just had a new idea: For this experience to properly mimic a human tutor    
+  interaction, submitting answers and interacting with the battery in other     
+  ways should be chronologically separate from discussion with the tutor. What  
+  if the main chat was for back-and-forth with the tutor, and the user and the  
+  tutor together can decide what answers to give in the tests or other learning 
+  activites, where those activities included in the artifact? Does that make    
+  sense? The main chat would not affect progress through the battery or         
+  learning exercises, but is a lighter-weight way for the student to interact   
+  with the tutor to discuss the battery.                                        
+
+⏺ Your new idea makes sense, and I'd adopt it. Here's how I understand it, then
+  my answer on voice.
+
+  The idea:
+  - Workbook (the side panel): holds the battery: each step's instruction,
+    visuals and questions. Submitting answers and moving forward happens only
+    here.
+  - Chat: a conversation with the tutor about the workbook ("I don't get step
+    2", "is it B?", "why was that wrong?"). Nothing said in the chat moves the
+    student forward or records an answer.
+
+  It's like a student with a worksheet and a tutor sitting next to them. Why it
+  works:
+  - Separate jobs: a question to the tutor can't accidentally count as an
+    answer, and the student can talk freely without derailing their progress.
+  - Cleaner measurement: answers come only from the workbook, and you can log
+    how much the student talked to the tutor around each question.
+  - A home for wrong answers: your choice after a wrong answer fits naturally.
+    "Reveal answer" is a button in the workbook, and "Explain my thinking" opens
+    a discussion in the chat.
+  - A home for voice: voice belongs in the chat, while the workbook stays
+    click-and-type, as you already decided.
+
+  What needs deciding:
+  1. Practice versus checks. If the tutor helps choose answers everywhere, the
+     scores no longer show what the student knows alone. I'd split the
+     activities:
+     - Practice questions (the 3 steps): working them out with the tutor is
+       fine.
+     - Checks (the opening assessment and the final check): the tutor only gives
+       hints and never confirms an answer before it's submitted.
+  2. The tutor sees the workbook, but not the other way round. Each chat message
+     includes what the workbook shows: the current step, and what the student
+     has selected or typed but not yet submitted. Workbook events such as a
+     submitted answer, a wrong answer or a finished step can prompt the tutor to
+     speak. Nothing in the chat can change the workbook.
+  3. Who introduces each step. I'd have the tutor introduce each step in a
+     sentence or two in the chat, with the full explanation in the workbook.
+     That keeps the chat a conversation rather than a lecture.
+  4. Layout. The side panel becomes the main workspace, wider than an artifact
+     panel and probably at least half the screen on desktop. On phones, the
+     student switches between Chat and Workbook tabs.
+
+  None of this conflicts with keeping Tutor separate from the clone. The
+  workbook still goes into the existing slot for a feature panel.
+
+  Voice at the start: your reason is enough to start the experience with voice
+  on, but I'd split it in two:
+  - Tutor speaking: on from the start. Clicking "Start Tutor" counts as the user
+    action browsers require before playing audio. Hearing the tutor is what
+    makes it feel like a person, and with your idea the tutor only speaks the
+    conversation, never the worksheet.
+  - Microphone: a tap-to-talk button in the chat. Turning it on automatically
+    means the browser asks for microphone permission at the worst moment, and
+    speech input only works in Chrome and Safari.
+  - Speaker toggle: clearly visible, for people in a library or lab.
+
+  This keeps the human-tutor feel without the parts most likely to put people
+  off. A plain text-first version would be more familiar, but voice is part of
+  what you're testing, so I'd keep it.
+
+  Next steps:
+  - Plan update: if you agree with the practice/check split and the four points
+    above, I'll rewrite TUTOR-PLAN.md around the workbook and chat split. It
+    will include the review's changes, your answers, and voice as above.
+  - Commit: you didn't say whether to commit step 5 and the partial-reply
+    change. Should I?
+
+✻ Crunched for 26s · done 7:30 PM
+
+❯ On the voice thing, let's give two options upon entering tutor mode:          
+  1. Voice on. This should be recommended. The tutor speaks through the         
+  microphone, and the user replies with their own microphone.                   
+  2. Text chat.                                                                 
+                                                                                
+  everything else sounds good. you can commit step 5 and the partial reply      
+  change.                                                                       
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Committed as 867593a. Now rewriting TUTOR-PLAN.md around the workbook and chat
+  split.
+
+⏺ Write(TUTOR-PLAN.md)
+  ⎿  Added 167 lines, removed 79 lines
+       1  # Plan: Tutor Mode
+       2  
+       3 -An interactive learning mode built on top of the Claude clone (
+         -`PLAN.md`). When Claude detects that the user is trying to lear
+         -n an academic subject, it offers to switch the conversation int
+         -o **Tutor** mode. In Tutor mode, Claude assesses what the user 
+         -already knows, then teaches in short steps (instruction, questi
+         -on, instruction, question…) with visuals wherever possible.    
+       3 +An interactive learning mode built on top of the Claude clone (
+         +`PLAN.md`). When Claude detects that the user is trying to lear
+         +n an academic subject, it offers to switch the conversation int
+         +o **Tutor** mode.                                              
+       4  
+       5 +Tutor mode is meant to feel like sitting with a human tutor, us
+         +ing two surfaces:                                              
+       6 +                                                               
+       7 +- **Workbook** (panel beside the chat): the learning battery. I
+         +t holds instruction, visuals, questions and activities, and it'
+         +s the only place answers are submitted and progress is made.   
+       8 +- **Chat**: a conversation with the tutor about the workbook ("
+         +I don't get step 2", "is it B?", "why was that wrong?"). Nothin
+         +g said in the chat records an answer or moves the battery forwa
+         +rd.                                                            
+       9 +                                                               
+      10  This is the feature under test. The clone is the base it sits o
+          n.
+      11  
+      12  ## Separation from the clone
+     ...
+      17  - **The clone gets a small number of generic extension points**
+          , not Tutor-specific code. Each one is something any future fea
+          ture could use:
+      18    1. **Claude call options:** `server/services/claude.ts` accep
+          ts optional `system` and `tools`, so a feature can add instruct
+          ions and tools to a normal chat turn.
+      19    2. **Server hooks:** the clone's message route asks registere
+          d features for extra call options before calling Claude, and pa
+          sses tool calls to them. A feature can emit its own SSE event t
+          ypes (e.g. `{type:"tutor_offer", ...}`). The clone's client ign
+          ores types it doesn't know.
+      15 -  3. **Client slots:** the chat view renders registered feature
+         - components (a banner above the thread, a card after a message,
+         - a replacement composer) and lets a feature take over sending w
+         -hile it's active.                                              
+      20 +  3. **Client slots:** the chat view renders registered feature
+         + components (a banner above the thread, a card after a message,
+         + a side panel, a replacement composer) and lets a feature take 
+         +over sending while it's active.                                
+      21    4. **One registration file per side** (`client/src/features/i
+          ndex.ts`, `server/features.ts`) lists the enabled features. Tur
+          ning Tutor off means removing one line there. A `TUTOR_ENABLED`
+           env flag does the same without a code change.
+      22  - **Removal test:** deleting `features/tutor/`, `server/tutor/`
+          , `server/data/tutor-*.json`, and the registration lines leaves
+           a working clone. No other clone file mentions Tutor.
+      23  - **Copy:** Tutor's UI copy lives in `client/src/features/tutor
+          /content.ts`, not the clone's `constants/content.ts`. This is a
+           deliberate exception to the clone's "all copy in one file" rul
+          e, so that Tutor stays self-contained.
+     ...
+       25  ## Flow
+       26  
+       27  1. **User sends a message** in a normal chat.
+       23 -2. **Detection:** if the message shows the user trying to lear
+          -n an academic subject, Claude offers Tutor mode. The offer is 
+          -a card in the thread with a short description of Tutor mode an
+          -d two buttons: **Start Tutor** and **No thanks**. Claude still
+          - answers the message normally either way.                     
+       28 +2. **Offer:** if the message shows the user trying to learn an
+          + academic subject, Claude answers normally and an offer card a
+          +ppears after the answer:                                      
+       29  
+       25 -   Offer copy: "Tutor mode uses education best practices to as
+          -sist with deeper comprehension and recall. You may switch back
+          - to normal chat at any time. Try it out?"                     
+       26 -3. **Opt-in:** if the user accepts, the conversation enters Tu
+          -tor mode:                                                     
+       27 -   1. **Response style switches to "concise".**               
+       28 -   2. **Voice mode turns on** (see Voice mode below).         
+       29 -   3. **Scoping:** Claude asks a few short questions (around 1
+          -–3) to decide what kind of battery to build: the specific topi
+          -c, the user's goal (homework, exam, curiosity), and how much t
+          -ime they have. It may take some back and forth.               
+       30 -   4. **Battery:** Claude builds a learning battery for the su
+          -bject (see Battery below).                                    
+       31 -   5. **Assessment:** a short check of the user's current leve
+          -l, e.g. "What about problem X is confusing?", answered by mult
+          -iple choice or freeform. The result sets where instruction sta
+          -rts.                                                          
+       32 -   6. **Teaching loop:** short instruction, then a question, t
+          -hen the next instruction, and so on. Each question is multiple
+          - choice or freeform. Claude gives brief feedback after each an
+          -swer. If the user gets it wrong, Claude re-teaches the step in
+          - smaller pieces before moving on.                             
+       33 -   7. **Visuals:** instruction steps use a visual artifact whe
+          -never the concept allows it, shown in a side panel.           
+       34 -4. **Exit:** the user can leave Tutor mode at any time from a 
+          -banner at the top of the chat. Leaving returns to a normal cha
+          -t in the same conversation, and response style and voice rever
+          -t to what they were before Tutor mode. When the battery is com
+          -plete, Claude gives a short summary of what was covered and of
+          -fers to continue or exit.                                     
+       30 +   > Tutor mode uses education best practices to assist with d
+          +eeper comprehension and recall. You may switch back to normal 
+          +chat at any time. Try it out?                                 
+       31  
+       36 -## Detection                                                  
+       32 +   Buttons: **Start with voice (recommended)**, **Start with t
+          +ext**, **No thanks**. See Voice below.                        
+       33 +3. **Scoping (chat):** the tutor's first message acknowledges 
+          +the answer the user already has ("You have the answer. Let's m
+          +ake sure you could solve the next one."). It then asks what to
+          + focus on, with tappable choices for goal (homework, exam, cur
+          +iosity) and time available. Scoping and assessment together ta
+          +ke about 4 turns at most. A loading state shows while the work
+          +book is generated.                                            
+       34 +4. **Assessment (workbook):** 1 self-report question ("What ab
+          +out X is confusing?", multiple choice or freeform) and 1–2 rea
+          +l probe questions. This is a **check** (see Practice and check
+          +s).                                                           
+       35 +5. **Steps (workbook):** the 3 teaching steps are generated **
+          +after** the assessment, pitched at the level it showed. Each s
+          +tep is an instruction plus visual, then a question. The tutor 
+          +introduces each step in a sentence or two in the chat, and the
+          + full explanation is in the workbook.                         
+       36 +6. **Final check (workbook):** 2 questions with no instruction
+          + before them, mixing content from the earlier steps. At least 
+          +one matches an assessment question, so the session gives a bef
+          +ore/after comparison. This is a **check**.                    
+       37 +7. **Wrap-up:** the learner writes a short summary of what the
+          +y learned, and then the tutor gives its own summary. The learn
+          +er chooses **More practice** (a few more questions on the same
+          + topic) or **Exit**.                                          
+       38 +8. **Exit, any time:** from the banner. There's no confirmatio
+          +n. A "Tutor paused — Resume" card stays in the thread, and the
+          + session persists. Response style and voice revert to the user
+          +'s previous settings.                                         
+       39  
+       38 -Two reasonable approaches:                                    
+       40 +## Offer and detection                                        
+       41  
+       40 -- **A. Tool in the normal chat turn (recommended).** Through e
+          -xtension points 1–2, Tutor adds a short system instruction and
+          - an `offer_tutor_mode({ subject, reason })` tool to every norm
+          -al chat turn. Claude calls the tool when it judges the user is
+          - trying to learn. The server turns the call into a `tutor_offe
+          -r` SSE event. There's no extra API call or added latency, and 
+          -Claude decides using the full conversation.                   
+       41 -- **B. Separate classifier call.** Tutor runs its own small mo
+          -del call on each user message to decide whether to offer. It n
+          -eeds no change to the main Claude call, but adds a second API 
+          -call per message and only sees what we pass it.               
+       42 +**Detection, recommended approach (A):** through extension poi
+          +nts 1–2, Tutor adds a short system instruction and an `offer_t
+          +utor_mode({ subject, reason })` tool to every normal chat turn
+          +. Claude calls the tool when it judges the user is trying to l
+          +earn, and the server turns the call into a `tutor_offer` SSE e
+          +vent. There's no extra API call, and Claude judges with the fu
+          +ll conversation.                                              
+       43  
+       43 -Recommendation: A, because it's cheaper and the judgment is be
+          -tter. B is the fallback if the extra tool noticeably changes C
+          -laude's normal answers.                                       
+       44 +**Alternative (B):** a separate classifier call on each user m
+          +essage. It leaves the main call untouched but adds an API call
+          + per message. B is the fallback if the tool noticeably changes
+          + Claude's normal answers.                                     
+       45  
+       45 -Offer rules:                                                  
+       46 +**Offer rules:**                                              
+       47  
+       47 -- **Subject shift:** during a Tutor session, if the user's sub
+          -ject moves meaningfully away from the session's subject, Claud
+          -e offers to build new learning materials and start a new Tutor
+          - session for the new subject.                                 
+       48 -- **After a decline:** Claude tells the user that if they want
+          - to try Tutor mode later, they can use the word "tutor". It th
+          -en doesn't offer again in that conversation unless the user's 
+          -message contains the word "tutor" (case-insensitive). The serv
+          -er enforces this, not just the prompt: once a conversation has
+          - a `declined` session, the detection tool is only included on 
+          -turns whose message contains "tutor".                         
+       49 -- **Explicit request:** a message containing "tutor" that asks
+          - for tutoring starts the offer flow at any point.             
+       48 +- **"tutor" always works:** a message containing the word "tut
+          +or" (case-insensitive) that asks for tutoring triggers the off
+          +er, including in the very first message. Test scripts rely on 
+          +this, so it must not depend on detection firing.              
+       49 +- **After a decline:** Claude tells the user that if they want
+          + to try Tutor mode later, they can use the word "tutor". It th
+          +en doesn't offer again in that conversation unless a message c
+          +ontains "tutor". The server enforces this: once a conversation
+          + has a `declined` session, the detection tool is only included
+          + on turns whose message contains "tutor".                     
+       50 +- **Subject shift:** during a session, if the subject moves me
+          +aningfully away from the session's subject, the tutor offers i
+          +n the chat to build a new workbook and start a new session.   
+       51  
+       51 -## Battery                                                    
+       52 +## Workbook                                                   
+       53  
+       53 -The battery is generated as structured data (a tool call or st
+          -ructured output with a JSON schema; check the `claude-api` ski
+          -ll for current parameters when building), not free text, so th
+          -e client can render each step as a card.                      
+       54 +### Practice and checks                                       
+       55  
+       56 +- **Practice** (the 3 steps and More practice): the learner ca
+          +n work answers out with the tutor in the chat.                
+       57 +- **Checks** (the assessment and the final check): the tutor g
+          +ives hints only and never confirms or gives an answer before i
+          +t's submitted. The workbook marks check questions so the learn
+          +er knows.                                                     
+       58 +                                                              
+       59 +### Steps                                                     
+       60 +                                                              
+       61 +- **One idea per step:** a few sentences of instruction with a
+          + visual, then a question (Rosenshine: small steps, check for u
+          +nderstanding, aim for about 80% success). See `docs/reference/
+          +principles-of-instruction.webp`.                              
+       62 +- **The steps climb Bloom's levels:** roughly Understand, then
+          + Apply, then Analyze or Evaluate. Step 3 is freeform ("explain
+          + why", "spot the error") so the learner explains in their own 
+          +words.                                                        
+       63 +- **"Show me"** on every practice question reveals the answer 
+          +and explanation. The step then counts as not mastered.        
+       64 +- The learner moves to the next step with a **Next** button on
+          +ce the step is answered or revealed.                          
+       65 +                                                              
+       66 +### After a wrong answer                                      
+       67 +                                                              
+       68 +1. The workbook shows one line of feedback that names the like
+          +ly misconception. Each multiple-choice option has a `rationale
+          +` linking a wrong choice to its misconception.                
+       69 +2. The learner chooses:                                       
+       70 +   - **Show answer**: reveals the answer and explanation. The 
+          +step counts as not mastered.                                  
+       71 +   - **Explain my thinking**: opens a discussion in the chat. 
+          +The learner explains why they chose their answer, and the tuto
+          +r responds to their reasoning, with a short worked example if 
+          +it helps.                                                     
+       72 +3. The workbook then offers a **parallel question** (similar, 
+          +not the same, so it can't be passed by elimination).          
+       73 +4. After 2 misses on a step, the answer is shown with an expla
+          +nation, logged, and the learner moves on.                     
+       74 +                                                              
+       75 +Freeform answers are graded as correct, partially correct, or 
+          +incorrect. Partially correct gets feedback on what's missing a
+          +nd one more try.                                              
+       76 +                                                              
+       77 +On checks, wrong answers get no reveal or retry. The answer is
+          + recorded and the learner moves on.                           
+       78 +                                                              
+       79 +### Data                                                      
+       80 +                                                              
+       81 +The battery is generated as structured data (a tool call or st
+          +ructured output with a JSON schema; check the `claude-api` ski
+          +ll for current parameters when building), in two passes: asses
+          +sment first, then steps and final check after the assessment i
+          +s answered.                                                   
+       82 +                                                              
+       83  ```ts
+       84  type TutorBattery = {
+       85    subject: string;
+       86    goal: string;
+       59 -  assessment: TutorQuestion[];  // 2–4 diagnostic questions   
+       60 -  steps: TutorStep[];           // 3 for now; starting point s
+          -et by assessment                                              
+       87 +  assessment: TutorQuestion[];  // 1 self-report + 1–2 probes 
+       88 +  steps: TutorStep[];           // 3, generated after the asse
+          +ssment                                                        
+       89 +  finalCheck: TutorQuestion[];  // 2, at least one parallel to
+          + an assessment probe                                          
+       90  };
+       91  
+       92  type TutorStep = {
+       93    id: string;
+       65 -  instruction: string;          // markdown, short (a few sent
+          -ences)                                                        
+       66 -  artifact?: TutorArtifact;     // visual for this step       
+       94 +  instruction: string;          // markdown, a few sentences  
+       95 +  artifact?: TutorArtifact;                                   
+       96 +  bloomLevel: "remember" | "understand" | "apply" | "analyze" 
+          +| "evaluate" | "create";                                      
+       97 +  knowledgeType: "factual" | "conceptual" | "procedural" | "me
+          +tacognitive";                                                 
+       98    question: TutorQuestion;
+       99  };
+      100  
+     ...
+      102    id: string;
+      103    prompt: string;
+      104    kind: "multiple_choice" | "freeform";
+       74 -  options?: string[];           // multiple choice only       
+       75 -  answer?: string;              // correct option or grading n
+          -otes for freeform                                             
+      105 +  role: "practice" | "check" | "self_report";                 
+      106 +  options?: { text: string; rationale: string }[];  // server 
+          +only: rationale                                               
+      107 +  answer?: string;              // server only: correct option
+          + or grading notes                                             
+      108  };
+      109  
+       78 -type TutorArtifact = { kind: "svg"; title: string; content: st
+          -ring };                                                       
+      110 +type TutorArtifact = { kind: "svg"; title: string; description
+          +: string; content: string };                                  
+      111  ```
+      112  
+       81 -- **Length:** 3 instruction-and-question steps per battery for
+          - now (plus the assessment and any remedial steps).            
+       82 -- **Small steps:** each instruction is a few sentences, follow
+          -ed straight away by a question. This follows Rosenshine's prin
+          -ciples (small steps, frequent checks for understanding, aim fo
+          -r a high success rate). See `docs/reference/principles-of-inst
+          -ruction.webp`.                                                
+       83 -- **Freeform answers** are graded by Claude against the step's
+          - grading notes.                                               
+       84 -- **The battery can be adjusted mid-session:** after a wrong a
+          -nswer Claude may insert a smaller remedial step, and after the
+          - assessment it may skip steps.                                
+      113 +**Answer keys stay on the server.** The client receives questi
+          +ons without `answer` or `rationale`, and grading happens on th
+          +e server.                                                     
+      114  
+       86 -## Visual artifacts                                           
+      115 +### Visuals                                                   
+      116  
+       88 -- **Format (recommended):** self-contained SVG generated by Cl
+          -aude: diagrams, number lines, graphs, labelled figures. It's r
+          -endered as an image (`<img src="data:image/svg+xml,...">`), so
+          - no scripts run and no new dependencies are needed.           
+       89 -- **Alternative:** sandboxed HTML in an `<iframe sandbox>` all
+          -ows interactive visuals (sliders, animations) but is harder to
+          - generate reliably and to make accessible. Consider it later. 
+       90 -- Every artifact has a text title and a short text description
+          - for screen readers.                                          
+       91 -- **Placement:** a side panel to the right of the chat, like C
+          -laude's artifacts. The panel shows the current step's artifact
+          - and opens automatically when a step has one. The instruction 
+          -card links to it ("See diagram"). On narrow screens the panel 
+          -becomes a full-width sheet the user can open and close.       
+      117 +- Claude generates self-contained SVG (diagrams, number lines,
+          + graphs, labelled figures). It's rendered as an image (`<img s
+          +rc="data:image/svg+xml,...">`), so no scripts run and no new d
+          +ependencies are needed.                                       
+      118 +- Every visual has a title and a text description for screen r
+          +eaders.                                                       
+      119 +- Each visual must support its step's instruction, and the ins
+          +truction refers to it.                                        
+      120 +- Interactive visuals (sandboxed HTML) are out of scope for no
+          +w.                                                            
+      121  
+       93 -## Voice mode                                                 
+      122 +## Chat and workbook together                                 
+      123  
+       95 -The clone's voice controls are stubs, and voice is out of scop
+          -e in `PLAN.md`. Tutor needs it to work.                       
+      124 +- **The tutor sees the workbook:** every Tutor chat turn sends
+          + the current workbook state: the step, the question, what the 
+          +learner has selected or typed but not submitted, and past resu
+          +lts.                                                          
+      125 +- **Workbook events can prompt the tutor to speak:** a step st
+          +arting (the tutor introduces it), a wrong answer, "Explain my 
+          +thinking", or the battery finishing. The client sends the even
+          +t to the chat endpoint, and the tutor replies in the chat.    
+      126 +- **The chat never changes the workbook.** No chat message sub
+          +mits an answer, reveals one, or moves forward.                
+      127 +- **Workbook answers are given by clicking or typing only, nev
+          +er by voice.**                                                
+      128  
+       97 -- **Recommended for the prototype:** the browser's built-in We
+          -b Speech API. `speechSynthesis` reads Claude's instruction and
+          - questions aloud, and `SpeechRecognition` takes spoken answers
+          -. No new dependencies or services are needed.                 
+       98 -- **Limits:** speech recognition works only in Chrome and Safa
+          -ri, and quality varies. The screen stays visible because multi
+          -ple-choice options and visuals need it, so voice adds to the s
+          -creen rather than replacing it.                               
+       99 -- The user can mute speech output and type instead at any time
+          -.                                                             
+      129 +## Voice                                                      
+      130  
+      131 +Chosen on the offer card: **Start with voice (recommended)** o
+          +r **Start with text**. The user can switch at any time from th
+          +e banner.                                                     
+      132 +                                                              
+      133 +- **Voice:** the tutor's chat messages are spoken aloud with `
+          +speechSynthesis`. The user replies to the tutor by speaking: `
+          +SpeechRecognition` listens when the tutor finishes talking, an
+          +d there's a visible mic mute button and listening indicator. T
+          +he click on "Start with voice" asks for microphone permission.
+      134 +- **Text:** a normal typed chat with the tutor.               
+      135 +- **Voice is for the chat only.** The workbook is never read a
+          +loud, and workbook answers are always clicked or typed.       
+      136 +- **Speech-friendly messages:** in voice mode, the tutor write
+          +s chat messages to be spoken (short, no markdown or math symbo
+          +ls, refers to the workbook: "in the diagram, the left bar…"). 
+      137 +- **Fallback:** if the browser doesn't support speech recognit
+          +ion (it's Chrome and Safari only) or the user denies microphon
+          +e access, Tutor switches to text and says why.                
+      138 +- **Implementation:** browser Web Speech API only, with no new
+          + dependencies or services.                                    
+      139 +                                                              
+      140 +## Tutor system prompt                                        
+      141 +                                                              
+      142 +- The learner does the thinking. Don't solve the problem the s
+          +tudent came with; guide them to it.                           
+      143 +- Be concise. One idea at a time. Aim for about 80% success; a
+          +fter two wrong answers in a row, make the steps smaller.      
+      144 +- Ask, don't tell. Feedback is one sentence and names the spec
+          +ific error.                                                   
+      145 +- Follow the practice and checks rules: help freely on practic
+          +e, give hints only on checks.                                 
+      146 +- Fade hints as the learner gets answers right.               
+      147 +- Never claim to have submitted, revealed or advanced anything
+          + in the workbook; only the learner does that.                 
+      148 +- In voice mode, write for speech.                            
+      149 +- Stay on the session's subject, and follow the subject-shift 
+          +rule.                                                         
+      150 +                                                              
+      151 +## Layout                                                     
+      152 +                                                              
+      153 +- **Desktop:** the workbook is the main workspace, on the righ
+          +t and at least half the width. The chat is narrower on the lef
+          +t. A banner across the top shows "Tutor mode", the subject, pr
+          +ogress (step N of M), the voice/text switch, and Exit.        
+      154 +- **Narrow screens:** Chat and Workbook tabs.                 
+      155 +- Multiple-choice questions are a keyboard-operable radio grou
+          +p with a Submit button. Feedback is announced through a polite
+          + live region.                                                 
+      156 +                                                              
+      157  ## Server
+      158  
+      103 -- `server/tutor/`:                                            
+      104 -  - `routes.ts`, mounted at `/api/tutor`:                     
+      105 -    - `POST /api/tutor/:conversationId/start` — the user accep
+          -ted the offer; creates a session and starts scoping.          
+      106 -    - `POST /api/tutor/:conversationId/messages` — every turn 
+          -while in Tutor mode, streamed as SSE: scoping replies, answers
+          -, and feedback.                                               
+      107 -    - `POST /api/tutor/:conversationId/exit` — leaves Tutor mo
+          -de.                                                           
+      108 -    - `GET /api/tutor/:conversationId` — the current session, 
+          -so a reload resumes where the user was.                       
+      109 -  - `prompts.ts` — the Tutor system prompt (concise style, tea
+          -ching approach, artifact guidance) and the detection instructi
+          -on.                                                           
+      110 -  - `battery.ts` — battery generation and adjustment.         
+      111 -  - `repo.ts` — reads and writes `server/data/tutor-sessions.j
+          -son` and `tutor-events.json`.                                 
+      112 -  - `hooks.ts` — what Tutor registers with the clone's extensi
+          -on points (detection tool and the `tutor_offer` event).       
+      113 -- **Session record:** `conversationId`, `subject`, `previousSe
+          -ttings` (response style and voice before Tutor started, restor
+          -ed on exit), `status` (`offered` | `declined` | `scoping` | `a
+          -ssessing` | `teaching` | `complete` | `exited`), `battery`, `c
+          -urrentStepId`, `answers[]`, `createdAt`, `updatedAt`.         
+      114 -- **Tutor turns still appear in the conversation's message his
+          -tory**, so leaving Tutor mode and continuing to chat keeps the
+          - context.                                                     
+      159 +`server/tutor/`:                                              
+      160  
+      161 +- `routes.ts`, mounted at `/api/tutor/:conversationId`:       
+      162 +  - `POST /start` with `{ mode: "voice" | "text" }`: creates a
+          + session and starts scoping.                                  
+      163 +  - `POST /decline`: records the decline.                     
+      164 +  - `GET /`: the session without answer keys, so a reload resu
+          +mes where the user was.                                       
+      165 +  - `POST /chat`: tutor chat turn, streamed as SSE. Takes the 
+          +message (or a workbook event) plus the workbook state.        
+      166 +  - `POST /answer` with `{ questionId, answer }`: grades and r
+          +eturns the result and feedback.                               
+      167 +  - `POST /reveal` with `{ questionId }`: returns the answer; 
+          +the step counts as not mastered.                              
+      168 +  - `POST /advance`: next step, or generates the next part of 
+          +the battery.                                                  
+      169 +  - `POST /summary`: the learner's wrap-up summary.           
+      170 +  - `POST /exit`, `POST /resume`.                             
+      171 +- `prompts.ts`: the Tutor system prompt and the detection inst
+          +ruction.                                                      
+      172 +- `battery.ts`: generating the assessment, then the steps and 
+          +final check; grading freeform answers; generating parallel que
+          +stions.                                                       
+      173 +- `repo.ts`: reads and writes `server/data/tutor-sessions.json
+          +` and `tutor-events.json`.                                    
+      174 +- `hooks.ts`: what Tutor registers with the clone's extension 
+          +points.                                                       
+      175 +                                                              
+      176 +**Session record:** `conversationId`, `subject`, `mode`, `prev
+          +iousSettings` (response style and voice before Tutor started),
+          + `status` (`offered` | `declined` | `scoping` | `assessing` | 
+          +`teaching` | `final_check` | `wrap_up` | `complete` | `paused`
+          +), `battery`, `currentQuestionId`, `answers[]` (with result, a
+          +ttempts, revealed), `learnerSummary`, `createdAt`, `updatedAt`
+          +.                                                             
+      177 +                                                              
+      178 +**Tutor chat turns are stored in the conversation's message hi
+          +story**, so pausing Tutor and continuing to chat keeps the con
+          +text.                                                         
+      179 +                                                              
+      180  ## Client
+      181  
+      182  `client/src/features/tutor/`:
+      183  
+      120 -- `TutorOfferCard`: the opt-in card with the description and S
+          -tart / No thanks.                                             
+      121 -- `TutorBanner`: shows "Tutor mode", the subject, progress (st
+          -ep N of M), and Exit.                                         
+      122 -- `InstructionCard`: markdown instruction, plus a link to its 
+          -artifact in the side panel.                                   
+      123 -- `QuestionCard`: multiple-choice radio group or freeform text
+          -area, then a feedback line.                                   
+      124 -- `ArtifactPanel`: side panel that renders the current SVG art
+          -ifact with its title and description (a sheet on narrow screen
+          -s). Mounted through the clone's client slots.                 
+      125 -- `VoiceControls`: mic and speaker toggles, plus a listening i
+          -ndicator.                                                     
+      126 -- `useTutorSession`: session state, sending, and SSE handling 
+          -for Tutor events.                                             
+      184 +- `TutorOfferCard`: the offer copy plus Start with voice, Star
+          +t with text, and No thanks.                                   
+      185 +- `TutorBanner`: mode, subject, progress, voice/text switch, E
+          +xit.                                                          
+      186 +- `TutorPausedCard`: the Resume card left in the thread after 
+          +exiting.                                                      
+      187 +- `Workbook`: the panel; renders the current item and the Next
+          + button.                                                      
+      188 +  - `InstructionCard`: markdown instruction plus its visual.  
+      189 +  - `QuestionCard`: radio group or textarea, Submit, Show me, 
+          +feedback, and the Show answer / Explain my thinking choice.   
+      190 +  - `ArtifactView`: SVG with its title and description.       
+      191 +  - `WrapUp`: the learner's summary box, then More practice / 
+          +Exit.                                                         
+      192 +- `TutorChat`: the tutor conversation, with scoping choice chi
+          +ps.                                                           
+      193 +- `VoiceControls`: mic mute, speaker, listening indicator.    
+      194 +- `useTutorSession`, `useSpeech`: session state, API calls, SS
+          +E, and the Web Speech wrappers.                               
+      195  - `content.ts`: all Tutor copy.
+      196  
+      129 -Multiple-choice questions must be fully keyboard-operable (a r
+          -adio group with a submit button), and feedback is announced th
+          -rough a polite live region.                                   
+      130 -                                                              
+      197  ## Measurement
+      198  
+      133 -Tutor logs events to `server/data/tutor-events.json` so we can
+          - tell whether learning happened: offer shown, accepted or decl
+          -ined, assessment answers, each question's answer and correctne
+          -ss, time per step, completion or exit point. Before building t
+          -his, the `data-scientist` agent should define the exact events
+          - and how a session is evaluated (e.g. a short pre/post check, 
+          -or a delayed transfer question).                              
+      199 +Tutor logs events to `server/data/tutor-events.json`:         
+      200  
+      201 +- the offer: shown, voice/text/declined                       
+      202 +- assessment answers                                          
+      203 +- every practice answer, with correctness, attempts, Show me /
+          + Show answer use, and Explain my thinking use                 
+      204 +- chat turns per step                                         
+      205 +- final check answers                                         
+      206 +- time per step                                               
+      207 +- the completion or exit point                                
+      208 +                                                              
+      209 +The main learning signal is **final check accuracy compared wi
+          +th the assessment probes**. Before building this, the `data-sc
+          +ientist` agent should define the exact items, scoring, and eve
+          +nts.                                                          
+      210 +                                                              
+      211 +## Test setup                                                 
+      212 +                                                              
+      213 +- **Pre-chosen test subjects** across several disciplines (e.g
+          +. a maths, a science, a humanities and a social-science topic)
+          +, not only computer science.                                  
+      214 +- Test scripts start Tutor with "tutor" in the first message. 
+      215 +- The `design-reviewer` agent reviews the full Tutor screen (b
+          +anner, chat, workbook, voice controls) for whether it's clear 
+          +where to look.                                                
+      216 +                                                              
+      217  ## Open questions
+      218  
+      137 -1. **Voice mode:** is it speech in and out over the normal Tut
+          -or screen (recommended), or a full-screen voice UI like Claude
+          -'s?                                                           
+      219 +1. **Test subjects:** which topics? The `user-researcher` and 
+          +`data-scientist` agents can propose a set.                    
+      220  
+      221  ## Decided
+      222  
+      223  - **Offer copy:** see Flow, step 2.
+      142 -- **Artifacts:** side panel.                                  
+      224 +- **Two surfaces:** progress happens in the workbook only, and
+          + the chat is for discussing it.                               
+      225 +- **Practice and checks:** collaborative help on practice; hin
+          +ts only on checks.                                            
+      226 +- **Voice:** chosen at start, with voice recommended. It appli
+          +es to the chat only, and workbook answers are clicked or typed
+          +.                                                             
+      227 +- **After a wrong answer:** Show answer, or Explain my thinkin
+          +g in the chat.                                                
+      228 +- **Battery:** assessment, then 3 steps generated after it, th
+          +en a 2-question final check.                                  
+      229  - **On exit:** response style and voice revert to the user's p
+           revious settings.
+      230  - **Re-offering:** offer a new session when the subject shifts
+            meaningfully. After a decline, only offer again when the user
+            says "tutor".
+      145 -- **Battery length:** 3 steps for now.                        
+      231  
+      232  ## Build order
+      233  
+      234  Starts after the clone's build order (`PLAN.md`) is finished.
+      235  
+      151 -1. Clone extension points (Claude call options, server hooks, 
+          -client slots, registration files). Confirm the clone still wor
+          -ks with no features registered.                               
+      152 -2. Detection: tool, `tutor_offer` event, `TutorOfferCard`, acc
+          -ept and decline.                                              
+      153 -3. Session record, Tutor routes, scoping turns, Tutor system p
+          -rompt (concise style).                                        
+      154 -4. Battery generation, assessment, and teaching loop with `Ins
+          -tructionCard` and `QuestionCard`.                             
+      155 -5. SVG artifacts.                                             
+      156 -6. Voice mode.                                                
+      157 -7. Event logging (after the `data-scientist` agent's spec).   
+      158 -8. Review: the `user-researcher` agent reviews the flow and pr
+          -ompts, and the `design-reviewer` agent reviews the UI.        
+      236 +1. Clone extension points (Claude call options, server hooks, 
+          +client slots including the side panel, registration files). Co
+          +nfirm the clone still works with no features registered.      
+      237 +2. Detection: tool, "tutor" keyword, `tutor_offer` event, `Tut
+          +orOfferCard`, decline rules.                                  
+      238 +3. Session record, Tutor routes, Tutor layout (banner, chat, e
+          +mpty workbook), and scoping turns in text mode.               
+      239 +4. Assessment generation, then steps and final check, with `Qu
+          +estionCard`, server-side grading, the wrong-answer flow, and S
+          +how me.                                                       
+      240 +5. Chat and workbook link-up: workbook state in chat turns, wo
+          +rkbook events prompting the tutor, and the practice and checks
+          + rules.                                                       
+      241 +6. SVG visuals.                                               
+      242 +7. Wrap-up, More practice, exit and resume.                   
+      243 +8. Voice mode.                                                
+      244 +9. Event logging (after the `data-scientist` agent's spec).   
+      245 +10. Review: the `user-researcher` agent reviews the flow and p
+          +rompts, and the `design-reviewer` agent reviews the UI.       
+      246  
+      247  ## Out of scope (this pass)
+      248  
+      249  - Saving progress across conversations, or a learner profile
+      250  - Spaced review or reminders
+      164 -- Interactive (scripted) artifacts                            
+      251 +- Interactive (scripted) visuals                              
+      252 +- Voice answers in the workbook                               
+      253  - Subjects outside academic topics
+
+⏺ I committed step 5 and the partial-reply save as 867593a, which finishes the
+  Claude clone. I also rewrote TUTOR-PLAN.md around the workbook and chat split.
+  The plan docs aren't committed yet.
+
+  The plan now covers:
+  - Two surfaces: answers and progress happen only in the workbook, and the chat
+    is for talking with the tutor. Before each chat reply the tutor sees the
+    workbook state, including unsubmitted answers. A wrong answer or a new step
+    can prompt the tutor to speak, but nothing in the chat changes the workbook.
+  - Practice and checks: the tutor helps freely on the 3 practice steps. On the
+    opening assessment and the final check it only gives hints and never
+    confirms an answer before submission.
+  - Battery order: scoping, then assessment, then the 3 steps generated after
+    it, then a 2-question final check that repeats one assessment question. Then
+    the learner's own summary, then More practice or Exit.
+  - Wrong answers: the learner chooses Show answer or Explain my thinking (in
+    the chat), and then gets a similar question. After 2 misses the answer is
+    shown and they move on.
+  - Voice: the offer card has three buttons: Start with voice (recommended),
+    Start with text and No thanks. Voice means the tutor speaks through the
+    speakers and the user replies by microphone. It applies to the chat only,
+    and if microphone access is denied or the browser doesn't support it, Tutor
+    falls back to text.
+  - Everything from the review:
+    - "tutor" in the first message always triggers the offer
+    - answer keys stay on the server
+    - a loading state while the workbook is built
+    - a "Tutor paused — Resume" card after exiting
+    - the rules for Tutor's instructions to Claude
+    - test subjects across disciplines
+
+  Open question: which subjects to test with. The user-researcher and
+  data-scientist agents can propose a set.
+
+  Next steps:
+  1. Commit: may I commit the plan docs (TUTOR-PLAN.md, plus the links to it in
+     PLAN.md and CLAUDE.md)?
+  2. Tutor build step 1: the four general-purpose hooks in the clone. It's pure
+     plumbing and doesn't depend on any open question.
+  3. Measurement spec: at the same time, I'd ask the data-scientist agent for
+     the measurement spec and test subjects. Its event list feeds Tutor build
+     step 9.
+
+✻ Sautéed for 1m 24s · done 7:34 PM
+
+❯ I see in Anthropic's research that people already use Claude to learn about   
+  statistics problems and social science theories, both of which I think would  
+  be interesting to try out here.                                               
+                                                                                
+  commit the plan docs and go ahead with other next steps                       
+
+⏺ Update(TUTOR-PLAN.md)
+  ⎿  Added 1 line, removed 1 line
+      210  
+      211  ## Test setup
+      212  
+      213 -- **Pre-chosen test subjects** across several disciplines (e.g
+          -. a maths, a science, a humanities and a social-science topic)
+          -, not only computer science.                                  
+      213 +- **Test subjects:** a statistics problem and a social-science
+          + theory. Anthropic's education research shows people already u
+          +se Claude to learn both. Specific topics: TBD (`data-scientist
+          +` agent to propose).                                          
+      214  - Test scripts start Tutor with "tutor" in the first message.
+      215  - The `design-reviewer` agent reviews the full Tutor screen (b
+           anner, chat, workbook, voice controls) for whether it's clear 
+           where to look.
+      216  
+⏺ Update(TUTOR-PLAN.md)
+  ⎿  Added 1 line, removed 1 line
+      216  
+      217  ## Open questions
+      218  
+      219 -1. **Test subjects:** which topics? The `user-researcher` and 
+          -`data-scientist` agents can propose a set.                    
+      219 +1. **Test topics:** which specific statistics problem and soci
+          +al-science theory?                                            
+      220  
+      221  ## Decided
+      222  
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Committed the plan docs as 4e9b777. Starting Tutor build step 1 (the clone
+  hooks) and the data-scientist agent's measurement spec, both at once.
+
+⏺ 2 background agents launched (↓ to manage)
+   ├ frontend-engineer (Tutor step 1: extension points)
+   └ data-scientist (Tutor measurement spec)
+
+⏺ I've added statistics and social-science theories to TUTOR-PLAN.md as the two
+  test subject areas, and committed the plan docs as 4e9b777.
+
+  Two agents are running now:
+  - frontend-engineer, Tutor build step 1: adding the four general-purpose hooks
+    to the clone. No Tutor code yet. It'll confirm the clone works exactly as
+    before, and if practical, test the hooks with a throwaway feature that it
+    then deletes.
+  - data-scientist, measurement spec: this covers:
+    - one specific statistics topic and one social-science theory
+    - fixed assessment and final-check questions for each, with answer keys and
+      scoring
+    - how to measure learning from the before/after comparison, and what a small
+      group of participants can and can't show
+    - the event log format
+    - what a session moderator should note
+
+  I'll report back as each finishes and add the measurement spec to the plan
+  once you've seen it.
+
+✻ Sautéed for 32s · done 7:39 PM
+
+⏺ Agent "Tutor measurement spec" finished · 2m 41s
+
+⏺ The data-scientist agent's measurement spec is back. The frontend-engineer
+  agent is still working on the clone hooks.
+
+  Topics it proposes:
+  - Statistics: positive results on screening tests. For example: a rare
+    condition and a 90%-accurate test, so what's the real chance a positive
+    means you have it? Most people answer around 90%; the right answer is about
+    9%. The common mistakes are named and easy to spot. The visual is a grid of
+    1,000 dots showing where the positive results come from.
+  - Social science: the bystander effect. Why each person in a crowd is less
+    likely to help. People usually blame personality ("people are selfish"), and
+    the theory replaces that with causes in the situation. The visual is a
+    five-step flowchart of how a person decides to help. The agent adds a
+    caveat: newer CCTV studies show someone in a crowd usually does help, so
+    Tutor shouldn't claim crowds make help less likely overall.
+
+  Changes it implies for the plan:
+  1. Fixed assessment and final-check questions. It has drafted these for both
+     topics, with answer keys and scoring. If they were generated per session,
+     they'd differ in difficulty and a before/after gain couldn't be trusted.
+     The 3 teaching steps stay generated, since they're the feature under test.
+     This reverses the plan, which generates the assessment.
+  2. Two question sets, swapped: half of participants get set A before and set F
+     after, and half get the reverse. This separates "this question was easier"
+     from "they learned".
+  3. A confidence control on check questions ("sure / think so / guessing").
+     It's a small new UI element, used to compare how sure people felt with
+     whether they were right.
+  4. A participant ID in the URL (e.g. ?pid=P03) so a moderator can tie logs to
+     a person.
+  5. An optional follow-up 3–7 days later, run outside the app by a form or
+     short call, to check retention. Schwartz, Bransford and Sears show early
+     gains can fade.
+  6. A concrete event log format, including flagging chat help given during
+     check questions, so we can see if the tutor leaked answers.
+
+  What the results can and can't show: with 5–12 participants and no comparison
+  group, the results can show:
+  - whether the questions tell people apart
+  - which mistakes people make and whether they change
+  - where the flow breaks down
+
+  They can't prove Tutor caused any learning. It recommends reporting each
+  person's before/after, with no p-values.
+
+  Session length: about 20–30 minutes per topic. In a 60-minute session, each
+  participant can do both topics, alternating which comes first.
+
+  Decisions:
+  1. Topics: are the base-rates problem and the bystander effect okay?
+  2. Plan changes: should I add items 1–6 to the plan? That includes making the
+     assessment and final check fixed rather than generated.
+  3. Where it goes: the question drafts and log format are long. I'd put them in
+     a separate TUTOR-MEASUREMENT.md and summarize them in TUTOR-PLAN.md, so
+     the plan stays readable.
+
+✻ Sautéed for 12s · done 7:42 PM
+
+⏺ Agent "Tutor step 1: extension points" finished · 7m 54s
+
+  Searched for 1 pattern, ran 1 shell command (ctrl+o to expand)
+
+⏺ Tutor build step 1 (the clone hooks) is done but not committed. I re-ran
+  typecheck and lint and both pass, the mock data is clean, and the throwaway
+  test feature is fully removed.
+
+  What it added:
+  - Server: a feature can add its own instructions and tools to Claude's normal
+    chat call, have its own /api/<id> routes, and react when Claude calls one of
+    its tools by sending its own events to the browser.
+  - Browser: a feature can show a banner above the chat, a side panel, a card
+    under a reply, or its own composer. While a feature is active, its composer
+    handles sending in place of the clone's.
+  - The flag: TUTOR_ENABLED is the only setting from .env that reaches the
+    browser.
+  - Failures stay contained: if a feature throws an error, it's logged and
+    skipped, so normal chat keeps working.
+
+  How it was tested:
+  - Nothing registered: against your server on 5173, the clone behaved as
+    before: sending, streaming, Stop with the partial reply saved, and opening a
+    sample chat.
+  - Throwaway feature: this used real Claude. The feature added a tool only on
+    messages containing "ZEBRA". Claude answered and then called it, and the
+    feature's card appeared under the reply. Its route, banner, panel and
+    replacement composer also all worked. The feature was deleted afterwards.
+
+  Decisions:
+  1. Flag default: Tutor is on unless TUTOR_ENABLED=false. I'd keep it that way.
+  2. If Claude calls the offer tool before writing its answer, the answer is
+     lost, because nothing is sent back to Claude to let it carry on. I'd have
+     Tutor's instructions say "answer first, then call the tool" in step 2. The
+     more robust fix is to send a result back so Claude finishes its answer, but
+     that adds a second API call to that turn. I'd only do it if the
+     instruction proves unreliable.
+  3. Phones: for now the panel stacks under the chat. The Chat/Workbook tabs
+     come in Tutor build step 3, using shadcn's Tabs. Its underlying package is
+     already installed, so no new npm package is needed.
+  4. Cards after a reload: cards triggered by an event disappear when the page
+     reloads. Cards that need to stay, like "Tutor paused — Resume", will come
+     from Tutor's saved session, which the hooks already support.
+
+  Waiting on you:
+  - Commit: may I commit Tutor build step 1?
+  - Measurement spec (my previous message):
+    - Are the two topics okay?
+    - Should I add the six plan changes, including fixed check questions?
+    - Should the details go in a separate TUTOR-MEASUREMENT.md?
+
+  Once those are settled, Tutor build step 2 (detecting learners and the offer
+  card) can start.
+
+✻ Cooked for 8m 35s · done 7:47 PM
+
+❯ in response to changes this implies for the plan:                             
+                                                                                
+  1. I was wondering about this, actually. Perhaps these batteries would        
+  eventually exist in some kind of database of topics. The database of topics   
+  would be carefully generated and mapped back to real, vetted learning         
+  resources, so we don't have to worry about the agent messing up and telling   
+  users the wrong answer when it makes mistakes.                                
+  2. great idea                                                                 
+  3. i'd like to try this out                                                   
+  4. I think this is unecessary because we will have the uers's ID in chat      
+  5. Yes, we should prompt for this at the end.                                 
+  6. Yes, there's a whole other area of this project which could be monitoring  
+  the success of the prototype. I'm not sure whether we have time to dive into  
+  that yet, but this is toward that.                                            
+                                                                                
+  decisions:                                                                    
+  1. yes let's go ahead with these topics, but make it easy to switch them out  
+  or add to them later if we want                                               
+  2. see responses above                                                        
+  3. yes, modular MD files are good                                             
+                                                                                
+  decisions:                                                                    
+  1. yes leave tutor on by default                                              
+  2. yes update instructions                                                    
+  3. sounds good                                                                
+  4. sounds good                                                                
+                                                                                
+  waiting on me:                                                                
+  - commit: yes                                                                 
+  - measurement spec: two topics are ok                                         
+  - see decisions above                                                         
+  - yes, see answer above                                                       
+                                                                                
+  It will be difficult for me to give more direct feedback on the tutor feature 
+  before I've seen it. Let's get it to a place where I can try it out in the    
+  browser.                                                                      
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Committed step 1 as 1c23eaf. Next I'm writing TUTOR-MEASUREMENT.md and
+  updating the plan with your answers, so the build agent works from the right
+  spec.
+
+⏺ Write(TUTOR-MEASUREMENT.md)
+  ⎿  Wrote 237 lines to TUTOR-MEASUREMENT.md
+       1 # Tutor Mode: Measurement
+       3 How we tell whether Tutor sessions produce learning. This compan
+          format, and moderator guidance. Monitoring the prototype's succ
+         start of it.
+       5 ## Topic library
+       6 
+         se_rates.json`). A topic file holds:
+       9 - `id`, `title`, `subject area`, and detection hints (keywords a
+      10 - **vetted content notes:** key ideas, the learning model (L0–L3
+         is told to stay consistent with
+     … +360 lines (ctrl+o to expand)
+
+⏺ Now the matching updates to TUTOR-PLAN.md.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+⏺ Bash(python3 - <<'EOF'
+      p='TUTOR-PLAN.md'; s=open(p).read()…)
+  ⎿  ## Measurement
+
+     See `TUTOR-MEASUREMENT.md` for topics, fixed items, counterbalancing,
+     … +16 lines (ctrl+o to expand)
+  ⎿  Updated TUTOR-PLAN.md (+19 -22)
+       7  - **Workbook** (panel beside the chat): the learning battery. I
+          t holds instruction, visuals, questions and activities, and it'
+          s the only place answers are submitted and progress is made.
+       8  - **Chat**: a conversation with the tutor about the workbook ("
+          I don't get step 2", "is it B?", "why was that wrong?"). Nothin
+          g said in the chat records an answer or moves the battery forwa
+          rd.
+       9  
+      10 -This is the feature under test. The clone is the base it sits o
+         -n.                                                             
+      10 +This is the feature under test. The clone is the base it sits o
+         +n. Topic content, fixed check items, scoring and the event log 
+         +are specified in `TUTOR-MEASUREMENT.md`.                       
+      11  
+      12  ## Separation from the clone
+      13  
+     ...
+      31  
+      32     Buttons: **Start with voice (recommended)**, **Start with te
+          xt**, **No thanks**. See Voice below.
+      33  3. **Scoping (chat):** the tutor's first message acknowledges t
+          he answer the user already has ("You have the answer. Let's mak
+          e sure you could solve the next one."). It then asks what to fo
+          cus on, with tappable choices for goal (homework, exam, curiosi
+          ty) and time available. Scoping and assessment together take ab
+          out 4 turns at most. A loading state shows while the workbook i
+          s generated.
+      34 -4. **Assessment (workbook):** 1 self-report question ("What abo
+         -ut X is confusing?", multiple choice or freeform) and 1–2 real 
+         -probe questions. This is a **check** (see Practice and checks).
+      34 +4. **Assessment (workbook):** 1 self-report question ("What abo
+         +ut X is confusing?", multiple choice or freeform) and 1–2 real 
+         +probe questions. This is a **check** (see Practice and checks).
+         + For library topics, these are the topic's fixed items.        
+      35  5. **Steps (workbook):** the 3 teaching steps are generated **a
+          fter** the assessment, pitched at the level it showed. Each ste
+          p is an instruction plus visual, then a question. The tutor int
+          roduces each step in a sentence or two in the chat, and the ful
+          l explanation is in the workbook.
+      36 -6. **Final check (workbook):** 2 questions with no instruction 
+         -before them, mixing content from the earlier steps. At least on
+         -e matches an assessment question, so the session gives a before
+         -/after comparison. This is a **check**.                        
+      37 -7. **Wrap-up:** the learner writes a short summary of what they
+         - learned, and then the tutor gives its own summary. The learner
+         - chooses **More practice** (a few more questions on the same to
+         -pic) or **Exit**.                                              
+      36 +6. **Final check (workbook):** 2 questions with no instruction 
+         +before them, mixing content from the earlier steps. At least on
+         +e matches an assessment question, so the session gives a before
+         +/after comparison. This is a **check**. For library topics, the
+         +se are the topic's fixed items. An optional bonus item follows.
+      37 +7. **Wrap-up:** the learner writes a short summary of what they
+         + learned, and then the tutor gives its own summary. Tutor asks 
+         +whether the learner will do a short check-in in 3–7 days (see `
+         +TUTOR-MEASUREMENT.md`). The learner then chooses **More practic
+         +e** (a few more questions on the same topic) or **Exit**.      
+      38  8. **Exit, any time:** from the banner. There's no confirmation
+          . A "Tutor paused — Resume" card stays in the thread, and the s
+          ession persists. Response style and voice revert to the user's 
+          previous settings.
+      39  
+      40  ## Offer and detection
+      41  
+      42 -**Detection, recommended approach (A):** through extension poin
+         -ts 1–2, Tutor adds a short system instruction and an `offer_tut
+         -or_mode({ subject, reason })` tool to every normal chat turn. C
+         -laude calls the tool when it judges the user is trying to learn
+         -, and the server turns the call into a `tutor_offer` SSE event.
+         - There's no extra API call, and Claude judges with the full con
+         -versation.                                                     
+      42 +**Detection, recommended approach (A):** through extension poin
+         +ts 1–2, Tutor adds a short system instruction and an `offer_tut
+         +or_mode({ subject, reason, topicId? })` tool to every normal ch
+         +at turn. Claude calls the tool when it judges the user is tryin
+         +g to learn, and the server turns the call into a `tutor_offer` 
+         +SSE event. The instruction tells Claude to **write its full ans
+         +wer first, then call the tool**, because the turn ends at the t
+         +ool call and nothing is fed back. If that proves unreliable, se
+         +nd a tool result back so Claude can finish. The instruction lis
+         +ts the library topics so Claude can match the subject to one. T
+         +here's no extra API call, and Claude judges with the full conve
+         +rsation.                                                       
+      43  
+      44  **Alternative (B):** a separate classifier call on each user me
+          ssage. It leaves the main call untouched but adds an API call p
+          er message. B is the fallback if the tool noticeably changes Cl
+          aude's normal answers.
+      45  
+     ...
+      51  
+      52  ## Workbook
+      53  
+      54 +### Topics                                                     
+      55 +                                                               
+      56 +Topics come from a topic library (`server/tutor/topics/`, one f
+         +ile per topic; see `TUTOR-MEASUREMENT.md`). Each file holds vet
+         +ted content notes, sources, and the fixed check items. Adding o
+         +r switching topics means adding or changing files, with no othe
+         +r code changes. Subjects outside the library fall back to gener
+         +ated items, flagged in the logs. Long-term, topics would live i
+         +n a database of carefully generated topics mapped to real, vett
+         +ed learning resources.                                         
+      57 +                                                               
+      58  ### Practice and checks
+      59  
+      60  - **Practice** (the 3 steps and More practice): the learner can
+           work answers out with the tutor in the chat.
+      57 -- **Checks** (the assessment and the final check): the tutor gi
+         -ves hints only and never confirms or gives an answer before it'
+         -s submitted. The workbook marks check questions so the learner 
+         -knows.                                                         
+      61 +- **Checks** (the assessment and the final check): the tutor gi
+         +ves hints only and never confirms or gives an answer before it'
+         +s submitted. The workbook marks check questions so the learner 
+         +knows. Each check question has a confidence control (*Sure / Th
+         +ink so / Guessing*).                                           
+      62  
+     … 69 more lines (ctrl+o to expand)
+
+⏺ Bash(perl -0pi -e 's/(the user ID in the chat\.)\n\n\n/$1\n\n/' TUTOR-PLAN.md
+      && grep -c "" TUTOR-PLAN.md)
+  ⎿  249
+  ⎿  Updated TUTOR-PLAN.md (+0 -1)
+      203  
+      204  See `TUTOR-MEASUREMENT.md` for topics, fixed items, counterbal
+           ancing, scoring, the delayed check, the event log format (`ser
+           ver/data/tutor-events.json`), and the moderator sheet. The mai
+           n learning signal is **final check accuracy compared with the 
+           assessment probes**. Participants are identified by the user I
+           D in the chat.
+      205  
+      206 -                                                              
+      206  ## Test setup
+      207  
+      208  - **Test topics:** `stats.base_rates` (base rates in a positiv
+           e test result) and `social.bystander` (the bystander effect). 
+           See `TUTOR-MEASUREMENT.md`.
+
+⏺ The plan docs are updated. Starting the frontend-engineer agent on the first
+  build batch: Tutor build steps 2–5, everything needed to try Tutor end to end
+  with text.
+
+⏺ frontend-engineer(Tutor steps 2-5)
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+⏺ I committed Tutor build step 1 (the clone hooks) as 1c23eaf. I've updated the
+  plan docs with your decisions; they aren't committed yet.
+
+  - New TUTOR-MEASUREMENT.md:
+    - the topic library format
+    - both topics, with their fixed questions, answer keys, scoring and common
+      mistakes
+    - the A/F question swap, and the confidence control on check questions
+    - the follow-up check, which Tutor offers at the end of the session
+    - the event log format, using the user ID already in the chat
+    - the moderator sheet
+  - Topic library: each topic is one file in server/tutor/topics/, holding
+    checked notes, sources and the fixed questions. To add or switch a topic,
+    you add or change a file and one line in a list. The plan also records your
+    long-term idea: a database of topics mapped to vetted learning resources.
+    Subjects that aren't in the library still work, with generated questions,
+    but those sessions are flagged and left out of the learning analysis.
+  - TUTOR-PLAN.md:
+    - Claude's instructions now say "answer first, then call the tool".
+    - Tutor stays on by default.
+    - The only open item is drafting a third question set for the follow-up
+      check.
+
+  The frontend-engineer agent is now building Tutor build steps 2–5, which is
+  enough to try Tutor end to end with text:
+  - the offer card, triggered by detection or by saying "tutor"
+  - the Tutor layout: the chat on the left and the workbook on the right, with
+    tabs on phones
+  - scoping, then the fixed assessment, 3 generated steps, and the fixed final
+    check
+  - the wrong-answer flow, with grading done on the server
+  - the chat and workbook linked as planned
+
+  "Start with voice" will start a text session for now, with a "coming soon"
+  note. It will test a full session for each topic in the browser. When it's
+  done, I'll give you exact steps to try it on your server at 5173. After that
+  comes the next batch: generated visuals, the full wrap-up, exit and resume,
+  and voice.
+
+✻ Worked for 2m 33s · done 7:55 PM
+
+⏺ Agent "Tutor steps 2-5" is waiting on its own background work · 54m 39s
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Your usage limit has been reached, so I'm stopping here. Tutor mode now works
+  end to end in text, and you can try it on your server at 5173. I re-ran
+  typecheck and lint and both pass, and the agent's test data has been cleaned
+  out of the mock data. Nothing from this batch, or the plan docs, is committed
+  yet.
+
+  To try it: hard-refresh http://localhost:5173. Each topic takes about 5
+  minutes.
+  1. Start a new chat with one of these:
+     - "Can you tutor me on this? 1 in 50 people have a disease. A test catches 
+       80% of cases and wrongly flags 10% of healthy people. If I test positive,
+       what's the chance I actually have it?"
+     - "Please tutor me on the bystander effect. Why did nobody help when a 
+       cyclist fell off his bike on a busy sidewalk?"
+  2. After Claude answers, click Start with text on the offer card. "Start with
+     voice" currently shows a "coming soon" note.
+  3. Tap a goal and a time, then answer the opening check questions in the
+     workbook.
+  4. Wait about 70 seconds while the steps are written. You can chat with the
+     tutor meanwhile.
+  5. Give a wrong answer in step 1 to see the wrong-answer flow: Explain my
+     thinking, Show answer, then a similar question.
+  6. Finish the steps and the final check, then click Exit Tutor mode.
+
+  To try detection and declining, start with: "I'm studying for my psych 
+  midterm. Why are people less likely to help someone in an emergency when 
+  there's a crowd around?" Then click No thanks, ask a follow-up (it shouldn't
+  offer again), and then say "can you tutor me on this?" (it should offer
+  again). Below 1024px wide you get Chat and Workbook tabs.
+
+  Decisions for you:
+  1. "tutor" keyword: any message containing "tutor" triggers the offer, even
+     "my tutor said…". Is that okay for test scripts?
+  2. Step wait: writing the steps takes about 70 seconds. I'd first measure
+     whether lowering the model's effort setting speeds it up without hurting
+     the steps, before considering generating step 1 first and the rest in the
+     background.
+  3. Check results: should learners see right/wrong on check questions, or a
+     before/after score at the end? Right now they only see "Answer recorded".
+  4. Please verify the citations in the topic files before testing with
+     participants. Several were written from memory.
+
+  Changes the agent made to the shared code:
+  - Clone hooks: it changed them in a few general-purpose ways, for example
+    letting a feature send a message without showing it as a user message, and
+    letting a feature lay out the chat itself for the tabs.
+  - Two departures from the plan:
+    - The "use the word 'tutor'" reply after a decline is fixed text on the
+      card, not written by Claude.
+    - The user ID is the user's name, because the mock user has no ID.
+
+  What's left:
+  - Commit this batch and the plan docs, once you've okayed it.
+  - Not built yet:
+    - better generated visuals; one test diagram clipped a label
+    - the full wrap-up, plus the "Tutor paused — Resume" card
+    - voice
+    - the event log and follow-up check
+    - a design-reviewer pass
+
+  The agent reported that some of its own background work was still running when
+  it finished, so another notification may arrive.
+
+⏺ Usage limit reached · continuing automatically at 11:10pm · esc to 
+  cancel
+
+✻ Brewed for 57m 21s · done 8:50 PM
+
+⏺ Unknown command: /usage-creidts. Did you mean /usage-credits?
+
+❯ /usage-credits                                                                
+  ⎿  Login interrupted

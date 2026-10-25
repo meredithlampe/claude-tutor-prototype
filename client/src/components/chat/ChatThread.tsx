@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
 import type { AppOutletContext } from "@/components/AppLayout";
 import { content } from "@/constants/content";
 import { useChatFeatures } from "@/features";
+import type { SendOptions } from "@/features/types";
 import { fetchConversation, isCoreEvent, sendMessage } from "@/lib/api";
 import type { ChatMessage, ChatMessageStatus, NewChatLocationState } from "@/types";
 import { Composer } from "./Composer";
@@ -49,6 +50,8 @@ export function ChatThread({ conversationId, newChat: newChatProp }: ChatThreadP
   const scrollRef = useRef<HTMLDivElement>(null);
   const stickToBottomRef = useRef(true);
   const newChatSentRef = useRef(false);
+  // What each reply was requested with, by reply id, so Retry can repeat the same request.
+  const requestsRef = useRef(new Map<string, { text: string; options: SendOptions }>());
 
   const featureSlots = useChatFeatures({
     conversationId,
@@ -57,23 +60,25 @@ export function ChatThread({ conversationId, newChat: newChatProp }: ChatThreadP
     stop: handleStop,
   });
   const activeFeature = featureSlots.find((slots) => slots.active);
+  const hasFeatureLayout = Boolean(activeFeature?.layout);
   // A reply reads the latest slots while it streams, not the ones from when it started.
   const featureSlotsRef = useRef(featureSlots);
   useLayoutEffect(() => {
     featureSlotsRef.current = featureSlots;
   });
 
-  async function streamReply(text: string, retry: boolean) {
+  async function streamReply(text: string, retry: boolean, options: SendOptions = {}) {
     const controller = new AbortController();
     abortRef.current = controller;
     const reply = createMessage("assistant", "", "streaming");
+    requestsRef.current.set(reply.id, { text, options });
     const updateReply = (update: (message: ChatMessage) => ChatMessage) =>
       setMessages((current) =>
         current.map((message) => (message.id === reply.id ? update(message) : message)),
       );
 
     setMessages((current) =>
-      retry
+      retry || options.silent
         ? [...current, reply]
         : [...current, createMessage("user", text, "complete"), reply],
     );
@@ -85,6 +90,7 @@ export function ChatThread({ conversationId, newChat: newChatProp }: ChatThreadP
     let status: ChatMessageStatus = "error";
     try {
       for await (const event of send(conversationId, {
+        ...options,
         content: text,
         retry,
         signal: controller.signal,
@@ -143,11 +149,12 @@ export function ChatThread({ conversationId, newChat: newChatProp }: ChatThreadP
     return () => controller.abort();
   }, [conversationId, newChat]);
 
-  // Follow the reply as it streams, unless the user has scrolled up to read.
+  // Follow the reply as it streams, unless the user has scrolled up to read. A feature layout
+  // re-mounts the thread, so that scrolls to the bottom too.
   useLayoutEffect(() => {
     const scroller = scrollRef.current;
     if (scroller && stickToBottomRef.current) scroller.scrollTop = scroller.scrollHeight;
-  }, [messages, loadState]);
+  }, [messages, loadState, hasFeatureLayout]);
 
   // If the stop button had focus when the reply finished, it is gone now: return focus to
   // the composer instead of dropping it on the page.
@@ -162,9 +169,9 @@ export function ChatThread({ conversationId, newChat: newChatProp }: ChatThreadP
     stickToBottomRef.current = distanceFromBottom < STICK_THRESHOLD;
   }
 
-  function handleSubmit(text: string) {
+  function handleSubmit(text: string, options?: SendOptions) {
     if (isStreaming) return false;
-    void streamReply(text, false);
+    void streamReply(text, false, options);
     return true;
   }
 
@@ -174,15 +181,18 @@ export function ChatThread({ conversationId, newChat: newChatProp }: ChatThreadP
   }
 
   function handleRetry(failed: ChatMessage) {
+    if (isStreaming) return;
+    const request = requestsRef.current.get(failed.id);
     const index = messages.indexOf(failed);
     const prompt = messages
       .slice(0, index)
       .reverse()
       .find((message) => message.role === "user");
-    if (!prompt || isStreaming) return;
+    const text = request?.text ?? prompt?.content;
+    if (text === undefined) return;
     inputRef.current?.focus();
     setMessages((current) => current.filter((message) => message.id !== failed.id));
-    void streamReply(prompt.content, true);
+    void streamReply(text, true, request?.options);
   }
 
   if (loadState === "loading") return null;
@@ -203,6 +213,35 @@ export function ChatThread({ conversationId, newChat: newChatProp }: ChatThreadP
     ));
   }
 
+  const thread = (
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <div ref={scrollRef} onScroll={handleScroll} className="min-h-0 flex-1 overflow-y-auto">
+        <div className="px-4 pt-4 pb-8">
+          <div className="mx-auto w-full max-w-[70ch]">
+            <MessageList
+              messages={messages}
+              onRetry={handleRetry}
+              renderAfterMessage={renderAfterMessage}
+            />
+          </div>
+        </div>
+      </div>
+      <div className="shrink-0 px-4 pb-4">
+        <div className="mx-auto w-full max-w-[70ch]">
+          {activeFeature?.composer ?? (
+            <Composer
+              onSubmit={handleSubmit}
+              isStreaming={isStreaming}
+              onStop={handleStop}
+              focusOnMount={Boolean(newChat)}
+              inputRef={inputRef}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <header className="flex h-12 shrink-0 items-center px-4 md:px-6">
@@ -211,37 +250,16 @@ export function ChatThread({ conversationId, newChat: newChatProp }: ChatThreadP
       {featureSlots.map((slots) => (
         <Fragment key={slots.id}>{slots.banner}</Fragment>
       ))}
-      <div className="flex min-h-0 flex-1 flex-col md:flex-row">
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-          <div ref={scrollRef} onScroll={handleScroll} className="min-h-0 flex-1 overflow-y-auto">
-            <div className="px-4 pt-4 pb-8">
-              <div className="mx-auto w-full max-w-[70ch]">
-                <MessageList
-                  messages={messages}
-                  onRetry={handleRetry}
-                  renderAfterMessage={renderAfterMessage}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="shrink-0 px-4 pb-4">
-            <div className="mx-auto w-full max-w-[70ch]">
-              {activeFeature?.composer ?? (
-                <Composer
-                  onSubmit={handleSubmit}
-                  isStreaming={isStreaming}
-                  onStop={handleStop}
-                  focusOnMount={Boolean(newChat)}
-                  inputRef={inputRef}
-                />
-              )}
-            </div>
-          </div>
+      {activeFeature?.layout ? (
+        activeFeature.layout(thread)
+      ) : (
+        <div className="flex min-h-0 flex-1 flex-col md:flex-row">
+          {thread}
+          {featureSlots.map((slots) => (
+            <Fragment key={slots.id}>{slots.panel}</Fragment>
+          ))}
         </div>
-        {featureSlots.map((slots) => (
-          <Fragment key={slots.id}>{slots.panel}</Fragment>
-        ))}
-      </div>
+      )}
     </div>
   );
 }

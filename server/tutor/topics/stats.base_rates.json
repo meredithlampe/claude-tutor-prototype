@@ -1,0 +1,215 @@
+{
+  "id": "stats.base_rates",
+  "title": "Base rates in a positive test result",
+  "subjectArea": "Statistics",
+  "detection": {
+    "keywords": [
+      "base rate",
+      "base-rate",
+      "false positive",
+      "positive test",
+      "tested positive",
+      "tests positive",
+      "screening",
+      "bayes",
+      "sensitivity",
+      "specificity",
+      "prevalence"
+    ],
+    "exampleQuestions": [
+      "If a test is 95% accurate and I tested positive, what's the chance I have the disease?",
+      "Why is a positive mammogram often a false alarm?",
+      "How do I use Bayes' theorem for a medical test?"
+    ]
+  },
+  "notes": {
+    "keyIdeas": [
+      "The chance of having a condition after a positive result depends on how common the condition is (the base rate), how often the test catches it (the hit rate, or sensitivity), and how often it wrongly flags people who don't have it (the false-positive rate).",
+      "Counting a concrete group (e.g. 1,000 people) makes the reasoning easy: work out how many have the condition and test positive, and how many don't have it but still test positive, then compare the two piles of positives.",
+      "When a condition is rare, the healthy group is so large that even a small false-positive rate produces more false positives than true positives, so most positives can be false.",
+      "P(positive | condition) is not the same as P(condition | positive). A 90% hit rate says nothing on its own about how likely a positive result is to be right.",
+      "Raising the base rate raises the chance that a positive is real; lowering it does the opposite. A second, independent positive test uses the chance after the first test as the new base rate."
+    ],
+    "learningModel": {
+      "L0": "Inverse fallacy: treats the test's hit rate as the chance the person has the condition.",
+      "L1": "Knows that rarity matters but can't combine the numbers.",
+      "L2": "Computes the answer with counts (natural frequencies).",
+      "L3": "Predicts how a change in the base rate shifts the answer."
+    },
+    "misconceptions": [
+      {
+        "tag": "inverse_fallacy",
+        "description": "Confuses P(positive | condition) with P(condition | positive), so answers with the hit rate."
+      },
+      {
+        "tag": "base_rate_neglect",
+        "description": "Ignores how rare the condition is."
+      },
+      {
+        "tag": "fifty_fifty",
+        "description": "Assumes it's 50/50 because the person either has it or doesn't."
+      },
+      {
+        "tag": "base_rate_only",
+        "description": "Answers with the base rate alone, ignoring that the positive result is evidence."
+      },
+      {
+        "tag": "one_minus_fpr",
+        "description": "Answers with 1 minus the false-positive rate."
+      }
+    ],
+    "caveats": [
+      "Teach with counts (natural frequencies) rather than the Bayes formula; the formula is optional and should not be required.",
+      "Use round, easy numbers in examples, and say 'roughly' when counts don't divide evenly.",
+      "Don't call a test's hit rate its 'accuracy' without saying what that word hides; 'accuracy' is the ambiguity that causes the inverse fallacy."
+    ]
+  },
+  "sources": [
+    {
+      "citation": "Gigerenzer, G., & Hoffrage, U. (1995). How to improve Bayesian reasoning without instruction: Frequency formats. Psychological Review, 102(4), 684–704.",
+      "note": "Evidence that natural frequencies (counts) make this reasoning much easier to learn than probabilities."
+    },
+    {
+      "citation": "Kahneman, D., & Tversky, A. (1973). On the psychology of prediction. Psychological Review, 80(4), 237–251.",
+      "note": "Classic description of base-rate neglect."
+    }
+  ],
+  "visualSuggestions": [
+    "An icon array of 1,000 dots, with the people who have the condition and the positives marked.",
+    "A frequency tree: 1,000 people split into has / doesn't have, then each split into positive / negative, with counts on each branch."
+  ],
+  "items": {
+    "selfReport": {
+      "itemKey": "stats.S0",
+      "kind": "multiple_choice",
+      "prompt": "What feels least clear about questions like this?",
+      "options": [
+        { "text": "Which numbers to use" },
+        { "text": "Why the answer isn't just the accuracy" },
+        { "text": "How much the condition's rarity matters" },
+        { "text": "Not sure" }
+      ]
+    },
+    "A1": {
+      "itemKey": "stats.A1",
+      "kind": "multiple_choice",
+      "bloomLevel": "apply",
+      "prompt": "1 in 100 people have a condition. The test detects 90% of people who have it. It also wrongly flags 9% of people who don't. Someone tests positive. Roughly what's the chance they have it?",
+      "options": [
+        {
+          "text": "About 90%",
+          "correct": false,
+          "misconceptionTag": "inverse_fallacy",
+          "rationale": "90% is the chance of a positive if you have it, not the chance you have it if you test positive."
+        },
+        {
+          "text": "About 50%",
+          "correct": false,
+          "misconceptionTag": "fifty_fifty",
+          "rationale": "Having it or not having it are two outcomes, but they aren't equally likely here."
+        },
+        {
+          "text": "About 9%",
+          "correct": true,
+          "rationale": "Per 1,000 people, there are 9 true positives against 89 false ones."
+        },
+        {
+          "text": "About 1%",
+          "correct": false,
+          "misconceptionTag": "base_rate_only",
+          "rationale": "1% is how common it is before the test. The positive result is evidence, so the chance goes up."
+        }
+      ],
+      "answer": "About 9%. In 1,000 people, 10 have the condition and 9 of them test positive. Of the 990 who don't, about 89 are wrongly flagged. So only about 9 of the 98 positives are real: roughly 9%."
+    },
+    "A2": {
+      "itemKey": "stats.A2",
+      "kind": "freeform",
+      "bloomLevel": "understand",
+      "prompt": "A friend says, \"The test is 90% accurate, so my positive result means I almost certainly have it.\" What's missing from their reasoning?",
+      "rubric": {
+        "full": "Says the condition is rare (or that how common it is matters), so false positives from the large healthy group outnumber the true positives.",
+        "partial": "Mentions false positives or rarity, but doesn't connect them.",
+        "none": "Anything else, e.g. only says tests can be wrong, or repeats the 90%."
+      },
+      "answer": "They're ignoring how rare the condition is. Because far more people don't have it, even a small false-positive rate produces more false positives than true ones, so a positive result can still be more likely to be wrong than right."
+    },
+    "F1": {
+      "itemKey": "stats.F1",
+      "kind": "multiple_choice",
+      "bloomLevel": "apply",
+      "prompt": "2% of job applicants fake their credentials. A background check flags 95% of fakers and wrongly flags 10% of honest applicants. An applicant is flagged. Roughly what's the chance they faked?",
+      "options": [
+        {
+          "text": "About 95%",
+          "correct": false,
+          "misconceptionTag": "inverse_fallacy",
+          "rationale": "95% is the chance a faker gets flagged, not the chance a flagged applicant is a faker."
+        },
+        {
+          "text": "About 16%",
+          "correct": true,
+          "rationale": "Per 1,000 applicants, 19 flagged fakers against 98 flagged honest applicants."
+        },
+        {
+          "text": "About 2%",
+          "correct": false,
+          "misconceptionTag": "base_rate_only",
+          "rationale": "2% is how common faking is before the check. Being flagged is evidence, so the chance goes up."
+        },
+        {
+          "text": "About 90%",
+          "correct": false,
+          "misconceptionTag": "one_minus_fpr",
+          "rationale": "90% is the share of honest applicants who pass the check, not the chance a flagged applicant faked."
+        }
+      ],
+      "answer": "About 16%. In 1,000 applicants, 20 fake and 19 of them are flagged. Of the 980 honest applicants, 98 are wrongly flagged. So 19 of the 117 flagged applicants faked: roughly 16%."
+    },
+    "F2": {
+      "itemKey": "stats.F2",
+      "kind": "freeform",
+      "bloomLevel": "understand",
+      "prompt": "A news story says a border lie-detector is \"90% accurate, so most travellers it flags are lying.\" Fewer than 1 in 1,000 travellers lie about anything serious. What's wrong with the conclusion?",
+      "rubric": {
+        "full": "Says lying is rare (fewer than 1 in 1,000), so false positives from the huge honest group outnumber the true positives, and most flagged travellers are honest.",
+        "partial": "Mentions false positives or rarity, but doesn't connect them.",
+        "none": "Anything else, e.g. only says the machine can be wrong, or repeats the 90%."
+      },
+      "answer": "Lying is very rare, so almost everyone screened is honest. Even if only 10% of honest travellers are wrongly flagged, that's about 100 per 1,000, against fewer than 1 real liar. Nearly everyone it flags is honest."
+    },
+    "P1": {
+      "itemKey": "stats.P1",
+      "kind": "multiple_choice",
+      "bloomLevel": "apply",
+      "resource": "If a second, independent test is done, use the chance after the first positive as the new \"how common\".",
+      "prompt": "The person from the earlier question (1 in 100 have the condition, the test detects 90% and wrongly flags 9%) tests positive again on an independent test. Roughly what's the chance now that they have it?",
+      "options": [
+        {
+          "text": "9%",
+          "correct": false,
+          "misconceptionTag": "base_rate_neglect",
+          "rationale": "9% was the chance after the first positive. The second positive is more evidence."
+        },
+        {
+          "text": "About 50%",
+          "correct": true,
+          "rationale": "Starting from the 98 people who tested positive once, about 8 of the 9 who have it and about 8 of the 89 who don't test positive again."
+        },
+        {
+          "text": "81%",
+          "correct": false,
+          "misconceptionTag": "inverse_fallacy",
+          "rationale": "81% is 90% × 90%, the chance of two positives if you have it, not the chance you have it."
+        },
+        {
+          "text": "99%",
+          "correct": false,
+          "misconceptionTag": "inverse_fallacy",
+          "rationale": "Two positives help a lot, but the healthy group is still large enough to produce many false positives."
+        }
+      ],
+      "answer": "About 50%. Of the 98 people who tested positive the first time, 9 have the condition and about 8 of them test positive again. Of the 89 who don't, about 8 are wrongly flagged again. That's roughly 8 against 8: about half."
+    }
+  }
+}

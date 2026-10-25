@@ -19,6 +19,8 @@ type ComposerProps = {
   focusOnMount?: boolean;
   // Lets the parent move focus back to the input (after stop or retry).
   inputRef?: RefObject<HTMLTextAreaElement | null>;
+  // Defaults to the clone's "How can I help you today?".
+  placeholder?: string;
 };
 
 export function Composer({
@@ -28,6 +30,7 @@ export function Composer({
   isBusy = false,
   focusOnMount = false,
   inputRef,
+  placeholder,
 }: ComposerProps) {
   const inputId = useId();
   const ownRef = useRef<HTMLTextAreaElement>(null);
@@ -68,7 +71,7 @@ export function Composer({
         value={value}
         onChange={(event) => setValue(event.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder={composer.placeholder}
+        placeholder={placeholder ?? composer.placeholder}
         className="max-h-60 min-h-14 resize-none rounded-none border-0 bg-transparent px-4 pt-4 pb-1 text-base shadow-none focus-visible:ring-0 dark:bg-transparent"
       />
       <div className="flex items-center gap-1 px-2.5 pb-2.5">

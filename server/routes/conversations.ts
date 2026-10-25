@@ -5,7 +5,7 @@ import {
   getConversation,
   listConversations,
 } from "../repo/conversations";
-import { collectCallOptions, handleToolUses, type ChatTurn, type FeatureEvent } from "../features";
+import { collectCallOptions, notifyReplyDone, type ChatTurn, type FeatureEvent } from "../features";
 import { streamReply } from "../services/claude";
 
 type StreamEvent =
@@ -104,9 +104,11 @@ conversationsRouter.post("/:id/messages", async (req, res) => {
   }
 
   if (result.type === "done") {
-    if (result.text) await appendMessage(conversation.id, "assistant", result.text);
+    const stored = result.text
+      ? (await appendMessage(conversation.id, "assistant", result.text))?.messages.at(-1)
+      : undefined;
     // Feature events arrive before "done", so the client still has the reply open.
-    await handleToolUses(result.toolUses, toolOwners, turn, (event) => sendEvent(res, event));
+    await notifyReplyDone(stored, result.toolUses, toolOwners, turn, (event) => sendEvent(res, event));
     sendEvent(res, { type: "done" });
   } else {
     sendEvent(res, { type: result.type });

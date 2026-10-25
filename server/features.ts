@@ -1,6 +1,7 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import type { Router } from "express";
-import type { Conversation } from "./types";
+import { tutorFeature } from "./tutor/hooks";
+import type { Conversation, StoredMessage } from "./types";
 
 // An SSE event a feature sends alongside the clone's own (text, done, refusal, error).
 // Its `type` must not reuse one of those.
@@ -23,19 +24,23 @@ export interface ChatFeature {
   router?: Router;
   // Adds instructions and tools to a normal chat turn. Return undefined to add nothing.
   callOptions?: (turn: ChatTurn) => Promise<FeatureCallOptions | undefined>;
-  // Called once per call to a tool this feature added, after the reply is stored.
-  onToolUse?: (
-    toolUse: Anthropic.ToolUseBlock,
-    turn: ChatTurn,
-    emit: (event: FeatureEvent) => void,
-  ) => Promise<void>;
+  // Called once per finished turn, after the reply is stored, whether or not Claude called
+  // one of this feature's tools. Events emitted here reach the client before "done".
+  onReplyDone?: (reply: FeatureReply, turn: ChatTurn, emit: (event: FeatureEvent) => void) => Promise<void>;
+}
+
+export interface FeatureReply {
+  // The stored assistant message. Undefined when Claude wrote no text.
+  message?: StoredMessage;
+  // Calls to tools this feature added. Empty when there were none.
+  toolUses: Anthropic.ToolUseBlock[];
 }
 
 // TUTOR_ENABLED=false turns Tutor off without a code change. Its registration line checks this.
 export const tutorEnabled = process.env.TUTOR_ENABLED !== "false";
 
 // The enabled features. Removing a feature's line here turns it off.
-export const features: ChatFeature[] = [];
+export const features: ChatFeature[] = [...(tutorEnabled ? [tutorFeature] : [])];
 
 export interface TurnOptions {
   system?: string;
@@ -71,19 +76,20 @@ export async function collectCallOptions(turn: ChatTurn): Promise<TurnOptions> {
   };
 }
 
-export async function handleToolUses(
+export async function notifyReplyDone(
+  message: StoredMessage | undefined,
   toolUses: Anthropic.ToolUseBlock[],
   toolOwners: Map<string, ChatFeature>,
   turn: ChatTurn,
   emit: (event: FeatureEvent) => void,
 ): Promise<void> {
-  for (const toolUse of toolUses) {
-    const feature = toolOwners.get(toolUse.name);
-    if (!feature?.onToolUse) continue;
+  for (const feature of features) {
+    if (!feature.onReplyDone) continue;
+    const ownToolUses = toolUses.filter((toolUse) => toolOwners.get(toolUse.name) === feature);
     try {
-      await feature.onToolUse(toolUse, turn, emit);
+      await feature.onReplyDone({ message, toolUses: ownToolUses }, turn, emit);
     } catch (error) {
-      console.error(`Feature "${feature.id}": onToolUse failed`, error);
+      console.error(`Feature "${feature.id}": onReplyDone failed`, error);
     }
   }
 }

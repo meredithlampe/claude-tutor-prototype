@@ -7,11 +7,19 @@ export interface ChatContext {
   isStreaming: boolean;
   // Sends a user message through the thread, which shows it and streams the reply (using the
   // active feature's sendMessage, if it has one). Returns false while a reply is streaming.
-  send: (text: string) => boolean;
+  send: (text: string, options?: SendOptions) => boolean;
   stop: () => void;
 }
 
-export interface SendMessageOptions {
+export interface SendOptions {
+  // Streams a reply without showing `text` as a user message, e.g. when a feature asks the
+  // assistant to speak first. Only meaningful with an active feature's sendMessage.
+  silent?: boolean;
+  // Passed through to the active feature's sendMessage.
+  data?: Record<string, unknown>;
+}
+
+export interface SendMessageOptions extends SendOptions {
   content: string;
   retry: boolean;
   signal: AbortSignal;
@@ -31,6 +39,9 @@ export interface FeatureSlots {
   banner?: ReactNode;
   // Beside the thread from md up, below it on narrow screens. The feature sets its own size.
   panel?: ReactNode;
+  // While active: arranges the thread (messages and composer) together with the feature's own
+  // content, in place of the default thread-and-panels row.
+  layout?: (thread: ReactNode) => ReactNode;
   composer?: ReactNode;
   // Rendered inside a message's list item, after its content.
   renderAfterMessage?: (message: ChatMessage) => ReactNode;

@@ -1,0 +1,198 @@
+{
+  "id": "social.bystander",
+  "title": "The bystander effect",
+  "subjectArea": "Social psychology",
+  "detection": {
+    "keywords": [
+      "bystander",
+      "diffusion of responsibility",
+      "kitty genovese",
+      "latané",
+      "latane",
+      "darley",
+      "pluralistic ignorance",
+      "why didn't anyone help",
+      "nobody helped"
+    ],
+    "exampleQuestions": [
+      "What is the bystander effect?",
+      "Why do people in a crowd not help someone in trouble?",
+      "Can you explain diffusion of responsibility for my psych class?"
+    ]
+  },
+  "notes": {
+    "keyIdeas": [
+      "The bystander effect: when other people are present, each individual is less likely to help someone in need than if they were alone.",
+      "Latané and Darley's decision model: to help, a bystander has to (1) notice the event, (2) interpret it as an emergency, (3) take responsibility, (4) know how to help, and (5) decide to act. Other people can block any step.",
+      "Diffusion of responsibility (step 3): with others present, responsibility feels shared, so each person feels less obliged to act and assumes someone else will.",
+      "Pluralistic ignorance (step 2): people look to others to decide whether something is an emergency; when everyone stays calm, each person reads the calm as a sign that nothing is wrong, though everyone may be unsure.",
+      "Audience inhibition: people hold back because they're afraid of looking foolish in front of others if they misread the situation.",
+      "The causes are situational, not about character: the same person who would help alone may not help in a crowd. Interventions target the steps, e.g. pointing at one specific person ('You in the red jacket, call an ambulance') removes diffusion of responsibility."
+    ],
+    "learningModel": {
+      "L0": "Explains inaction by personality only.",
+      "L1": "Names one situational cause.",
+      "L2": "Tells diffusion of responsibility apart from misreading others' calm (pluralistic ignorance).",
+      "L3": "Maps a new scenario onto a decision step and designs an intervention."
+    },
+    "misconceptions": [
+      {
+        "tag": "dispositional",
+        "description": "Blames character (selfish, uncaring, the kind of person you are) instead of the situation."
+      },
+      {
+        "tag": "additive",
+        "description": "Thinks more people means more help from each person (crowds make people braver, or people want to look good)."
+      },
+      {
+        "tag": "moral",
+        "description": "Thinks people in crowds or big groups simply care less or are more selfish."
+      }
+    ],
+    "caveats": [
+      "CCTV studies (Philpot et al., 2020) find that in real public conflicts someone usually does intervene, and more bystanders makes it more likely that at least one person helps. Teach the effect as each individual's likelihood of helping. Never claim that crowds make help less likely overall.",
+      "Avoid presenting the Kitty Genovese story as the textbook '38 witnesses did nothing'; later reporting showed that account was exaggerated.",
+      "The effect is weaker in clearly dangerous emergencies (Fischer et al., 2011)."
+    ]
+  },
+  "sources": [
+    {
+      "citation": "Darley, J. M., & Latané, B. (1968). Bystander intervention in emergencies: Diffusion of responsibility. Journal of Personality and Social Psychology, 8(4), 377–383.",
+      "note": "The seizure study: the more people a participant thought were listening, the less likely and slower they were to help."
+    },
+    {
+      "citation": "Latané, B., & Darley, J. M. (1968). Group inhibition of bystander intervention in emergencies. Journal of Personality and Social Psychology, 10(3), 215–221.",
+      "note": "The smoke-filled room study: people with passive others reported smoke far less often (pluralistic ignorance)."
+    },
+    {
+      "citation": "Latané, B., & Darley, J. M. (1970). The Unresponsive Bystander: Why Doesn't He Help? Appleton-Century-Crofts.",
+      "note": "The five-step decision model of helping."
+    },
+    {
+      "citation": "Fischer, P., et al. (2011). The bystander-effect: A meta-analytic review on bystander intervention in dangerous and non-dangerous emergencies. Psychological Bulletin, 137(4), 517–537.",
+      "note": "The effect is reliable but weaker in dangerous emergencies."
+    },
+    {
+      "citation": "Philpot, R., Liebst, L. S., Levine, M., Bernasco, W., & Lindegaard, M. R. (2020). Would I be helped? Cross-national CCTV footage shows that intervention is the norm in public conflicts. American Psychologist, 75(1), 66–75.",
+      "note": "Accuracy caveat: someone usually intervenes in real conflicts."
+    }
+  ],
+  "visualSuggestions": [
+    "A five-box decision flowchart: notice, interpret as an emergency, take responsibility, know how to help, act.",
+    "A line graph of each person's likelihood of helping against group size, going down as the group grows."
+  ],
+  "items": {
+    "selfReport": {
+      "itemKey": "social.B0",
+      "kind": "multiple_choice",
+      "prompt": "What's least clear?",
+      "options": [
+        { "text": "Why groups change behaviour" },
+        { "text": "What the theory predicts" },
+        { "text": "How it applies to real life" },
+        { "text": "Not sure" }
+      ]
+    },
+    "A1": {
+      "itemKey": "social.A1",
+      "kind": "multiple_choice",
+      "bloomLevel": "understand",
+      "prompt": "A man collapses on a crowded train platform. Is any one person there more or less likely to step in than the only other person on an empty platform?",
+      "options": [
+        {
+          "text": "More likely, because crowds make people braver",
+          "correct": false,
+          "misconceptionTag": "additive",
+          "rationale": "Other people don't add courage to each person; they spread out the sense of responsibility."
+        },
+        {
+          "text": "Less likely, because responsibility feels shared and others' calm suggests it's not an emergency",
+          "correct": true,
+          "rationale": "Diffusion of responsibility and reading others' calm both lower each person's chance of acting."
+        },
+        {
+          "text": "About the same, because it depends on what kind of person you are",
+          "correct": false,
+          "misconceptionTag": "dispositional",
+          "rationale": "The same person behaves differently depending on who else is there. The situation matters, not just character."
+        },
+        {
+          "text": "Less likely, because people in crowds are selfish",
+          "correct": false,
+          "misconceptionTag": "moral",
+          "rationale": "Right direction, wrong reason: it's not that people stop caring, it's that responsibility feels shared."
+        }
+      ],
+      "answer": "Less likely. With many people around, each person feels less responsible (someone else will help), and when everyone looks calm, each person reads that as a sign it isn't an emergency."
+    },
+    "A2": {
+      "itemKey": "social.A2",
+      "kind": "freeform",
+      "bloomLevel": "analyze",
+      "prompt": "A car is smoking by a busy road and dozens of drivers pass without stopping. Explain why.",
+      "rubric": {
+        "full": "Gives two situational mechanisms, e.g. diffusion of responsibility (someone else will stop or has called), others' calm or not stopping read as 'not an emergency', not noticing, or not knowing how to help.",
+        "partial": "Gives one situational mechanism.",
+        "none": "Personality only (selfish, uncaring, in a hurry by nature); tag dispositional."
+      },
+      "answer": "Each driver sees many others passing and assumes someone else will stop or has already called for help (diffusion of responsibility). Seeing no one else stop also makes it look like it isn't an emergency. Some may not notice it at speed, or not know how they could help."
+    },
+    "F1": {
+      "itemKey": "social.F1",
+      "kind": "multiple_choice",
+      "bloomLevel": "understand",
+      "prompt": "\"Can someone cover my 2pm shift? Urgent.\" It's posted in a 60-person channel. Compared with sending it as a DM to one coworker, is any one person in the channel more or less likely to reply?",
+      "options": [
+        {
+          "text": "The same, because it depends on how helpful each person is",
+          "correct": false,
+          "misconceptionTag": "dispositional",
+          "rationale": "The same coworker would answer a DM but scroll past a channel post. The situation matters, not just character."
+        },
+        {
+          "text": "More likely, because people want to look good in public",
+          "correct": false,
+          "misconceptionTag": "additive",
+          "rationale": "A public audience doesn't add to each person's drive to help; it spreads out who feels it's their job."
+        },
+        {
+          "text": "Less likely, because everyone can assume someone else will reply, and others' silence suggests it's handled",
+          "correct": true,
+          "rationale": "Diffusion of responsibility, plus reading the silence as 'someone's on it'."
+        },
+        {
+          "text": "Less likely, because big teams care less",
+          "correct": false,
+          "misconceptionTag": "moral",
+          "rationale": "Right direction, wrong reason: people don't care less, they each assume it's someone else's job."
+        }
+      ],
+      "answer": "Less likely. In the channel, everyone can assume someone else will reply, and when no one has replied, the silence looks like it's handled. A DM puts the responsibility on one person."
+    },
+    "F2": {
+      "itemKey": "social.F2",
+      "kind": "freeform",
+      "bloomLevel": "analyze",
+      "prompt": "A faint alarm sounds in an open-plan office and a little smoke comes from a vent. Everyone glances around and keeps working. Explain why.",
+      "rubric": {
+        "full": "Gives two situational mechanisms, e.g. everyone reads the others' calm as 'not an emergency' (pluralistic ignorance), responsibility feels shared (someone else will report it), not wanting to overreact in front of others, or not knowing what to do.",
+        "partial": "Gives one situational mechanism.",
+        "none": "Personality only (lazy, uncaring); tag dispositional."
+      },
+      "answer": "Each person glances at the others, sees them staying calm, and concludes it's probably nothing, even though everyone is unsure (pluralistic ignorance). Responsibility also feels shared: with so many people there, each assumes someone else will report it."
+    },
+    "P1": {
+      "itemKey": "social.P1",
+      "kind": "freeform",
+      "bloomLevel": "create",
+      "resource": "**Audience inhibition** is another reason people hold back when others are present. Acting means doing something in front of an audience, and people worry about looking foolish if they've misread the situation or get it wrong. The bigger the audience, the stronger that worry can be.",
+      "prompt": "\"Any questions?\" is met with silence in a lecture of 300, though many students are lost. Use both audience inhibition and one idea from earlier to explain it, and suggest one change that would help.",
+      "rubric": {
+        "full": "Uses audience inhibition plus one earlier mechanism (diffusion of responsibility, or reading others' silence as everyone understanding), and the suggested change targets a mechanism (anonymous questions, calling on a specific person, pair discussion first).",
+        "partial": "Does one of the two: either the explanation with both ideas, or a change that targets a mechanism.",
+        "none": "Neither."
+      },
+      "answer": "Students fear looking foolish in front of 300 people (audience inhibition), and each sees everyone else silent and assumes they're the only one lost (pluralistic ignorance), or that someone else will ask (diffusion of responsibility). Anonymous question tools, or a minute of pair discussion before asking, target those mechanisms."
+    }
+  }
+}

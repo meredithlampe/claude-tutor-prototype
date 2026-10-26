@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import type Anthropic from "@anthropic-ai/sdk";
 import { appendMessage, getConversation } from "../repo/conversations";
 import { streamReply } from "../services/claude";
+import { openEventStream } from "../services/sse";
 import { tutorSystemPrompt } from "./prompts";
 import { getLatestSession, updateSession } from "./repo";
 import { describeWorkbook, ensureBuilt, isActive, publicSession, trackReply } from "./session";
@@ -200,11 +201,7 @@ export async function handleChat(req: Request<{ conversationId: string }>, res: 
     }
   }
 
-  res.writeHead(200, {
-    "Content-Type": "text/event-stream",
-    "Cache-Control": "no-cache",
-    Connection: "keep-alive",
-  });
+  openEventStream(res);
   const abortController = new AbortController();
   res.on("close", () => {
     if (!res.writableEnded) abortController.abort();

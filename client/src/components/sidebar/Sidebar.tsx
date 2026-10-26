@@ -47,7 +47,7 @@ export function Sidebar({
     <div className="flex h-full min-h-0 flex-col bg-sidebar text-sidebar-foreground">
       <SidebarHeader collapsed={collapsed} toggleLabel={toggleLabel} onToggle={onToggle} />
 
-      <ScrollArea className="min-h-0 flex-1 [&_[data-slot=scroll-area-viewport]>div]:!block">
+      <ScrollArea className="min-h-0 flex-1 [&_[data-slot=scroll-area-viewport]]:relative [&_[data-slot=scroll-area-viewport]>div]:!block">
         <div className="flex flex-col gap-5 px-2 pb-4">
           <nav aria-label={content.sidebar.primaryNavLabel} className="flex flex-col gap-0.5">
             <NavItem

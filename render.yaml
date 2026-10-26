@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: claude-tutor-prototype
+    runtime: node
+    # Render's current ID for the 0.5 CPU / 512 MB instance (formerly "Starter").
+    plan: 0.5c-512mb
+    region: oregon
+    branch: main
+    # --include=dev: NODE_ENV=production would otherwise skip the client's build tools.
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    disk:
+      name: data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: DATA_DIR
+        value: /var/data
+      - key: TUTOR_VOICE_PROVIDER
+        value: elevenlabs
+      - key: NODE_ENV
+        value: production
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: SITE_PASSWORD
+        sync: false

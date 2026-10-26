@@ -43,6 +43,34 @@ export function updateSession(
   });
 }
 
+// Sessions the debug menu's Clear all chats took off screen. Append-only: they're the study's
+// research data (answers, timings, forms), so they're kept, not deleted.
+const ARCHIVE_FILE = "tutor-sessions-archive.json";
+
+type ArchivedSession = TutorSession & { archivedAt: string };
+
+export function listArchivedSessions(): Promise<ArchivedSession[]> {
+  return readJson<ArchivedSession[]>(ARCHIVE_FILE);
+}
+
+// Archives first, then removes only what was archived, so nothing is lost if one step fails
+// and a session started meanwhile stays.
+export async function archiveAllSessions(): Promise<number> {
+  const sessions = await listSessions();
+  if (sessions.length === 0) return 0;
+  const archivedAt = new Date().toISOString();
+  await updateJson<ArchivedSession[], void>(ARCHIVE_FILE, (archived) => ({
+    data: [...archived, ...sessions.map((session) => ({ ...session, archivedAt }))],
+    result: undefined,
+  }));
+  const ids = new Set(sessions.map((session) => session.id));
+  await updateJson<TutorSession[], void>(FILE, (current) => ({
+    data: current.filter((session) => !ids.has(session.id)),
+    result: undefined,
+  }));
+  return sessions.length;
+}
+
 // Per-user Tutor state, keyed by user id (the user's name, as on sessions).
 const USERS_FILE = "tutor-users.json";
 
@@ -63,4 +91,14 @@ export function updateTutorUser(
     const state = update({ ...users[userId] });
     return { data: { ...users, [userId]: state }, result: state };
   });
+}
+
+// Every user's intro shows again; other per-user state is kept.
+export function resetAllIntros(): Promise<void> {
+  return updateJson<Record<string, TutorUserState>, void>(USERS_FILE, (users) => ({
+    data: Object.fromEntries(
+      Object.entries(users).map(([userId, state]) => [userId, { ...state, introSeenAt: undefined }]),
+    ),
+    result: undefined,
+  }));
 }

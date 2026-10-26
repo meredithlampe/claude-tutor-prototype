@@ -64,6 +64,8 @@ export interface DebugContext {
 export interface DebugAction {
   id: string;
   label: string;
+  // For a destructive action: asked in a dialog before it runs.
+  confirm?: { title: string; description: string; action: string };
   // Resolves to a short confirmation to show and announce, if any. Throwing shows a failure.
   run: (debug: DebugContext) => Promise<string | void>;
 }

@@ -33,6 +33,9 @@ export interface ChatFeature {
   // Called once per finished turn, after the reply is stored, whether or not Claude called
   // one of this feature's tools. Events emitted here reach the client before "done".
   onReplyDone?: (reply: FeatureReply, turn: ChatTurn, emit: (event: FeatureEvent) => void) => Promise<void>;
+  // Called after the clone's reset puts conversations back to the sample chats (between test
+  // participants). The feature clears its own per-chat state, keeping any research data.
+  onReset?: () => Promise<void>;
 }
 
 export interface FeatureReply {
@@ -127,6 +130,19 @@ export async function notifyReplyDone(
       await feature.onReplyDone({ message, toolUses: ownToolUses }, turn, emit);
     } catch (error) {
       console.error(`Feature "${feature.id}": onReplyDone failed`, error);
+    }
+  }
+}
+
+// Unlike the other hooks, a failure here fails the reset, so a half-cleared state is reported.
+export async function resetFeatures(): Promise<void> {
+  for (const feature of features) {
+    if (!feature.onReset) continue;
+    try {
+      await feature.onReset();
+    } catch (error) {
+      console.error(`Feature "${feature.id}": onReset failed`, error);
+      throw error;
     }
   }
 }

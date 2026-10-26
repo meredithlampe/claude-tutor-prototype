@@ -3,7 +3,7 @@ import type { ChatFeature, ChatTurn } from "../features";
 import { titleFromMessage } from "../repo/conversations";
 import { matchSubject } from "./battery";
 import { OFFER_TOOL_NAME, detectionInstruction } from "./prompts";
-import { createSession, listSessions } from "./repo";
+import { archiveAllSessions, createSession, listSessions, resetAllIntros } from "./repo";
 import { tutorRouter } from "./routes";
 import { isActive } from "./session";
 import { topics } from "./topics";
@@ -122,5 +122,11 @@ export const tutorFeature: ChatFeature = {
     if (!toolUse || (await eligibility(turn)) === "no") return;
     const session = await createOffer(turn, "detected", toolUse.input as OfferInput);
     emit({ type: "tutor_offer", sessionId: session.id, messageId: session.offerMessageId });
+  },
+
+  // Between participants: sessions move to the archive (kept for analysis), and the intro shows again.
+  async onReset() {
+    await archiveAllSessions();
+    await resetAllIntros();
   },
 };

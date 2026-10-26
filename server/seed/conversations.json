@@ -1,0 +1,314 @@
+[
+  {
+    "id": "interviewing",
+    "title": "Interviewing",
+    "pinned": true,
+    "icon": "project",
+    "messages": [
+      {
+        "id": "interviewing-1",
+        "role": "user",
+        "content": "Can you help me prep for a behavioral interview next week?",
+        "createdAt": "2026-10-16T09:00:00.000Z"
+      },
+      {
+        "id": "interviewing-2",
+        "role": "assistant",
+        "content": "Happy to. A good structure for behavioral answers is **STAR**:\n\n1. **Situation** — set the scene in a sentence or two\n2. **Task** — what you were responsible for\n3. **Action** — what *you* did (most of your answer goes here)\n4. **Result** — the outcome, with a number if you have one\n\nWant to pick a question and draft an answer together?",
+        "createdAt": "2026-10-16T09:00:30.000Z"
+      },
+      {
+        "id": "interviewing-3",
+        "role": "user",
+        "content": "Let's do \"Tell me about a time you disagreed with a teammate.\"",
+        "createdAt": "2026-10-16T09:02:30.000Z"
+      },
+      {
+        "id": "interviewing-4",
+        "role": "assistant",
+        "content": "Great choice. Before drafting, jot down:\n\n- Who the teammate was and what you disagreed about\n- How you raised it (in person, in a doc, in a meeting?)\n- What changed as a result\n\nShare those notes and I'll help shape them into a 90-second answer.",
+        "createdAt": "2026-10-16T09:03:00.000Z"
+      }
+    ],
+    "createdAt": "2026-10-16T09:00:00.000Z",
+    "updatedAt": "2026-10-16T09:03:00.000Z"
+  },
+  {
+    "id": "work-wife",
+    "title": "Work Wife",
+    "pinned": true,
+    "icon": "project",
+    "messages": [
+      {
+        "id": "work-wife-1",
+        "role": "user",
+        "content": "I want to plan a small thank-you for a coworker who's been carrying me through a rough month.",
+        "createdAt": "2026-10-16T02:00:00.000Z"
+      },
+      {
+        "id": "work-wife-2",
+        "role": "assistant",
+        "content": "That's a kind idea. A few options at different effort levels:\n\n| Effort | Idea |\n| --- | --- |\n| Low | A handwritten note naming specific things they did |\n| Medium | Coffee or lunch, your treat |\n| High | A small gift tied to something they love |\n\nThe note matters most — specifics beat generic thanks.",
+        "createdAt": "2026-10-16T02:00:30.000Z"
+      }
+    ],
+    "createdAt": "2026-10-16T02:00:00.000Z",
+    "updatedAt": "2026-10-16T02:00:30.000Z"
+  },
+  {
+    "id": "deploying-password-protected-prototypes",
+    "title": "Deploying password-protected prototypes",
+    "pinned": true,
+    "icon": "chat",
+    "messages": [
+      {
+        "id": "deploying-password-protected-prototypes-1",
+        "role": "user",
+        "content": "What's the simplest way to deploy a prototype behind a password?",
+        "createdAt": "2026-10-15T19:00:00.000Z"
+      },
+      {
+        "id": "deploying-password-protected-prototypes-2",
+        "role": "assistant",
+        "content": "The simplest options, roughly in order of setup time:\n\n- **Vercel** — enable *Password Protection* in project settings (paid plans)\n- **Netlify** — site-wide password under *Visitor access*\n- **Basic auth in middleware** — works anywhere you control the server\n\nFor a quick user-testing prototype, a host's built-in protection is usually enough.",
+        "createdAt": "2026-10-15T19:00:30.000Z"
+      },
+      {
+        "id": "deploying-password-protected-prototypes-3",
+        "role": "user",
+        "content": "Show me the middleware version for Express.",
+        "createdAt": "2026-10-15T19:02:30.000Z"
+      },
+      {
+        "id": "deploying-password-protected-prototypes-4",
+        "role": "assistant",
+        "content": "Here's a minimal version:\n\n```ts\napp.use((req, res, next) => {\n  const header = req.headers.authorization ?? \"\";\n  const [, encoded] = header.split(\" \");\n  const [, password] = Buffer.from(encoded ?? \"\", \"base64\").toString().split(\":\");\n  if (password === process.env.SITE_PASSWORD) return next();\n  res.set(\"WWW-Authenticate\", 'Basic realm=\"prototype\"').status(401).end();\n});\n```\n\nKeep `SITE_PASSWORD` in your environment, not in the repo.",
+        "createdAt": "2026-10-15T19:03:00.000Z"
+      }
+    ],
+    "createdAt": "2026-10-15T19:00:00.000Z",
+    "updatedAt": "2026-10-15T19:03:00.000Z"
+  },
+  {
+    "id": "birdhouse-website-proposal-deck",
+    "title": "Birdhouse website proposal deck",
+    "pinned": true,
+    "icon": "chat",
+    "messages": [
+      {
+        "id": "birdhouse-website-proposal-deck-1",
+        "role": "user",
+        "content": "Outline a proposal deck for a website redesign for Birdhouse, a small music venue.",
+        "createdAt": "2026-10-15T12:00:00.000Z"
+      },
+      {
+        "id": "birdhouse-website-proposal-deck-2",
+        "role": "assistant",
+        "content": "Here's a lean structure:\n\n1. **Where you are now** — current site, pain points\n2. **Goals** — sell more tickets, easier show listings\n3. **Approach** — discovery, design, build, launch\n4. **Timeline** — about 8 weeks\n5. **Investment** — fixed fee with options\n6. **Next steps**\n\nWant me to draft speaker notes for any of these?",
+        "createdAt": "2026-10-15T12:00:30.000Z"
+      }
+    ],
+    "createdAt": "2026-10-15T12:00:00.000Z",
+    "updatedAt": "2026-10-15T12:00:30.000Z"
+  },
+  {
+    "id": "untitled-1",
+    "title": "Untitled",
+    "pinned": false,
+    "icon": null,
+    "messages": [
+      {
+        "id": "untitled-1-1",
+        "role": "user",
+        "content": "hi",
+        "createdAt": "2026-10-24T16:00:00.000Z"
+      },
+      {
+        "id": "untitled-1-2",
+        "role": "assistant",
+        "content": "Hi! What would you like to work on today?",
+        "createdAt": "2026-10-24T16:00:30.000Z"
+      }
+    ],
+    "createdAt": "2026-10-24T16:00:00.000Z",
+    "updatedAt": "2026-10-24T16:00:30.000Z"
+  },
+  {
+    "id": "browser-page-request",
+    "title": "Browser page request",
+    "pinned": false,
+    "icon": null,
+    "messages": [
+      {
+        "id": "browser-page-request-1",
+        "role": "user",
+        "content": "Can you open a web page for me?",
+        "createdAt": "2026-10-24T09:00:00.000Z"
+      },
+      {
+        "id": "browser-page-request-2",
+        "role": "assistant",
+        "content": "I can't browse from here, but if you **paste the page's text** or share the key details, I can summarize it, pull out what matters, or answer questions about it.",
+        "createdAt": "2026-10-24T09:00:30.000Z"
+      }
+    ],
+    "createdAt": "2026-10-24T09:00:00.000Z",
+    "updatedAt": "2026-10-24T09:00:30.000Z"
+  },
+  {
+    "id": "historical-context-research",
+    "title": "Historical context research",
+    "pinned": false,
+    "icon": null,
+    "messages": [
+      {
+        "id": "historical-context-research-1",
+        "role": "user",
+        "content": "I'm reading a novel set in 1920s Harlem. What historical context should I know?",
+        "createdAt": "2026-10-24T02:00:00.000Z"
+      },
+      {
+        "id": "historical-context-research-2",
+        "role": "assistant",
+        "content": "A few threads that will deepen your reading:\n\n- **The Great Migration** — Black Americans moving from the rural South to Northern cities\n- **The Harlem Renaissance** — a flowering of literature, music, and art\n- **Prohibition** — speakeasies and jazz clubs as social hubs\n- **Economic pressure** — high rents and \"rent parties\"\n\nWhich of these shows up most in the book so far?",
+        "createdAt": "2026-10-24T02:00:30.000Z"
+      },
+      {
+        "id": "historical-context-research-3",
+        "role": "user",
+        "content": "The rent parties, definitely.",
+        "createdAt": "2026-10-24T02:02:30.000Z"
+      },
+      {
+        "id": "historical-context-research-4",
+        "role": "assistant",
+        "content": "Then you're seeing something real. Rent parties were gatherings where tenants charged a small entry fee — often with live piano and food — to cover rent that landlords had inflated for Black tenants. They were also where **stride piano** flourished. Notice how the novel uses them: as celebration, as survival, or both?",
+        "createdAt": "2026-10-24T02:03:00.000Z"
+      }
+    ],
+    "createdAt": "2026-10-24T02:00:00.000Z",
+    "updatedAt": "2026-10-24T02:03:00.000Z"
+  },
+  {
+    "id": "photopea-layer-background-color",
+    "title": "Photopea layer background color",
+    "pinned": false,
+    "icon": null,
+    "messages": [
+      {
+        "id": "photopea-layer-background-color-1",
+        "role": "user",
+        "content": "How do I change a layer's background color in Photopea?",
+        "createdAt": "2026-10-23T19:00:00.000Z"
+      },
+      {
+        "id": "photopea-layer-background-color-2",
+        "role": "assistant",
+        "content": "Photopea layers don't have a background color setting, but you can get the same result:\n\n1. Create a new layer and drag it **below** your content\n2. Pick a color with the foreground swatch\n3. Use **Edit → Fill** (or `Alt+Backspace`) to fill it\n\nAlternatively, add a **Solid Color** fill layer from the adjustment menu so you can change it later.",
+        "createdAt": "2026-10-23T19:00:30.000Z"
+      }
+    ],
+    "createdAt": "2026-10-23T19:00:00.000Z",
+    "updatedAt": "2026-10-23T19:00:30.000Z"
+  },
+  {
+    "id": "downloading-a-graphic",
+    "title": "Downloading a graphic",
+    "pinned": false,
+    "icon": "file",
+    "messages": [
+      {
+        "id": "downloading-a-graphic-1",
+        "role": "user",
+        "content": "I made a graphic here earlier. How do I download it?",
+        "createdAt": "2026-10-23T12:00:00.000Z"
+      },
+      {
+        "id": "downloading-a-graphic-2",
+        "role": "assistant",
+        "content": "If it's shown as an artifact, use the **Download** button in the artifact's top bar. For SVG graphics you can also **Copy** the code and save it as a `.svg` file.",
+        "createdAt": "2026-10-23T12:00:30.000Z"
+      }
+    ],
+    "createdAt": "2026-10-23T12:00:00.000Z",
+    "updatedAt": "2026-10-23T12:00:30.000Z"
+  },
+  {
+    "id": "untitled-2",
+    "title": "Untitled",
+    "pinned": false,
+    "icon": null,
+    "messages": [
+      {
+        "id": "untitled-2-1",
+        "role": "user",
+        "content": "test",
+        "createdAt": "2026-10-23T05:00:00.000Z"
+      },
+      {
+        "id": "untitled-2-2",
+        "role": "assistant",
+        "content": "Got it — I'm here. What can I help with?",
+        "createdAt": "2026-10-23T05:00:30.000Z"
+      }
+    ],
+    "createdAt": "2026-10-23T05:00:00.000Z",
+    "updatedAt": "2026-10-23T05:00:30.000Z"
+  },
+  {
+    "id": "ridgewood-ny-hair-colorists",
+    "title": "Ridgewood NY hair colorists",
+    "pinned": false,
+    "icon": null,
+    "messages": [
+      {
+        "id": "ridgewood-ny-hair-colorists-1",
+        "role": "user",
+        "content": "How should I pick a hair colorist in Ridgewood, Queens?",
+        "createdAt": "2026-10-22T22:00:00.000Z"
+      },
+      {
+        "id": "ridgewood-ny-hair-colorists-2",
+        "role": "assistant",
+        "content": "Some ways to narrow it down:\n\n- **Look at portfolios** on Instagram for work like what you want\n- **Ask about consultations** — good colorists offer them\n- **Check reviews for color specifically**, not just cuts\n- **Ask about maintenance** so you know the real cost over time\n\nI can't look up current salons, but I can help you write questions for a consultation.",
+        "createdAt": "2026-10-22T22:00:30.000Z"
+      }
+    ],
+    "createdAt": "2026-10-22T22:00:00.000Z",
+    "updatedAt": "2026-10-22T22:00:30.000Z"
+  },
+  {
+    "id": "seattle-backyard-landscaping",
+    "title": "Seattle backyard landscaping",
+    "pinned": false,
+    "icon": "file",
+    "messages": [
+      {
+        "id": "seattle-backyard-landscaping-1",
+        "role": "user",
+        "content": "What plants do well in a shady Seattle backyard?",
+        "createdAt": "2026-10-22T15:00:00.000Z"
+      },
+      {
+        "id": "seattle-backyard-landscaping-2",
+        "role": "assistant",
+        "content": "Seattle's mild, wet climate suits lots of shade lovers:\n\n- **Ferns** — sword fern and deer fern are native and tough\n- **Hostas** — big leaves, but watch for slugs\n- **Salal and Oregon grape** — native evergreen shrubs\n- **Bleeding heart** — spring flowers in deep shade\n\nPairing natives with a few ornamentals keeps maintenance low.",
+        "createdAt": "2026-10-22T15:00:30.000Z"
+      },
+      {
+        "id": "seattle-backyard-landscaping-3",
+        "role": "user",
+        "content": "Can you sketch a simple layout?",
+        "createdAt": "2026-10-22T15:02:30.000Z"
+      },
+      {
+        "id": "seattle-backyard-landscaping-4",
+        "role": "assistant",
+        "content": "Here's a starting layout, back fence to house:\n\n1. **Back border** — salal and Oregon grape for year-round green\n2. **Middle bed** — sword ferns with bleeding heart between them\n3. **Front edge** — hostas along the path\n4. **Path** — gravel or stepping stones to the seating area\n\nTell me the yard's rough size and I'll adjust the spacing.",
+        "createdAt": "2026-10-22T15:03:00.000Z"
+      }
+    ],
+    "createdAt": "2026-10-22T15:00:00.000Z",
+    "updatedAt": "2026-10-22T15:03:00.000Z"
+  }
+]

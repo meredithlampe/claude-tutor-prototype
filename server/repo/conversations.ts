@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { Conversation, ConversationSummary, StoredMessage } from "../types";
-import { readJson, updateJson } from "./jsonFile";
+import { readJson, resetJson, updateJson } from "./jsonFile";
 
 const FILE = "conversations.json";
 const TITLE_MAX_LENGTH = 40;
@@ -71,4 +71,9 @@ export function appendMessage(
     });
     return { data, result: updated };
   });
+}
+
+// Back to the seeded sample chats (the debug menu's Clear all chats).
+export function resetConversations(): Promise<void> {
+  return resetJson(FILE);
 }

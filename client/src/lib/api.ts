@@ -80,3 +80,9 @@ export function fetchArtifacts(signal?: AbortSignal) {
 export function fetchUser(signal?: AbortSignal) {
   return getJson<User>("/api/user", signal);
 }
+
+// Puts conversations back to the sample chats and clears features' per-chat state.
+export async function resetChats(): Promise<void> {
+  const response = await fetch("/api/reset", { method: "POST" });
+  if (!response.ok) throw new Error(`POST reset failed with ${response.status}`);
+}

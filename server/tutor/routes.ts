@@ -2,8 +2,16 @@ import { Router, type Request, type Response } from "express";
 import { appendMessage, getConversation } from "../repo/conversations";
 import { getUser } from "../repo/user";
 import { streamReply } from "../services/claude";
+import { openEventStream } from "../services/sse";
 import { handleChat } from "./chat";
-import { getLatestSession, getTutorUser, listSessions, updateSession, updateTutorUser } from "./repo";
+import {
+  getLatestSession,
+  getTutorUser,
+  listArchivedSessions,
+  listSessions,
+  updateSession,
+  updateTutorUser,
+} from "./repo";
 import {
   advance,
   ensureBuilt,
@@ -136,9 +144,11 @@ tutorRouter.get("/:conversationId", async (req: Request<Params>, res) => {
   res.json({ session: session ? publicSession(session) : null });
 });
 
-// Forms alternate across all sessions, so participants are counterbalanced.
+// Forms alternate across all sessions, including archived ones (Clear all chats), so
+// participants are counterbalanced.
 async function nextForm(): Promise<1 | 2> {
-  const last = (await listSessions()).filter((session) => session.form).at(-1);
+  const all = [...(await listArchivedSessions()), ...(await listSessions())];
+  const last = all.filter((session) => session.form).at(-1);
   return last?.form === 1 ? 2 : 1;
 }
 
@@ -178,7 +188,7 @@ tutorRouter.post("/:conversationId/decline", async (req: Request<Params>, res) =
   }
   const declined = await updateSession(session.id, (current) => ({ ...current, status: "declined" }));
 
-  res.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-cache", Connection: "keep-alive" });
+  openEventStream(res);
   const send = (event: Record<string, unknown>) => res.write(`data: ${JSON.stringify(event)}\n\n`);
   const abortController = new AbortController();
   res.on("close", () => {

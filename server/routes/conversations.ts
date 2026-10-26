@@ -14,6 +14,7 @@ import {
   type FeatureEvent,
 } from "../features";
 import { streamReply } from "../services/claude";
+import { openEventStream } from "../services/sse";
 
 type StreamEvent =
   | { type: "text"; text: string }
@@ -85,11 +86,7 @@ conversationsRouter.post("/:id/messages", async (req, res) => {
 
   const turn: ChatTurn = { conversation, message: content };
 
-  res.writeHead(200, {
-    "Content-Type": "text/event-stream",
-    "Cache-Control": "no-cache",
-    Connection: "keep-alive",
-  });
+  openEventStream(res);
 
   // A feature may answer the turn itself (no Claude call, nothing stored).
   if (await handleTurnByFeature(turn, (event) => sendEvent(res, event))) {

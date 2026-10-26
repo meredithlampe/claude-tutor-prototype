@@ -2,6 +2,16 @@ import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { Bug } from "lucide-react";
 import { IconButton } from "@/components/IconButton";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -31,9 +41,12 @@ export function DebugMenu({ actions, debug }: DebugMenuProps) {
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState(false);
+  // The action waiting on its confirm dialog.
+  const [confirming, setConfirming] = useState<DebugAction | null>(null);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const dragRef = useRef<Drag | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!notice || busy) return;
@@ -115,6 +128,7 @@ export function DebugMenu({ actions, debug }: DebugMenuProps) {
           onPointerCancel={() => (dragRef.current = null)}
         >
           <IconButton
+            ref={triggerRef}
             label={content.debug.open}
             tooltipSide="left"
             variant="outline"
@@ -130,7 +144,8 @@ export function DebugMenu({ actions, debug }: DebugMenuProps) {
             <DropdownMenuItem
               key={action.id}
               disabled={busy}
-              onSelect={() => void run(action)}
+              variant={action.confirm ? "destructive" : "default"}
+              onSelect={() => (action.confirm ? setConfirming(action) : void run(action))}
               className="pointer-coarse:min-h-11"
             >
               {action.label}
@@ -138,6 +153,33 @@ export function DebugMenu({ actions, debug }: DebugMenuProps) {
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
+      <AlertDialog open={confirming !== null} onOpenChange={(isOpen) => !isOpen && setConfirming(null)}>
+        {confirming?.confirm && (
+          // Opened from a menu item that's gone by the time it closes, so focus goes back to the
+          // debug button explicitly.
+          <AlertDialogContent
+            onCloseAutoFocus={(event) => {
+              event.preventDefault();
+              triggerRef.current?.focus();
+            }}
+          >
+            <AlertDialogHeader>
+              <AlertDialogTitle>{confirming.confirm.title}</AlertDialogTitle>
+              <AlertDialogDescription>{confirming.confirm.description}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="pointer-coarse:min-h-11">{content.debug.cancel}</AlertDialogCancel>
+              <AlertDialogAction
+                variant="destructive"
+                className="focus-visible:ring-destructive/60 pointer-coarse:min-h-11"
+                onClick={() => void run(confirming)}
+              >
+                {confirming.confirm.action}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        )}
+      </AlertDialog>
     </div>
   );
 }

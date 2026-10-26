@@ -2,6 +2,9 @@
   "name": "claude-tutor-prototype",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
   "workspaces": [
     "client",
     "server"
@@ -9,6 +12,7 @@
   "scripts": {
     "dev": "concurrently -n server,client -c blue,magenta \"npm run dev -w server\" \"npm run dev -w client\"",
     "build": "npm run build -w client",
+    "start": "npm run start -w server",
     "typecheck": "npm run typecheck --workspaces",
     "lint": "eslint ."
   },

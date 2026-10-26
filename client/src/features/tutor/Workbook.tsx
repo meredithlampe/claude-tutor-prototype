@@ -127,7 +127,7 @@ export function Workbook({ session, tutor, onExit }: WorkbookProps) {
 
   return (
     <section aria-labelledby="tutor-workbook-heading" className="flex min-h-0 flex-1 flex-col">
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="relative min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto flex w-full max-w-[70ch] flex-col gap-5 px-4 py-5 lg:px-6">
           <h2 id="tutor-workbook-heading" className="sr-only lg:not-sr-only lg:text-sm lg:font-medium lg:text-muted-foreground">
             {workbook.heading}

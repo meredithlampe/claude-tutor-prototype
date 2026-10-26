@@ -8,6 +8,13 @@ export const content = {
     heading: "Prototype debug",
     working: "Working…",
     failed: "That didn't work. Is the server running?",
+    cancel: "Cancel",
+    clearChats: "Clear all chats",
+    clearChatsTitle: "Clear all chats?",
+    clearChatsDescription:
+      "Chats go back to the sample chats, and features clear their own data, ready for the next participant. Research data is kept.",
+    clearChatsConfirm: "Clear all chats",
+    chatsCleared: "All chats cleared",
   },
   stub: {
     notAvailable: "Not available in this prototype",

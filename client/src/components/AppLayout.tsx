@@ -1,6 +1,6 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Menu } from "lucide-react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { DebugMenu } from "@/components/DebugMenu";
 import { IconButton } from "@/components/IconButton";
 import { Sidebar } from "@/components/sidebar/Sidebar";
@@ -9,8 +9,9 @@ import { content } from "@/constants/content";
 import { debugActions } from "@/features";
 import { useApiData, type ApiState } from "@/hooks/useApiData";
 import { useStartChat } from "@/hooks/useStartChat";
-import { fetchConversations, fetchUser } from "@/lib/api";
+import { fetchConversations, fetchUser, resetChats } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import type { DebugAction } from "@/features/types";
 import type { ConversationSummary, User } from "@/types";
 
 export type AppOutletContext = {
@@ -29,6 +30,29 @@ export function AppLayout() {
   );
   const user = useApiData(fetchUser);
   const startChat = useStartChat(refreshConversations);
+  const navigate = useNavigate();
+  // The clone's own debug action, after the features' ones.
+  const allDebugActions = useMemo<DebugAction[]>(
+    () => [
+      ...debugActions,
+      {
+        id: "clear-chats",
+        label: content.debug.clearChats,
+        confirm: {
+          title: content.debug.clearChatsTitle,
+          description: content.debug.clearChatsDescription,
+          action: content.debug.clearChatsConfirm,
+        },
+        run: async () => {
+          await resetChats();
+          navigate("/");
+          refreshConversations();
+          return content.debug.chatsCleared;
+        },
+      },
+    ],
+    [navigate, refreshConversations],
+  );
   const [collapsed, setCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const closeDrawer = () => setDrawerOpen(false);
@@ -86,7 +110,7 @@ export function AppLayout() {
           />
         </main>
       </div>
-      <DebugMenu actions={debugActions} debug={{ startChat }} />
+      <DebugMenu actions={allDebugActions} debug={{ startChat }} />
     </div>
   );
 }

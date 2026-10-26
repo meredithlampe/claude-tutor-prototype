@@ -219,7 +219,7 @@ export function ChatThread({ conversationId, newChat: newChatProp }: ChatThreadP
 
   const thread = (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <div ref={scrollRef} onScroll={handleScroll} className="min-h-0 flex-1 overflow-y-auto">
+      <div ref={scrollRef} onScroll={handleScroll} className="relative min-h-0 flex-1 overflow-y-auto">
         <div className="px-4 pt-4 pb-8">
           <div className="mx-auto w-full max-w-[70ch]">
             <MessageList

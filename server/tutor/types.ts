@@ -174,6 +174,8 @@ export interface TopicItem {
 export interface Topic {
   id: string;
   title: string;
+  // Short and learner-facing, for mid-sentence use: "base rates", "the bystander effect".
+  name: string;
   subjectArea: string;
   detection: { keywords: string[]; exampleQuestions: string[] };
   notes: {
@@ -184,7 +186,8 @@ export interface Topic {
   };
   sources: { citation: string; note: string }[];
   visualSuggestions: string[];
-  items: Record<"selfReport" | "A1" | "A2" | "F1" | "F2" | "P1", TopicItem>;
+  // The self-report's prompt isn't in the file: it's selfReportPrompt(name), as for generated topics.
+  items: Record<"A1" | "A2" | "F1" | "F2" | "P1", TopicItem> & { selfReport: Omit<TopicItem, "prompt"> };
 }
 
 // What the workbook sends with each tutor chat turn: what's on screen but not submitted.

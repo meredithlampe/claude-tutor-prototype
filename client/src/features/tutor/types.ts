@@ -77,6 +77,8 @@ export interface TutorSession {
   id: string;
   status: TutorStatus;
   subject: string;
+  // Short, for mid-sentence use: "base rates", or the subject outside the topic library.
+  topicName: string;
   mode: TutorMode;
   requestedMode?: TutorMode;
   offerMessageId?: string;

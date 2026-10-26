@@ -30,12 +30,13 @@ We may throw Tutor away and rebuild it on the same clone, so it should come out 
    > Tutor mode uses education best practices to assist with deeper comprehension and recall. You may switch back to normal chat at any time. Try it out?
 
    Buttons: **Start with voice (recommended)**, **Start with text**, **No thanks**. See Voice below.
-3. **Scoping (chat):** the tutor's first message acknowledges the answer the user already has ("You have the answer. Let's make sure you could solve the next one."). It then asks what to focus on, with tappable choices for goal (homework, exam, curiosity) and time available. Scoping and assessment together take about 4 turns at most. A loading state shows while the workbook is generated.
-4. **Assessment (workbook):** 1 self-report question ("What about X is confusing?", multiple choice or freeform) and 1–2 real probe questions. This is a **check** (see Practice and checks). For library topics, these are the topic's fixed items.
-5. **Steps (workbook):** the 3 teaching steps are generated **after** the assessment, pitched at the level it showed. Each step is an instruction plus visual, then a question. The tutor introduces each step in a sentence or two in the chat, and the full explanation is in the workbook.
-6. **Final check (workbook):** 2 questions with no instruction before them, mixing content from the earlier steps. At least one matches an assessment question, so the session gives a before/after comparison. This is a **check**. For library topics, these are the topic's fixed items. An optional bonus item follows.
-7. **Wrap-up:** the learner writes a short summary of what they learned, and then the tutor gives its own summary. Tutor asks whether the learner will do a short check-in in 3–7 days (see `TUTOR-MEASUREMENT.md`). The learner then chooses **More practice** (a few more questions on the same topic) or **Exit**.
-8. **Exit, any time:** from the banner. There's no confirmation. A "Tutor paused — Resume" card stays in the thread, and the session persists. Response style and voice revert to the user's previous settings.
+3. **First-time intro (dialog):** the first time a user starts Tutor mode, a dialog explains the two surfaces before anything else happens: **Tutor** (arrow pointing left at the chat: discuss questions, get more context, have confusing concepts explained) and **Workbook** (arrow pointing right: assessments and exercises appear there), plus "Interacting with the tutor does not affect progress in the workbook." It has a hand-drawn sketch of the screen and one button, **Got it**. The tutor doesn't speak or stream, and voice doesn't listen, until it's closed; in voice mode, Got it is the click that lets the browser speak (the microphone was asked for on Start with voice). On narrow screens the sections stack and name their tab. "Seen" is stored per user in `server/data/tutor-users.json`; `DELETE /api/tutor/intro` resets it.
+4. **Scoping (chat):** every session's first tutor message opens with fixed copy from `content.ts`: "I'm your <topic> tutor." (the topic file's short `name`, or the session's subject outside the library), then "You can talk to me, and I'll listen through your microphone." (voice) or "You can chat with me by typing into the input on the left side of Tutor mode." (text). It's spoken in voice mode. The model's opening follows it, in at most 2 short sentences: it says they'll work through the question together so the learner can solve ones like it, then asks what to focus on, with tappable choices for goal (homework, exam, curiosity) and time available. Scoping and assessment together take about 4 turns at most. A loading state shows while the workbook is generated.
+5. **Assessment (workbook):** 1 self-report question ("Which part of <topic> feels confusing?", with the same short topic name; multiple choice) and 1–2 real probe questions. This is a **check** (see Practice and checks). For library topics, these are the topic's fixed items.
+6. **Steps (workbook):** the 3 teaching steps are generated **after** the assessment, pitched at the level it showed. Each step is an instruction plus visual, then a question. The tutor introduces each step in a sentence or two in the chat, and the full explanation is in the workbook.
+7. **Final check (workbook):** 2 questions with no instruction before them, mixing content from the earlier steps. At least one matches an assessment question, so the session gives a before/after comparison. This is a **check**. For library topics, these are the topic's fixed items. An optional bonus item follows.
+8. **Wrap-up:** the learner writes a short summary of what they learned, and then the tutor gives its own summary. Tutor asks whether the learner will do a short check-in in 3–7 days (see `TUTOR-MEASUREMENT.md`). The learner then chooses **More practice** (a few more questions on the same topic) or **Exit**.
+9. **Exit, any time:** from the banner. There's no confirmation. A "Tutor paused — Resume" card stays in the thread, and the session persists. Response style and voice revert to the user's previous settings.
 
 ## Offer and detection
 
@@ -137,17 +138,21 @@ type TutorArtifact = { kind: "svg"; title: string; description: string; content:
 
 Chosen on the offer card: **Start with voice (recommended)** or **Start with text**. The user can switch at any time from the banner.
 
-- **Voice:** the tutor's chat messages are spoken aloud with `speechSynthesis`. The user replies to the tutor by speaking: `SpeechRecognition` listens when the tutor finishes talking, and there's a visible mic mute button and listening indicator. The click on "Start with voice" asks for microphone permission.
+- **Voice:** the tutor's chat messages are spoken aloud, sentence by sentence, by the configured voice provider (below). The user replies to the tutor by speaking: `SpeechRecognition` listens when the tutor finishes talking, and there's a visible mic mute button and listening indicator. Recognition runs continuously and the turn is sent after about 2.5 s of silence (`SILENCE_BEFORE_SUBMIT_MS` in `voiceInput.ts`), so short pauses don't cut the learner off. The click on "Start with voice" asks for microphone permission.
+- **Where to look in voice mode:** the next workbook item appears once the tutor has finished speaking, not just finished streaming.
 - **Text:** a normal typed chat with the tutor.
 - **Voice is for the chat only.** The workbook is never read aloud, and workbook answers are always clicked or typed.
 - **Speech-friendly messages:** in voice mode, the tutor writes chat messages to be spoken (short, no markdown or math symbols, refers to the workbook: "in the diagram, the left bar…").
 - **Fallback:** if the browser doesn't support speech recognition (it's Chrome and Safari only) or the user denies microphone access, Tutor switches to text and says why.
-- **Implementation:** browser Web Speech API only, with no new dependencies or services.
+- **Implementation:** no new dependencies. Listening is the browser's Web Speech API (`voiceInput.ts`, a seam where a speech-to-text vendor could go later). Speaking goes through a provider seam:
+  - Server: `server/tutor/voice/` holds the provider interface (`types.ts`), picks the provider from `TUTOR_VOICE_PROVIDER` (`index.ts`), and has one vendor, ElevenLabs (`elevenlabs.ts`, streaming TTS with the `eleven_flash_v2_5` model, key in `ELEVENLABS_API_KEY`, optional `ELEVENLABS_VOICE_ID`). `GET /api/tutor/voice` tells the client which provider is active; `POST /api/tutor/tts` `{ text }` streams one sentence's audio. The key stays on the server.
+  - Client: `voiceOutput.ts` has the browser output (`speechSynthesis`) and the server output (plays `/api/tutor/tts` audio, fetching the next sentence while the current one plays). Mute and Stop speaking stop audio at once. If a server sentence fails, the rest of the page uses the browser's voice.
+  - `TUTOR_VOICE_PROVIDER=browser` (the default) uses the browser's voice. To remove ElevenLabs, delete `elevenlabs.ts`, its line in `voice/index.ts`, and its env lines.
 
 ## Tutor system prompt
 
 - The learner does the thinking. Don't solve the problem the student came with; guide them to it.
-- Be concise: chat messages are at most 2 short sentences unless the learner asks for more. One idea at a time. Aim for about 80% success; after two wrong answers in a row, make the steps smaller.
+- Be concise: chat messages are at most 2 short sentences unless the learner asks for more. The fixed line that opens a session's first message (Flow, step 4) comes first and doesn't count toward this. One idea at a time. Aim for about 80% success; after two wrong answers in a row, make the steps smaller.
 - Ask, don't tell. Feedback is one sentence and names the specific error.
 - Follow the practice and checks rules: help freely on practice, give hints only on checks.
 - Fade hints as the learner gets answers right.
@@ -175,10 +180,11 @@ Chosen on the offer card: **Start with voice (recommended)** or **Start with tex
   - `POST /advance`: next step, or generates the next part of the battery.
   - `POST /summary`: the learner's wrap-up summary.
   - `POST /exit`, `POST /resume`.
+  - `GET /api/tutor/intro`, `POST` (mark seen), `DELETE` (reset): the first-time intro dialog's per-user "seen" flag.
 - `prompts.ts`: the Tutor system prompt and the detection instruction.
 - `topics/`: the topic library (one JSON file per topic, plus `index.ts` listing the active ones).
 - `battery.ts`: loading fixed items from the topic, generating the steps (and items for subjects outside the library), grading freeform answers, and generating parallel questions.
-- `repo.ts`: reads and writes `server/data/tutor-sessions.json` and `tutor-events.json`.
+- `repo.ts`: reads and writes `server/data/tutor-sessions.json`, `tutor-events.json` and `tutor-users.json` (per-user Tutor state, e.g. the intro flag).
 - `hooks.ts`: what Tutor registers with the clone's extension points.
 
 **Session record:** `conversationId`, `userId`, `subject`, `topicId`, `form` (1 or 2, alternating), `mode`, `previousSettings` (response style and voice before Tutor started), `status` (`offered` | `declined` | `scoping` | `assessing` | `teaching` | `final_check` | `wrap_up` | `complete` | `paused`), `battery`, `currentQuestionId`, `answers[]` (with result, attempts, revealed), `learnerSummary`, `delayedCheckConsent`, `createdAt`, `updatedAt`.
@@ -190,6 +196,7 @@ Chosen on the offer card: **Start with voice (recommended)** or **Start with tex
 `client/src/features/tutor/`:
 
 - `TutorOfferCard`: the offer copy plus Start with voice, Start with text, and No thanks.
+- `TutorIntroDialog`: the first-time intro (shadcn Dialog), with `IntroSketch` and `IntroArrow`.
 - `TutorBanner`: mode, subject, progress, voice/text switch, Exit.
 - `TutorPausedCard`: the Resume card left in the thread after exiting.
 - `Workbook`: the panel; renders the current item and the Next button.
@@ -199,7 +206,7 @@ Chosen on the offer card: **Start with voice (recommended)** or **Start with tex
   - `WrapUp`: the learner's summary box, then More practice / Exit.
 - `TutorChat`: the tutor conversation, with scoping choice chips.
 - `VoiceControls`: mic mute, speaker, listening indicator.
-- `useTutorSession`, `useSpeech`: session state, API calls, SSE, and the Web Speech wrappers.
+- `useTutorSession`, `useSpeech`: session state, API calls, SSE, and voice (with `voiceOutput.ts` and `voiceInput.ts`).
 - `content.ts`: all Tutor copy.
 
 ## Measurement

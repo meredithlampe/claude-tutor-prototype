@@ -2,6 +2,13 @@ export const content = {
   app: {
     name: "Claude",
   },
+  // The prototype's debug menu, for test administrators. Features add its actions.
+  debug: {
+    open: "Debug menu",
+    heading: "Prototype debug",
+    working: "Working…",
+    failed: "That didn't work. Is the server running?",
+  },
   stub: {
     notAvailable: "Not available in this prototype",
   },

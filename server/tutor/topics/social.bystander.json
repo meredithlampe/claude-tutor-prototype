@@ -1,6 +1,7 @@
 {
   "id": "social.bystander",
   "title": "The bystander effect",
+  "name": "the bystander effect",
   "subjectArea": "Social psychology",
   "detection": {
     "keywords": [
@@ -85,7 +86,6 @@
     "selfReport": {
       "itemKey": "social.B0",
       "kind": "multiple_choice",
-      "prompt": "What's least clear?",
       "options": [
         { "text": "Why groups change behaviour" },
         { "text": "What the theory predicts" },

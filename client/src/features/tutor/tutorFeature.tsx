@@ -1,8 +1,10 @@
 import type { ChatContext, ChatFeature, FeatureSlots, SendMessage } from "@/features/types";
 import type { ChatMessage } from "@/types";
 import { sendTutorMessage } from "./api";
+import { tutorDebugActions } from "./debugActions";
 import { TutorBanner } from "./TutorBanner";
 import { TutorComposer } from "./TutorComposer";
+import { TutorIntroDialog } from "./TutorIntroDialog";
 import { TutorLayout } from "./TutorLayout";
 import { TutorOfferCard } from "./TutorOfferCard";
 import { TutorPausedCard } from "./TutorPausedCard";
@@ -15,12 +17,17 @@ function useTutorSlots(chat: ChatContext): FeatureSlots {
   const tutor = useTutorSession(chat);
   const { session, active } = tutor;
   const speech = useSpeech({
-    enabled: active && session?.mode === "voice",
+    // Off as soon as Exit or a mode switch is clicked, not when the server has answered, so
+    // nothing more is spoken or heard in the meantime.
+    // Nor while the intro dialog is open: the tutor starts, and listens, after Got it.
+    enabled: active && session?.mode === "voice" && !tutor.introOpen && tutor.busy !== "exit" && tutor.busy !== "mode",
     armed: tutor.voiceArmed,
     replyStreaming: chat.isStreaming,
     // What the learner said is sent as their chat message, and shown in the thread.
     onTranscript: (text) => chat.send(text),
     onUnavailable: tutor.fallbackToText,
+    // The next workbook item waits until the tutor has finished speaking, not just streaming.
+    onSpeakingChange: tutor.setSpeaking,
   });
 
   // Tutor's chat turn, with its replies spoken in voice mode (the speaker ignores text otherwise).
@@ -92,15 +99,18 @@ function useTutorSlots(chat: ChatContext): FeatureSlots {
       />
     ),
     layout: (thread) => (
-      <TutorLayout
-        thread={thread}
-        workbook={<Workbook session={session} tutor={tutor} onExit={exit} />}
-        tab={tutor.tab}
-        onTabChange={tutor.setTab}
-        unseen={tutor.unseen}
-        focus={tutor.focus}
-        onLearnerFocus={tutor.focusByLearner}
-      />
+      <>
+        <TutorLayout
+          thread={thread}
+          workbook={<Workbook session={session} tutor={tutor} onExit={exit} />}
+          tab={tutor.tab}
+          onTabChange={tutor.setTab}
+          unseen={tutor.unseen}
+          focus={tutor.focus}
+          onLearnerFocus={tutor.focusByLearner}
+        />
+        <TutorIntroDialog open={tutor.introOpen} onDone={tutor.closeIntro} />
+      </>
     ),
     composer: (
       <TutorComposer
@@ -117,4 +127,8 @@ function useTutorSlots(chat: ChatContext): FeatureSlots {
   };
 }
 
-export const tutorFeature: ChatFeature = { id: "tutor", useSlots: useTutorSlots };
+export const tutorFeature: ChatFeature = {
+  id: "tutor",
+  useSlots: useTutorSlots,
+  debugActions: tutorDebugActions,
+};

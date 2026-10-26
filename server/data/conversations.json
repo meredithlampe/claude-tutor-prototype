@@ -588,5 +588,319 @@
     ],
     "createdAt": "2026-10-26T13:34:36.605Z",
     "updatedAt": "2026-10-26T13:52:22.836Z"
+  },
+  {
+    "id": "611f84f9-3e09-443d-a998-762a68f5a03e",
+    "title": "testing key",
+    "pinned": false,
+    "icon": null,
+    "messages": [
+      {
+        "id": "62a2bfb5-3728-405e-9628-826c8c643779",
+        "role": "user",
+        "content": "testing key",
+        "createdAt": "2026-10-26T14:44:34.113Z"
+      },
+      {
+        "id": "b3aad732-ff40-448e-840f-0a36613e4634",
+        "role": "user",
+        "content": "testing key",
+        "createdAt": "2026-10-26T14:57:38.928Z"
+      },
+      {
+        "id": "9e0d8a09-d2bf-4e8e-af2d-cfda382bbb25",
+        "role": "user",
+        "content": "testing key",
+        "createdAt": "2026-10-26T15:01:57.207Z"
+      },
+      {
+        "id": "1d8ac08f-5726-4599-9e36-1d37a701d167",
+        "role": "assistant",
+        "content": "Hi! It looks like you're testing whether messages come through, and they do. Your message arrived three times, but I received it fine.\n\nWhat can I help you with? I can answer questions, help you study a topic or work through something you're stuck on.",
+        "createdAt": "2026-10-26T15:02:00.496Z"
+      }
+    ],
+    "createdAt": "2026-10-26T14:44:34.078Z",
+    "updatedAt": "2026-10-26T15:02:00.496Z"
+  },
+  {
+    "id": "1ddc403a-d2c9-42f4-95e6-8094ce20a961",
+    "title": "I'm studying for my statistics final…",
+    "pinned": false,
+    "icon": null,
+    "messages": [
+      {
+        "id": "0bce6e39-4a6e-4eb2-98eb-51cd9a88aad5",
+        "role": "user",
+        "content": "I'm studying for my statistics final and want to work on base rates",
+        "createdAt": "2026-10-26T15:04:49.019Z"
+      },
+      {
+        "id": "db187d39-d61f-4ff0-89bc-8b1a638a62b6",
+        "role": "assistant",
+        "content": "We'll work through base rates together so you can solve these problems yourself on your final. Is the exam your main goal for today, and how much time do you have?",
+        "createdAt": "2026-10-26T15:05:07.086Z"
+      },
+      {
+        "id": "fe4618f6-8933-44a0-80c5-a1509b83ceaf",
+        "role": "user",
+        "content": "the exam is my main goal and I have about 10 minutes",
+        "createdAt": "2026-10-26T15:05:23.078Z"
+      },
+      {
+        "id": "8dae9945-c466-403c-a7bc-b21bf2a5070a",
+        "role": "assistant",
+        "content": "Got it: exam prep, focused and quick. Just to confirm, is ten minutes right, or could you stretch to twenty, or stay as long as it takes?",
+        "createdAt": "2026-10-26T15:05:25.907Z"
+      },
+      {
+        "id": "4d2d76f5-7455-48f9-a983-031a909781a9",
+        "role": "user",
+        "content": "20 is fine",
+        "createdAt": "2026-10-26T15:05:39.409Z"
+      },
+      {
+        "id": "47db8726-5e3e-41cb-909f-bef1c29ef58e",
+        "role": "assistant",
+        "content": "Great, start the short opening check in the workbook. Since it's a check, I can give hints but not answers, and guessing is completely fine.",
+        "createdAt": "2026-10-26T15:05:41.078Z"
+      }
+    ],
+    "createdAt": "2026-10-26T15:04:48.970Z",
+    "updatedAt": "2026-10-26T15:05:41.078Z"
+  },
+  {
+    "id": "87bc395e-acdf-426a-98f9-b639e0a3cbdc",
+    "title": "I'm studying for my statistics final…",
+    "pinned": false,
+    "icon": null,
+    "messages": [
+      {
+        "id": "2b35bf7c-1970-42a9-9525-e9f610d2f93f",
+        "role": "user",
+        "content": "I'm studying for my statistics final and need help understanding base rates",
+        "createdAt": "2026-10-26T15:43:22.927Z"
+      },
+      {
+        "id": "5b964963-a332-4924-ade7-fb27b6ca1b3d",
+        "role": "assistant",
+        "content": "I'm your base rates tutor. You can talk to me, and I'll listen through your microphone. We'll work through base rates together so you can solve these problems on your own for your final. How much time do you have today?",
+        "createdAt": "2026-10-26T15:44:00.728Z"
+      }
+    ],
+    "createdAt": "2026-10-26T15:43:22.881Z",
+    "updatedAt": "2026-10-26T15:44:00.728Z"
+  },
+  {
+    "id": "5c257dab-f82f-4b63-9b36-de62681625b0",
+    "title": "I'm studying for my statistics final…",
+    "pinned": false,
+    "icon": null,
+    "messages": [
+      {
+        "id": "6da01113-25f9-4df9-8b05-34882b651dca",
+        "role": "user",
+        "content": "I'm studying for my statistics final and need help understanding base rates",
+        "createdAt": "2026-10-26T15:45:07.324Z"
+      },
+      {
+        "id": "390eccb9-3b79-46ac-906a-9ad840642f7a",
+        "role": "assistant",
+        "content": "I'm your base rates tutor. You can talk to me, and I'll listen through your microphone. We'll work through base rates together, so you can solve problems like these on your final. How much time do you have for this session today?",
+        "createdAt": "2026-10-26T15:45:12.880Z"
+      },
+      {
+        "id": "a20b5fd6-c3e0-4da4-9ba6-95623fd8cf2d",
+        "role": "user",
+        "content": "20 minutes",
+        "createdAt": "2026-10-26T15:45:28.865Z"
+      },
+      {
+        "id": "e31d60fa-4bba-49bc-b456-2ffcbf6d1d5a",
+        "role": "assistant",
+        "content": "Twenty minutes is plenty to get base rates solid for your final. Just to confirm, is about twenty minutes the time you have, or would you rather go as long as it takes?",
+        "createdAt": "2026-10-26T15:45:32.445Z"
+      },
+      {
+        "id": "9c4dec39-7748-4ceb-b209-1d2e7f7cfb7e",
+        "role": "user",
+        "content": "20 minutes",
+        "createdAt": "2026-10-26T15:45:48.546Z"
+      },
+      {
+        "id": "aceea6f7-4695-47c1-b67c-7bc385cdf983",
+        "role": "assistant",
+        "content": "Great, please start the short opening check in the workbook. Since it's a check, I can give hints but not answers, and guessing is completely fine.",
+        "createdAt": "2026-10-26T15:45:50.406Z"
+      },
+      {
+        "id": "72f86e1d-b635-4904-b3e0-76a32167b8d9",
+        "role": "user",
+        "content": "I'm your bystander effect tutor you can talk to me and I'll listen through your microphone",
+        "createdAt": "2026-10-26T15:46:26.548Z"
+      },
+      {
+        "id": "e9638d7f-b2a0-491a-acd9-5bd5b6734002",
+        "role": "assistant",
+        "content": "That sounded like audio from somewhere else, maybe another tab. Whenever you're ready, the first question in the workbook asks which part of base rates feels confusing, and any answer is fine.",
+        "createdAt": "2026-10-26T15:46:28.791Z"
+      }
+    ],
+    "createdAt": "2026-10-26T15:45:07.265Z",
+    "updatedAt": "2026-10-26T15:46:28.791Z"
+  },
+  {
+    "id": "d88efb7a-de38-40e0-b920-40fe7a657352",
+    "title": "I'm studying for my statistics final…",
+    "pinned": false,
+    "icon": null,
+    "messages": [
+      {
+        "id": "b2a22707-5750-4ced-acfe-867906aef7c5",
+        "role": "user",
+        "content": "I'm studying for my statistics final and need help understanding base rates",
+        "createdAt": "2026-10-26T15:52:59.101Z"
+      },
+      {
+        "id": "dad49d5a-146b-4b8b-951b-f3435ac4ed47",
+        "role": "assistant",
+        "content": "I'm your base rates tutor. You can talk to me, and I'll listen through your microphone. We'll work through base rates together, so you can solve questions like this on your final. How much time do you have today?",
+        "createdAt": "2026-10-26T15:53:11.893Z"
+      },
+      {
+        "id": "6f8a34d0-f395-4642-aa3e-ed236205c26d",
+        "role": "user",
+        "content": "20 minutes",
+        "createdAt": "2026-10-26T15:53:27.187Z"
+      },
+      {
+        "id": "b2cbd6a0-a8fe-4656-861b-0a2c505ccde7",
+        "role": "assistant",
+        "content": "Twenty minutes is plenty for base rates. Just to confirm, is about twenty minutes all the time you have today? You can tap a choice below.",
+        "createdAt": "2026-10-26T15:53:30.740Z"
+      },
+      {
+        "id": "9f8b091c-e89b-466b-8835-5926e9bbd19a",
+        "role": "user",
+        "content": "About 20 minutes",
+        "createdAt": "2026-10-26T15:53:43.465Z"
+      },
+      {
+        "id": "c3fed6ed-0904-4251-8155-9ddd5746df76",
+        "role": "assistant",
+        "content": "Great, please start the short opening check in the workbook. It's a check, so I can give hints but not answers, and guessing is completely fine.",
+        "createdAt": "2026-10-26T15:53:45.960Z"
+      },
+      {
+        "id": "3c769ec1-c9a3-42f8-bf30-1fc25c93b2b7",
+        "role": "user",
+        "content": "new Services 90% accurate so most Travelers it Flags are lying a news story says a border lie detector is 90% accurate so most fewer than one other what's wrong with the conclusion",
+        "createdAt": "2026-10-26T15:56:56.973Z"
+      },
+      {
+        "id": "abb3dec2-7e15-4ec6-8085-474d8f9d528d",
+        "role": "assistant",
+        "content": "Picture a thousand travellers in that queue. Roughly how many are actually lying, and roughly how many honest people might the detector still flag?",
+        "createdAt": "2026-10-26T15:56:59.320Z"
+      },
+      {
+        "id": "4cf2b433-43ab-4930-b7be-76a49bfe61c9",
+        "role": "user",
+        "content": "if one in 10 flags are incorrect that means that",
+        "createdAt": "2026-10-26T15:58:54.504Z"
+      },
+      {
+        "id": "a251fd6b-3709-4db8-878d-92e2501ae7d7",
+        "role": "assistant",
+        "content": "Careful, ten percent of which group? Out of a thousand travellers, roughly how many honest ones would get wrongly flagged, compared with the one who's actually lying?",
+        "createdAt": "2026-10-26T15:58:58.479Z"
+      },
+      {
+        "id": "e8ea580a-67ff-4c1c-bcaa-1b9f39cd8d8f",
+        "role": "user",
+        "content": "one way to interpret this is like",
+        "createdAt": "2026-10-26T15:59:22.855Z"
+      },
+      {
+        "id": "90b6983b-43e8-42ec-b48a-e9a1befabee3",
+        "role": "assistant",
+        "content": "Go on, I'm listening. Try finishing that thought by counting: roughly how many honest travellers out of a thousand would get flagged?",
+        "createdAt": "2026-10-26T15:59:26.072Z"
+      },
+      {
+        "id": "30a2d039-9de5-4fd8-9352-c6441e892c19",
+        "role": "user",
+        "content": "so there are 999 honest Travelers out of a thousand Travelers and if the thing is 90% accurate then 10% of the time it would get it wrong so would it be flagging 99 Travelers incorrectly like honest Travelers flagged incorrectly",
+        "createdAt": "2026-10-26T16:00:05.520Z"
+      },
+      {
+        "id": "ffeb989d-7fa5-4ccc-8703-7c18c0ca0cd9",
+        "role": "assistant",
+        "content": "Now compare that pile of flagged honest travellers with the number of actual liars flagged. Which pile is bigger, and does your typed answer in the workbook say that?",
+        "createdAt": "2026-10-26T16:00:14.460Z"
+      },
+      {
+        "id": "356b31d5-ad9d-40cb-b234-4d06c42c7379",
+        "role": "user",
+        "content": "so I think what we did was like we took the group well actually I'm not sure I will probably won't help abstracting the problem into an equation",
+        "createdAt": "2026-10-26T16:02:06.059Z"
+      },
+      {
+        "id": "bb33c5b7-dfb6-4452-934e-59d653edaa1b",
+        "role": "assistant",
+        "content": "You don't need an equation; counting piles of people is enough. The workbook's first teaching step is being prepared now, and we'll compare those two flagged piles together there.",
+        "createdAt": "2026-10-26T16:02:11.417Z"
+      },
+      {
+        "id": "298e7d1e-b683-41c8-9688-a6e70e60248f",
+        "role": "assistant",
+        "content": "This step uses the same pile-counting you just did, showing that one group of true positives gives two different fractions. Look at the frequency tree and its blue and orange boxes.",
+        "createdAt": "2026-10-26T16:02:57.265Z"
+      },
+      {
+        "id": "916489b7-4b33-42e0-bf36-9ab7f3880c53",
+        "role": "user",
+        "content": "I don't have contacts about this question where is the 80 coming from The 100 I think we're missing something about the content of the question",
+        "createdAt": "2026-10-26T16:04:07.766Z"
+      },
+      {
+        "id": "f45ada00-493f-4753-b781-4c200c87b27f",
+        "role": "assistant",
+        "content": "In the frequency tree, start at the top with a thousand people: one hundred have the condition. The test catches eighty of those hundred. Can you spot those eighty on the left branch?",
+        "createdAt": "2026-10-26T16:04:10.723Z"
+      },
+      {
+        "id": "f1fa824a-f683-4191-b5c9-8777256f8d32",
+        "role": "user",
+        "content": "but what test are we talking about",
+        "createdAt": "2026-10-26T16:04:27.394Z"
+      },
+      {
+        "id": "99a559d6-49e1-4708-b3f6-dc8b2b983c1f",
+        "role": "assistant",
+        "content": "It's a made-up test for an unnamed condition, like a medical screening. Ten percent of the thousand have the condition; which branch of the tree shows those hundred people?",
+        "createdAt": "2026-10-26T16:04:30.336Z"
+      },
+      {
+        "id": "a021405e-8df7-479b-ba40-8ad7fde2fa56",
+        "role": "assistant",
+        "content": "Welcome back, you're on teaching step one of three, the frequency tree with the blue and orange boxes, looking at the eighty people who test positive.",
+        "createdAt": "2026-10-26T16:10:22.446Z"
+      },
+      {
+        "id": "fa93dc68-fee6-458d-86d0-87809e7c464c",
+        "role": "user",
+        "content": "can you give me contacts about this question again",
+        "createdAt": "2026-10-26T16:10:39.065Z"
+      },
+      {
+        "id": "92bae440-7174-4230-8e70-5c8712cda2ac",
+        "role": "assistant",
+        "content": "Sure. A thousand people take a screening test; one hundred have the condition, and the test flags eighty of them. It also wrongly flags one hundred eighty healthy people. If you tested positive, which pile are you in?",
+        "createdAt": "2026-10-26T16:10:42.314Z"
+      }
+    ],
+    "createdAt": "2026-10-26T15:52:59.034Z",
+    "updatedAt": "2026-10-26T16:10:42.314Z"
   }
 ]

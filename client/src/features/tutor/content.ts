@@ -12,6 +12,30 @@ export const tutorContent = {
     declined: 'No problem. If you\'d like to try Tutor mode later, just include the word "tutor" in a message.',
     startFailed: "Couldn't start Tutor mode. Please try again.",
   },
+  // The first-time dialog, shown once per user after Start with voice or Start with text.
+  intro: {
+    title: "How Tutor mode works",
+    tutorTitle: "Tutor",
+    tutorBody:
+      "The tutor is there to discuss questions, provide additional context, and explain concepts in further detail if they're confusing.",
+    tutorTab: "In the Chat tab",
+    workbookTitle: "Workbook",
+    workbookBody: "Assessments and learning exercises will appear here on the right.",
+    // Narrow screens show Chat and Workbook tabs, not side-by-side panels.
+    workbookBodyNarrow: "Assessments and learning exercises will appear here.",
+    workbookTab: "In the Workbook tab",
+    note: "Interacting with the tutor does not affect progress in the workbook.",
+    gotIt: "Got it",
+  },
+  // The fixed start of the tutor's first message in every session, before the model's opening.
+  opening: {
+    // "the bystander effect" reads as "your bystander effect tutor".
+    intro: (topicName: string) => `I'm your ${topicName.replace(/^the\s+/i, "")} tutor.`,
+    voice: "You can talk to me, and I'll listen through your microphone.",
+    // Side by side (lg up), the chat is on the left; below that, it's the Chat tab.
+    text: "You can chat with me by typing into the input on the left side of Tutor mode.",
+    textTabs: "You can chat with me by typing into the input in the Chat tab.",
+  },
   banner: {
     mode: "Tutor mode",
     exit: "Exit",
@@ -179,6 +203,19 @@ export const tutorContent = {
     nextHelp: "More practice gives you 3 more questions that mix today's ideas.",
     morePractice: "More practice",
     exit: "Exit Tutor mode",
+  },
+  // Tutor's actions in the clone's debug menu, for test administrators.
+  debug: {
+    resetIntro: 'Reset "first time in Tutor" flag',
+    introReset: "Intro will show next time",
+    startBystander: 'Start "bystander effect" sequence',
+    startBaseRates: 'Start "base rates" sequence',
+    // Natural learner messages that go through detection, not the "tutor" keyword. The base-rates
+    // numbers differ from the measurement items (A1, F1) so they don't give away the checks.
+    bystanderMessage:
+      "I'm studying for my psych midterm. Why are people less likely to help in an emergency when there's a crowd around?",
+    baseRatesMessage:
+      "I'm reviewing for my stats exam. A disease affects 1 in 500 people, and a screening test catches 99% of cases but wrongly flags 5% of healthy people. If someone tests positive, how likely is it that they actually have the disease?",
   },
   announcements: {
     recorded: "Answer recorded.",

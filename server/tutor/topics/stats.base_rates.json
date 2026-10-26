@@ -1,6 +1,7 @@
 {
   "id": "stats.base_rates",
   "title": "Base rates in a positive test result",
+  "name": "base rates",
   "subjectArea": "Statistics",
   "detection": {
     "keywords": [
@@ -82,7 +83,6 @@
     "selfReport": {
       "itemKey": "stats.S0",
       "kind": "multiple_choice",
-      "prompt": "What feels least clear about questions like this?",
       "options": [
         { "text": "Which numbers to use" },
         { "text": "Why the answer isn't just the accuracy" },

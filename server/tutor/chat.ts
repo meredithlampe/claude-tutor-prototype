@@ -14,7 +14,11 @@ interface ChatBody {
   event?: WorkbookEvent;
   workbook?: WorkbookDraft;
   retry?: boolean;
+  // The fixed first line of the session's first message (client copy), sent with session_started.
+  opening?: string;
 }
+
+const OPENING_MAX_LENGTH = 300;
 
 const EVENT_TYPES = new Set<WorkbookEvent["type"]>([
   "session_started",
@@ -29,7 +33,7 @@ const EVENT_TYPES = new Set<WorkbookEvent["type"]>([
 
 function readBody(body: unknown): ChatBody {
   if (typeof body !== "object" || body === null) return {};
-  const { message, event, workbook, retry } = body as Record<string, unknown>;
+  const { message, event, workbook, retry, opening } = body as Record<string, unknown>;
   const parsedEvent =
     typeof event === "object" && event !== null && EVENT_TYPES.has((event as WorkbookEvent).type)
       ? (event as WorkbookEvent)
@@ -39,6 +43,10 @@ function readBody(body: unknown): ChatBody {
     event: parsedEvent,
     workbook: typeof workbook === "object" && workbook !== null ? (workbook as WorkbookDraft) : undefined,
     retry: retry === true,
+    opening:
+      parsedEvent?.type === "session_started" && typeof opening === "string" && opening.trim()
+        ? opening.trim().slice(0, OPENING_MAX_LENGTH)
+        : undefined,
   };
 }
 
@@ -75,9 +83,13 @@ function eventText(event: WorkbookEvent): string {
   }
 }
 
-function turnInstruction(session: TutorSession, event: WorkbookEvent | undefined, scopedNow: boolean): string | undefined {
+function turnInstruction(body: ChatBody, session: TutorSession, scopedNow: boolean): string | undefined {
+  const { event } = body;
   if (event?.type === "session_started") {
-    return `The learner just asked the question above and chose Tutor mode instead of a straight answer, so they haven't been given an answer. Write your opening message: in one short sentence, say you'll work through their question together so they can solve ones like it; then ask what they're working toward. Tappable choices appear below your message (homework, an exam, curiosity). Two short sentences in total. Don't answer or start solving their question.`;
+    const opening = body.opening
+      ? `Your message starts with this fixed line, which the app has already written and shown: "${body.opening}" Continue straight after it; don't repeat it, introduce yourself again or greet them. `
+      : "";
+    return `The learner just asked the question above and chose Tutor mode instead of a straight answer, so they haven't been given an answer. ${opening}Write your opening message: in one short sentence, say you'll work through their question together so they can solve ones like it; then ask what they're working toward. Tappable choices appear below your message (homework, an exam, curiosity). Two short sentences in total. Don't answer or start solving their question.`;
   }
   if (session.status === "scoping" && session.scoping.goal && !session.scoping.time) {
     return `The learner's goal: "${session.scoping.goal}". Acknowledge it in a few words, then ask how much time they have. Tappable choices appear below your message (about 10 minutes, about 20 minutes, as long as it takes). One or two sentences.`;
@@ -179,11 +191,15 @@ async function streamTutorReply(res: Response, { session, conversation, body, sc
     session,
     topic: getTopic(session.topicId),
     workbookState: describeWorkbook(session, body.workbook),
-    turnInstruction: turnInstruction(session, body.event, scopedNow),
+    turnInstruction: turnInstruction(body, session, scopedNow),
   });
   const messages: Anthropic.MessageParam[] = conversation.messages.map(({ role, content }) => ({ role, content }));
   // A workbook event isn't stored; it only asks the tutor to speak.
   if (body.event && !body.message) messages.push({ role: "user", content: eventText(body.event) });
+
+  // The fixed opening line streams first and is stored as part of the reply.
+  const prefix = body.opening ? `${body.opening} ` : "";
+  if (prefix) sendEvent(res, { type: "text", text: prefix });
 
   const result = await streamReply({
     messages,
@@ -193,11 +209,11 @@ async function streamTutorReply(res: Response, { session, conversation, body, sc
   });
 
   if (result.type === "aborted") {
-    if (result.text.trim()) await appendMessage(conversation.id, "assistant", result.text);
+    if (result.text.trim()) await appendMessage(conversation.id, "assistant", prefix + result.text);
     return;
   }
   if (result.type === "done") {
-    if (result.text) await appendMessage(conversation.id, "assistant", result.text);
+    if (result.text) await appendMessage(conversation.id, "assistant", prefix + result.text);
     sendEvent(res, { type: "done" });
   } else {
     sendEvent(res, { type: result.type });

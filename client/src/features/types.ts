@@ -53,8 +53,24 @@ export interface FeatureSlots {
   onEvent?: (event: FeatureEvent, replyId: string) => void;
 }
 
+// What the clone's debug menu gives a debug action.
+export interface DebugContext {
+  // Creates a conversation with this first message and opens it, the same way sending from
+  // Home does.
+  startChat: (text: string) => Promise<void>;
+}
+
+// A prototype operation in the clone's debug menu, which only renders in dev builds.
+export interface DebugAction {
+  id: string;
+  label: string;
+  // Resolves to a short confirmation to show and announce, if any. Throwing shows a failure.
+  run: (debug: DebugContext) => Promise<string | void>;
+}
+
 export interface ChatFeature {
   id: string;
   // Called on every render of the chat thread, so it can use hooks to hold the feature's state.
   useSlots: (chat: ChatContext) => FeatureSlots;
+  debugActions?: DebugAction[];
 }

@@ -1,11 +1,14 @@
 import { useCallback, useState } from "react";
 import { Menu } from "lucide-react";
 import { Outlet } from "react-router-dom";
+import { DebugMenu } from "@/components/DebugMenu";
 import { IconButton } from "@/components/IconButton";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { content } from "@/constants/content";
+import { debugActions } from "@/features";
 import { useApiData, type ApiState } from "@/hooks/useApiData";
+import { useStartChat } from "@/hooks/useStartChat";
 import { fetchConversations, fetchUser } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { ConversationSummary, User } from "@/types";
@@ -25,6 +28,7 @@ export function AppLayout() {
     [],
   );
   const user = useApiData(fetchUser);
+  const startChat = useStartChat(refreshConversations);
   const [collapsed, setCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const closeDrawer = () => setDrawerOpen(false);
@@ -82,6 +86,7 @@ export function AppLayout() {
           />
         </main>
       </div>
+      <DebugMenu actions={debugActions} debug={{ startChat }} />
     </div>
   );
 }

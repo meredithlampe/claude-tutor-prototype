@@ -3,7 +3,7 @@ import { appendMessage, getConversation } from "../repo/conversations";
 import { getUser } from "../repo/user";
 import { streamReply } from "../services/claude";
 import { handleChat } from "./chat";
-import { getLatestSession, listSessions, updateSession } from "./repo";
+import { getLatestSession, getTutorUser, listSessions, updateSession, updateTutorUser } from "./repo";
 import {
   advance,
   ensureBuilt,
@@ -23,6 +23,7 @@ import {
   type AnswerInput,
 } from "./session";
 import type { Confidence, TutorMode, TutorSession } from "./types";
+import { voiceProvider, voiceProviderId, VoiceProviderError } from "./voice";
 
 type Params = { conversationId: string };
 
@@ -60,6 +61,75 @@ async function withActiveSession(
     res.status(500).json({ error: "Something went wrong", session: publicSession(session) });
   }
 }
+
+// Which voice the client should use: "browser" (speechSynthesis) or a server provider.
+// Before /:conversationId, which would otherwise match.
+tutorRouter.get("/voice", (_req, res) => {
+  res.json({ provider: voiceProviderId() });
+});
+
+// One sentence of the tutor's reply as audio, streamed from the voice provider.
+const TTS_MAX_LENGTH = 1000;
+tutorRouter.post("/tts", async (req, res) => {
+  const text = optionalString(field(req.body, "text"))?.trim();
+  if (!text || text.length > TTS_MAX_LENGTH) {
+    res.status(400).json({ error: `text is required (at most ${TTS_MAX_LENGTH} characters)` });
+    return;
+  }
+  const provider = voiceProvider();
+  if (!provider) {
+    res.status(404).json({ error: "The tutor's voice is the browser's; there's no server audio" });
+    return;
+  }
+  // Stop the vendor's request when the client goes away (Stop speaking, Mute, Exit).
+  const controller = new AbortController();
+  res.on("close", () => {
+    if (!res.writableEnded) controller.abort();
+  });
+  try {
+    const audio = await provider.synthesize(text, controller.signal);
+    res.writeHead(200, { "Content-Type": audio.contentType, "Cache-Control": "no-store" });
+    const reader = audio.body.getReader();
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      res.write(value);
+    }
+    res.end();
+  } catch (error) {
+    if (controller.signal.aborted) return;
+    if (res.headersSent) {
+      res.destroy();
+      return;
+    }
+    if (error instanceof VoiceProviderError) {
+      console.error(`Tutor: voice ${provider.id} failed: ${error.message}`);
+      res.status(error.status).json({ error: error.message });
+      return;
+    }
+    console.error(`Tutor: voice ${provider.id} failed`, error instanceof Error ? error.message : "");
+    res.status(502).json({ error: "The voice provider didn't respond" });
+  }
+});
+
+// The first-time intro dialog, shown once per user. DELETE resets it, to see it again.
+// Before /:conversationId, which would otherwise match.
+tutorRouter.get("/intro", async (_req, res) => {
+  const user = await getUser();
+  res.json({ seen: Boolean((await getTutorUser(user.name)).introSeenAt) });
+});
+
+tutorRouter.post("/intro", async (_req, res) => {
+  const user = await getUser();
+  await updateTutorUser(user.name, (state) => ({ ...state, introSeenAt: state.introSeenAt ?? new Date().toISOString() }));
+  res.json({ seen: true });
+});
+
+tutorRouter.delete("/intro", async (_req, res) => {
+  const user = await getUser();
+  await updateTutorUser(user.name, (state) => ({ ...state, introSeenAt: undefined }));
+  res.json({ seen: false });
+});
 
 tutorRouter.get("/:conversationId", async (req: Request<Params>, res) => {
   const session = await getLatestSession(req.params.conversationId);

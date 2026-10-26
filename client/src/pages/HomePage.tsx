@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Ghost } from "lucide-react";
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 import type { AppOutletContext } from "@/components/AppLayout";
 import { IconButton } from "@/components/IconButton";
 import { Composer } from "@/components/chat/Composer";
@@ -8,12 +8,11 @@ import { ComposerOptions } from "@/components/home/ComposerOptions";
 import { Greeting } from "@/components/home/Greeting";
 import { RecentArtifacts } from "@/components/home/RecentArtifacts";
 import { content } from "@/constants/content";
-import { createConversation } from "@/lib/api";
-import type { NewChatLocationState } from "@/types";
+import { useStartChat } from "@/hooks/useStartChat";
 
 export function HomePage() {
   const { user, refreshConversations } = useOutletContext<AppOutletContext>();
-  const navigate = useNavigate();
+  const startChat = useStartChat(refreshConversations);
   const [isCreating, setIsCreating] = useState(false);
   const [createFailed, setCreateFailed] = useState(false);
 
@@ -21,10 +20,7 @@ export function HomePage() {
     setIsCreating(true);
     setCreateFailed(false);
     try {
-      const conversation = await createConversation(text);
-      refreshConversations();
-      const state: NewChatLocationState = { conversation, pendingMessage: text };
-      navigate(`/chat/${conversation.id}`, { state });
+      await startChat(text);
       return true;
     } catch {
       setCreateFailed(true);

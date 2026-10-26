@@ -42,3 +42,25 @@ export function updateSession(
     return { data, result: updated };
   });
 }
+
+// Per-user Tutor state, keyed by user id (the user's name, as on sessions).
+const USERS_FILE = "tutor-users.json";
+
+interface TutorUserState {
+  // When the learner clicked Got it on the first-time intro dialog.
+  introSeenAt?: string;
+}
+
+export async function getTutorUser(userId: string): Promise<TutorUserState> {
+  return (await readJson<Record<string, TutorUserState>>(USERS_FILE))[userId] ?? {};
+}
+
+export function updateTutorUser(
+  userId: string,
+  update: (state: TutorUserState) => TutorUserState,
+): Promise<TutorUserState> {
+  return updateJson<Record<string, TutorUserState>, TutorUserState>(USERS_FILE, (users) => {
+    const state = update({ ...users[userId] });
+    return { data: { ...users, [userId]: state }, result: state };
+  });
+}

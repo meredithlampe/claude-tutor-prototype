@@ -49,11 +49,16 @@ function fromTopicItem(item: TopicItem, role: TutorQuestion["role"]): TutorQuest
   };
 }
 
+// The opening check's self-report question (S0), for library and generated topics alike.
+export function selfReportPrompt(topicName: string): string {
+  return `Which part of ${topicName} feels confusing?`;
+}
+
 // Form 1: A items in the assessment, F items in the final check. Form 2: the reverse.
 export function fixedAssessment(topic: Topic, form: 1 | 2): TutorQuestion[] {
   const [first, second] = form === 1 ? ["A1", "A2"] as const : ["F1", "F2"] as const;
   return [
-    fromTopicItem(topic.items.selfReport, "self_report"),
+    fromTopicItem({ ...topic.items.selfReport, prompt: selfReportPrompt(topic.name) }, "self_report"),
     fromTopicItem(topic.items[first], "check"),
     fromTopicItem(topic.items[second], "check"),
   ];
@@ -462,7 +467,7 @@ Learner's goal: ${session.scoping.goal ?? "not given"}. Time available: ${sessio
 ${openingExchange(messages)}
 
 Write the opening check for a short Tutor session on this subject:
-1. A self-report question asking what feels least clear about this subject, with 3 or 4 short options, the last being "Not sure". No visual.
+1. The options for a self-report question, "${selfReportPrompt(session.subject)}": 3 or 4 short options naming parts of the subject, the last being "Not sure". No visual.
 2. Two probe questions that show what the learner understands now: one multiple choice ("apply" level; ${MC_RULES}) and one freeform ("understand" level, explain in their own words, with a rubric). Each probe has its own visual that pictures the scenario plainly and never gives away the answer.
 Use a different scenario from the learner's question, so the probes test transfer.
 
@@ -476,15 +481,15 @@ ${VISUAL_RULES}`;
       selfReport: {
         type: "object",
         additionalProperties: false,
-        required: ["prompt", "options"],
-        properties: { prompt: { type: "string" }, options: { type: "array", items: { type: "string" } } },
+        required: ["options"],
+        properties: { options: { type: "array", items: { type: "string" } } },
       },
       probes: { type: "array", items: questionSchema },
     },
   };
 
   const result = await structuredCall<{
-    selfReport: { prompt: string; options: string[] };
+    selfReport: { options: string[] };
     probes: GeneratedQuestion[];
   }>("assessment", prompt, schema, "medium");
 
@@ -496,7 +501,7 @@ ${VISUAL_RULES}`;
   return [
     {
       id: newId("self-report"),
-      prompt: result.selfReport.prompt,
+      prompt: selfReportPrompt(session.subject),
       kind: "multiple_choice",
       role: "self_report",
       options: result.selfReport.options.map((text) => ({ text })),

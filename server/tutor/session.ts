@@ -715,6 +715,8 @@ export function publicSession(session: TutorSession) {
     id: session.id,
     status: session.status,
     subject: topic?.title ?? session.subject,
+    // Short, for mid-sentence use ("I'm your base rates tutor").
+    topicName: topic?.name ?? session.subject,
     mode: session.mode,
     requestedMode: session.requestedMode,
     offerMessageId: session.offerMessageId,

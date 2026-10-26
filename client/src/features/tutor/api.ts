@@ -57,6 +57,7 @@ export async function* sendTutorMessage(
   { content, silent, data, retry, signal }: SendMessageOptions,
 ): AsyncGenerator<StreamEvent | FeatureEvent> {
   const event = data?.event as WorkbookEvent | undefined;
+  const opening = typeof data?.opening === "string" ? data.opening : undefined;
   const response = await fetch(`${base(conversationId)}/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -64,6 +65,7 @@ export async function* sendTutorMessage(
       message: silent ? undefined : content,
       event,
       workbook: workbookDrafts.get(conversationId),
+      opening,
       retry,
     }),
     signal,
@@ -72,4 +74,52 @@ export async function* sendTutorMessage(
   for await (const chunk of readSseData(response.body)) {
     yield JSON.parse(chunk) as StreamEvent | FeatureEvent;
   }
+}
+
+// Whether this user has seen the first-time intro dialog. Unknown (a failed request) shows it.
+export async function fetchIntroSeen(): Promise<boolean> {
+  try {
+    const response = await fetch("/api/tutor/intro");
+    return response.ok ? Boolean(((await response.json()) as { seen?: boolean }).seen) : false;
+  } catch {
+    return false;
+  }
+}
+
+export function markIntroSeen(): Promise<void> {
+  return fetch("/api/tutor/intro", { method: "POST" }).then(
+    () => undefined,
+    () => undefined,
+  );
+}
+
+// Makes the first-time intro show again (the debug menu's reset).
+export async function resetIntroSeen(): Promise<void> {
+  const response = await fetch("/api/tutor/intro", { method: "DELETE" });
+  if (!response.ok) throw new Error(`DELETE tutor intro failed with ${response.status}`);
+}
+
+// "browser" (speechSynthesis) or the id of a server voice provider, e.g. "elevenlabs".
+export type VoiceProviderId = string;
+
+// Which voice the server has set up for the tutor. Asked once per page; "browser" on failure.
+let voiceProviderRequest: Promise<VoiceProviderId> | undefined;
+export function fetchVoiceProvider(): Promise<VoiceProviderId> {
+  voiceProviderRequest ??= fetch("/api/tutor/voice")
+    .then((response) => (response.ok ? response.json() : { provider: "browser" }))
+    .then((data: { provider?: string }) => data.provider ?? "browser")
+    .catch(() => "browser");
+  return voiceProviderRequest;
+}
+
+// One sentence as audio from the server's voice provider.
+export async function fetchSpeech(text: string, signal: AbortSignal): Promise<Blob> {
+  const response = await fetch("/api/tutor/tts", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+    signal,
+  });
+  if (!response.ok) throw new Error(`POST tutor tts failed with ${response.status}`);
+  return response.blob();
 }

@@ -1,37 +1,14 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { FeatureEvent, StreamEvent } from "@/types";
+import { fetchVoiceProvider } from "./api";
+import { listenWithBrowser, recognitionConstructor, type ListenSession } from "./voiceInput";
+import { createBrowserOutput, createServerOutput, VoiceOutputFailed, type VoiceOutput } from "./voiceOutput";
 
-// Voice mode with the browser's Web Speech API only: speechSynthesis reads the tutor's chat
-// replies aloud, and SpeechRecognition listens for the learner's reply once it has finished.
-// The workbook is never read aloud, and workbook answers are never taken by voice.
-
-// SpeechRecognition isn't in TypeScript's DOM types yet (only its events are). Chrome and
-// Safari ship it as webkitSpeechRecognition.
-interface Recognition {
-  lang: string;
-  interimResults: boolean;
-  continuous: boolean;
-  maxAlternatives: number;
-  onstart: (() => void) | null;
-  onresult: ((event: SpeechRecognitionEvent) => void) | null;
-  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
-  onend: (() => void) | null;
-  start(): void;
-  abort(): void;
-}
-type RecognitionConstructor = new () => Recognition;
-
-function recognitionConstructor(): RecognitionConstructor | undefined {
-  const speechWindow = window as unknown as {
-    SpeechRecognition?: RecognitionConstructor;
-    webkitSpeechRecognition?: RecognitionConstructor;
-  };
-  return speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
-}
-
-function speechLang(): string {
-  return document.documentElement.lang || navigator.language || "en-US";
-}
+// Voice mode: the tutor's chat replies are read aloud sentence by sentence, through the
+// browser's speechSynthesis or the server's voice provider (see voiceOutput.ts), and the
+// learner's reply is heard with the browser's SpeechRecognition (see voiceInput.ts) once the
+// tutor has finished. The workbook is never read aloud, and workbook answers are never taken
+// by voice.
 
 export type VoiceUnavailable = "unsupported" | "denied" | "noMicrophone";
 
@@ -119,21 +96,20 @@ type UseSpeechOptions = {
   armed: boolean;
   // A reply is streaming, so it isn't the learner's turn.
   replyStreaming: boolean;
-  // What the learner said, once recognition has a final result.
+  // What the learner said, once they have paused (see SILENCE_BEFORE_SUBMIT_MS).
   onTranscript: (text: string) => void;
   onUnavailable: (reason: VoiceUnavailable) => void;
+  // Called as soon as the tutor starts or stops speaking, in the same update as the reply's
+  // stream ending, so the session never sees a moment where the tutor seems to be done.
+  onSpeakingChange?: (speaking: boolean) => void;
 };
 
 // A short pause before listening, so a turn that's about to continue (a queued reply, the
 // next sentence) doesn't flash the browser's microphone indicator on and off.
 const LISTEN_DELAY_MS = 300;
-// Recognition that ends this soon after starting, several times running, isn't working (no
-// audio, or the recognition service is unreachable).
-const QUICK_END_MS = 1500;
-const QUICK_ENDS_BEFORE_STALL = 3;
 
-export function useSpeech({ enabled, armed, replyStreaming, onTranscript, onUnavailable }: UseSpeechOptions) {
-  const [speaking, setSpeaking] = useState(false);
+export function useSpeech({ enabled, armed, replyStreaming, onTranscript, onUnavailable, onSpeakingChange }: UseSpeechOptions) {
+  const [speaking, setSpeakingState] = useState(false);
   const [listening, setListening] = useState(false);
   const [interim, setInterim] = useState("");
   const [muted, setMuted] = useState(false);
@@ -142,61 +118,92 @@ export function useSpeech({ enabled, armed, replyStreaming, onTranscript, onUnav
   const live = enabled && (armed || activated);
 
   const liveRef = useRef(live);
-  const callbacksRef = useRef({ onTranscript, onUnavailable });
+  const callbacksRef = useRef({ onTranscript, onUnavailable, onSpeakingChange });
   useLayoutEffect(() => {
     liveRef.current = live;
-    callbacksRef.current = { onTranscript, onUnavailable };
+    callbacksRef.current = { onTranscript, onUnavailable, onSpeakingChange };
   });
 
   const bufferRef = useRef("");
   const pendingRef = useRef(0);
-  // Chrome can drop an utterance's end event if nothing holds on to it.
-  const utterancesRef = useRef(new Set<SpeechSynthesisUtterance>());
-  // Bumped on cancel, so end events from cancelled utterances are ignored.
+  // Bumped on cancel, so sentences that finish after it are ignored.
   const generationRef = useRef(0);
-  const recognitionRef = useRef<Recognition | null>(null);
-  const quickEndsRef = useRef(0);
+  const listenRef = useRef<ListenSession | null>(null);
+  // Exactly one voice speaks: the server's when it has one, otherwise the browser's. Until the
+  // server has said which, sentences wait (in order) rather than start in the browser's voice.
+  // A failed server sentence switches to the browser for the rest of the page.
+  const outputsRef = useRef<{ browser: VoiceOutput; server: VoiceOutput } | null>(null);
+  const voiceRef = useRef<"unknown" | "browser" | "server">("unknown");
+  const waitingRef = useRef<string[]>([]);
 
   const controls = useMemo(() => {
+    function setSpeaking(value: boolean) {
+      setSpeakingState(value);
+      callbacksRef.current.onSpeakingChange?.(value);
+    }
+
+    function outputs() {
+      outputsRef.current ??= { browser: createBrowserOutput(), server: createServerOutput() };
+      return outputsRef.current;
+    }
+
     function speakNow(text: string) {
       const spoken = speakableText(text);
-      if (!spoken || !("speechSynthesis" in window)) return;
-      const utterance = new SpeechSynthesisUtterance(spoken);
-      utterance.lang = speechLang();
+      if (!spoken) return;
+      pendingRef.current += 1;
+      setSpeaking(true);
+      if (voiceRef.current === "unknown") waitingRef.current.push(spoken);
+      else play(spoken);
+    }
+
+    // Once the provider is known, the waiting sentences go out in order.
+    function voiceKnown(provider: string) {
+      if (voiceRef.current !== "unknown") return;
+      voiceRef.current = provider === "browser" ? "browser" : "server";
+      const waiting = waitingRef.current;
+      waitingRef.current = [];
+      waiting.forEach(play);
+    }
+
+    function play(spoken: string) {
       const generation = generationRef.current;
       const done = () => {
-        utterancesRef.current.delete(utterance);
         if (generation !== generationRef.current) return;
         pendingRef.current = Math.max(0, pendingRef.current - 1);
         if (pendingRef.current === 0) setSpeaking(false);
       };
-      utterance.onend = done;
-      utterance.onerror = done;
-      utterancesRef.current.add(utterance);
-      pendingRef.current += 1;
-      setSpeaking(true);
-      window.speechSynthesis.speak(utterance);
+      const { browser, server } = outputs();
+      if (voiceRef.current !== "server") {
+        void browser.say(spoken).then(done);
+        return;
+      }
+      // A failure rejects this sentence and every one queued after it, in order, with no
+      // server audio left playing; each then goes to the browser's voice. Nothing is repeated:
+      // a failed sentence wasn't heard.
+      server.say(spoken).then(done, (error: unknown) => {
+        if (generation !== generationRef.current) return;
+        if (error instanceof VoiceOutputFailed) voiceRef.current = "browser";
+        void browser.say(spoken).then(done);
+      });
     }
 
     function cancelSpeech() {
       generationRef.current += 1;
       bufferRef.current = "";
       pendingRef.current = 0;
-      utterancesRef.current.clear();
+      waitingRef.current = [];
+      outputsRef.current?.browser.cancel();
+      outputsRef.current?.server.cancel();
+      // speechSynthesis can hold speech from before a hot reload or another instance.
       if ("speechSynthesis" in window) window.speechSynthesis.cancel();
       setSpeaking(false);
     }
 
     // Stops listening without sending what was heard.
     function stopListening() {
-      const recognition = recognitionRef.current;
-      recognitionRef.current = null;
-      if (!recognition) return;
-      recognition.onstart = null;
-      recognition.onend = null;
-      recognition.onresult = null;
-      recognition.onerror = null;
-      recognition.abort();
+      const session = listenRef.current;
+      listenRef.current = null;
+      session?.stop();
       setListening(false);
       setInterim("");
     }
@@ -208,63 +215,37 @@ export function useSpeech({ enabled, armed, replyStreaming, onTranscript, onUnav
     }
 
     function startListening() {
-      const Recognition = recognitionConstructor();
-      if (!Recognition) {
-        unavailable("unsupported");
-        return;
-      }
-      const recognition = new Recognition();
-      recognition.lang = speechLang();
-      recognition.interimResults = true;
-      recognition.continuous = false;
-      recognition.maxAlternatives = 1;
-      const startedAt = Date.now();
-      let finalText = "";
-
-      // A start event can arrive after this recognition was stopped; only the current one counts.
-      recognition.onstart = () => {
-        if (recognitionRef.current === recognition) setListening(true);
-      };
-      recognition.onresult = (event) => {
-        let interimText = "";
-        finalText = "";
-        for (let index = 0; index < event.results.length; index++) {
-          const result = event.results[index];
-          if (result.isFinal) finalText += result[0].transcript;
-          else interimText += result[0].transcript;
-        }
-        setInterim(`${finalText}${interimText}`.trim());
-      };
-      recognition.onerror = (event) => {
-        if (event.error === "not-allowed" || event.error === "service-not-allowed") unavailable("denied");
-        else if (event.error === "audio-capture") unavailable("noMicrophone");
-      };
-      // Ending with nothing heard is normal (Chrome stops after a few seconds of silence); the
-      // listening effect starts again while it's still the learner's turn.
-      recognition.onend = () => {
-        if (recognitionRef.current === recognition) recognitionRef.current = null;
-        setListening(false);
-        setInterim("");
-        const text = finalText.trim();
-        if (text) {
-          quickEndsRef.current = 0;
+      // Callbacks only count while this session is the current one.
+      const handle: { session?: ListenSession } = {};
+      const own = () => listenRef.current !== null && listenRef.current === handle.session;
+      handle.session = listenWithBrowser({
+        onStart: () => {
+          if (own()) setListening(true);
+        },
+        onHeard: (text) => {
+          if (own()) setInterim(text);
+        },
+        onTranscript: (text) => {
+          if (!own()) return;
+          listenRef.current = null;
+          setListening(false);
+          setInterim("");
           callbacksRef.current.onTranscript(text);
-          return;
-        }
-        quickEndsRef.current = Date.now() - startedAt < QUICK_END_MS ? quickEndsRef.current + 1 : 0;
-        if (quickEndsRef.current >= QUICK_ENDS_BEFORE_STALL) {
-          quickEndsRef.current = 0;
-          setStalled(true);
-          setMuted(true);
-        }
-      };
-
-      recognitionRef.current = recognition;
-      try {
-        recognition.start();
-      } catch {
-        recognitionRef.current = null;
-      }
+        },
+        onFail: (reason) => {
+          if (listenRef.current !== null && listenRef.current !== handle.session) return;
+          listenRef.current = null;
+          setListening(false);
+          setInterim("");
+          if (reason === "stalled") {
+            setStalled(true);
+            setMuted(true);
+          } else {
+            unavailable(reason);
+          }
+        },
+      });
+      listenRef.current = handle.session ?? null;
     }
 
     const speaker: Speaker = {
@@ -284,8 +265,13 @@ export function useSpeech({ enabled, armed, replyStreaming, onTranscript, onUnav
       cancel: cancelSpeech,
     };
 
-    return { speaker, cancelSpeech, startListening, stopListening };
+    return { speaker, cancelSpeech, startListening, stopListening, voiceKnown };
   }, []);
+
+  // Asked on mount, before voice is on, so the first sentence rarely has to wait.
+  useEffect(() => {
+    void fetchVoiceProvider().then(controls.voiceKnown);
+  }, [controls]);
 
   // It's the learner's turn: the tutor has finished speaking and nothing is streaming.
   const shouldListen = live && !muted && !speaking && !replyStreaming;
@@ -294,7 +280,7 @@ export function useSpeech({ enabled, armed, replyStreaming, onTranscript, onUnav
       controls.stopListening();
       return;
     }
-    if (listening || recognitionRef.current) return;
+    if (listening || listenRef.current) return;
     const timer = setTimeout(controls.startListening, LISTEN_DELAY_MS);
     return () => clearTimeout(timer);
   }, [shouldListen, listening, controls]);

@@ -61,7 +61,7 @@ Latané and Darley's diffusion of responsibility and their decision model of hel
 
 ### `stats.base_rates`
 
-**S0 (self-report, not scored):** "What feels least clear about questions like this?"
+**S0 (self-report, not scored):** "Which part of base rates feels confusing?"
 - (a) Which numbers to use
 - (b) Why the answer isn't just the accuracy
 - (c) How much the condition's rarity matters
@@ -97,7 +97,7 @@ Latané and Darley's diffusion of responsibility and their decision model of hel
 
 ### `social.bystander`
 
-**B0 (self-report, not scored):** "What's least clear?"
+**B0 (self-report, not scored):** "Which part of the bystander effect feels confusing?"
 - (a) Why groups change behaviour
 - (b) What the theory predicts
 - (c) How it applies to real life

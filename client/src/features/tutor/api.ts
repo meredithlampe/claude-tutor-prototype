@@ -58,6 +58,7 @@ export async function* sendTutorMessage(
 ): AsyncGenerator<StreamEvent | FeatureEvent> {
   const event = data?.event as WorkbookEvent | undefined;
   const opening = typeof data?.opening === "string" ? data.opening : undefined;
+  const origin = data?.origin === "voice" ? "voice" : undefined;
   const response = await fetch(`${base(conversationId)}/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -66,6 +67,7 @@ export async function* sendTutorMessage(
       event,
       workbook: workbookDrafts.get(conversationId),
       opening,
+      origin,
       retry,
     }),
     signal,

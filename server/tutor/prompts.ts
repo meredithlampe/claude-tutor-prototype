@@ -46,6 +46,17 @@ Your messages are read aloud by the learner's browser, and the learner replies b
 - Refer to the workbook by what's on screen ("in the frequency tree, look at the left branch"); don't read the workbook's text aloud.
 - Workbook answers are still clicked or typed. If the learner says an answer, respond to their reasoning and remind them to choose it in the workbook.`;
 
+// Added to a turn whose message the learner spoke (not typed) in a voice session.
+function voiceTurnRules(canRemindMute: boolean): string {
+  const unexpected = `The learner's message this turn was spoken. The microphone hears everything, so it may not be meant for you: reading the question or the options aloud ("C, about fifty percent"), muttering or thinking out loud, a fragment, or talk that's unrelated to the session. Treat it as meant for you if it's a question, an answer they're offering you, a reply to what you just asked, or a request.`;
+  const reply = canRemindMute
+    ? `If it doesn't look meant for you, reply in one short, friendly sentence, then add one short sentence reminding them there's a Mute button in the tutor chat they can use while they read aloud or think out loud.`
+    : `If it doesn't look meant for you, reply in one short, friendly sentence. You've already told them about the Mute button, so don't mention it again.`;
+  return `## The learner's spoken message
+${unexpected}
+${reply} Don't treat what they read aloud as their answer: don't say whether it's right, hint at the answer, or ask them to commit to it. Still at most 2 short sentences in total.`;
+}
+
 function topicNotes(topic: Topic): string {
   const { notes } = topic;
   return `## Vetted notes: ${topic.title}
@@ -69,6 +80,8 @@ export function tutorSystemPrompt(parts: {
   topic?: Topic;
   workbookState: string;
   turnInstruction?: string;
+  // Set when the learner spoke this turn's message in voice mode.
+  voiceTurn?: { canRemindMute: boolean };
 }): string {
   const { session, topic } = parts;
   const sections = [
@@ -82,6 +95,7 @@ Time available: ${session.scoping.time ?? "not given yet"}`,
     topic ? topicNotes(topic) : "",
     `## The workbook right now\n${parts.workbookState}`,
     parts.turnInstruction ? `## This turn\n${parts.turnInstruction}` : "",
+    parts.voiceTurn ? voiceTurnRules(parts.voiceTurn.canRemindMute) : "",
   ];
   return sections.filter(Boolean).join("\n\n");
 }

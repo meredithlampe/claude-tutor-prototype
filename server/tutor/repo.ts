@@ -43,7 +43,8 @@ export function updateSession(
   });
 }
 
-// Sessions the debug menu's Clear all chats took off screen. Append-only: they're the study's
+// Sessions taken off screen: by the debug menu's Clear all chats, or with their deleted
+// conversation. Append-only: they're the study's
 // research data (answers, timings, forms), so they're kept, not deleted.
 const ARCHIVE_FILE = "tutor-sessions-archive.json";
 
@@ -53,10 +54,10 @@ export function listArchivedSessions(): Promise<ArchivedSession[]> {
   return readJson<ArchivedSession[]>(ARCHIVE_FILE);
 }
 
-// Archives first, then removes only what was archived, so nothing is lost if one step fails
-// and a session started meanwhile stays.
-export async function archiveAllSessions(): Promise<number> {
-  const sessions = await listSessions();
+// Every session, or only one conversation's. Archives first, then removes only what was
+// archived, so nothing is lost if one step fails and a session started meanwhile stays.
+export async function archiveSessions(conversationId?: string): Promise<number> {
+  const sessions = await listSessions(conversationId);
   if (sessions.length === 0) return 0;
   const archivedAt = new Date().toISOString();
   await updateJson<ArchivedSession[], void>(ARCHIVE_FILE, (archived) => ({

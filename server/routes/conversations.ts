@@ -2,12 +2,14 @@ import { Router, type Response } from "express";
 import {
   appendMessage,
   createConversation,
+  deleteConversation,
   getConversation,
   listConversations,
 } from "../repo/conversations";
 import {
   collectCallOptions,
   handleTurnByFeature,
+  notifyConversationDeleted,
   notifyReplyDone,
   shouldWithholdReply,
   type ChatTurn,
@@ -63,6 +65,16 @@ conversationsRouter.get("/:id", async (req, res) => {
     return;
   }
   res.json(conversation);
+});
+
+// Permanent. Features are told afterwards, so they can clear (or archive) their own state for it.
+conversationsRouter.delete("/:id", async (req, res) => {
+  if (!(await deleteConversation(req.params.id))) {
+    res.status(404).json({ error: "Conversation not found" });
+    return;
+  }
+  await notifyConversationDeleted(req.params.id);
+  res.status(204).end();
 });
 
 conversationsRouter.post("/:id/messages", async (req, res) => {

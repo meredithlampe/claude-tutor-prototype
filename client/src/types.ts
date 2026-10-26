@@ -12,7 +12,6 @@ export interface StoredMessage {
 export interface Conversation {
   id: string;
   title: string;
-  pinned: boolean;
   icon: ConversationIcon;
   messages: StoredMessage[];
   createdAt: string;
@@ -20,12 +19,6 @@ export interface Conversation {
 }
 
 export type ConversationSummary = Omit<Conversation, "messages">;
-
-export interface Artifact {
-  id: string;
-  title: string;
-  updatedAt: string;
-}
 
 export interface User {
   name: string;

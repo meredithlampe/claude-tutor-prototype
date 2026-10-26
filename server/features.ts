@@ -36,6 +36,9 @@ export interface ChatFeature {
   // Called after the clone's reset puts conversations back to the sample chats (between test
   // participants). The feature clears its own per-chat state, keeping any research data.
   onReset?: () => Promise<void>;
+  // Called after the user deletes a conversation. The feature clears its own state for it,
+  // keeping any research data.
+  onConversationDeleted?: (conversationId: string) => Promise<void>;
 }
 
 export interface FeatureReply {
@@ -130,6 +133,18 @@ export async function notifyReplyDone(
       await feature.onReplyDone({ message, toolUses: ownToolUses }, turn, emit);
     } catch (error) {
       console.error(`Feature "${feature.id}": onReplyDone failed`, error);
+    }
+  }
+}
+
+// The conversation is already gone, so a failing feature is logged and the others still run.
+export async function notifyConversationDeleted(conversationId: string): Promise<void> {
+  for (const feature of features) {
+    if (!feature.onConversationDeleted) continue;
+    try {
+      await feature.onConversationDeleted(conversationId);
+    } catch (error) {
+      console.error(`Feature "${feature.id}": onConversationDeleted failed`, error);
     }
   }
 }

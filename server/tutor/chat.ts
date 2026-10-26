@@ -17,6 +17,8 @@ interface ChatBody {
   retry?: boolean;
   // The fixed first line of the session's first message (client copy), sent with session_started.
   opening?: string;
+  // "voice" when `message` is a speech-recognition transcript rather than typed text.
+  origin?: "voice";
 }
 
 const OPENING_MAX_LENGTH = 300;
@@ -34,7 +36,7 @@ const EVENT_TYPES = new Set<WorkbookEvent["type"]>([
 
 function readBody(body: unknown): ChatBody {
   if (typeof body !== "object" || body === null) return {};
-  const { message, event, workbook, retry, opening } = body as Record<string, unknown>;
+  const { message, event, workbook, retry, opening, origin } = body as Record<string, unknown>;
   const parsedEvent =
     typeof event === "object" && event !== null && EVENT_TYPES.has((event as WorkbookEvent).type)
       ? (event as WorkbookEvent)
@@ -48,6 +50,7 @@ function readBody(body: unknown): ChatBody {
       parsedEvent?.type === "session_started" && typeof opening === "string" && opening.trim()
         ? opening.trim().slice(0, OPENING_MAX_LENGTH)
         : undefined,
+    origin: origin === "voice" ? "voice" : undefined,
   };
 }
 
@@ -151,6 +154,15 @@ function turnInstruction(body: ChatBody, session: TutorSession, scopedNow: boole
   }
 }
 
+// A spoken message in a voice session: the tutor checks whether it was meant for it.
+function isVoiceTurn(body: ChatBody, session: TutorSession): boolean {
+  return body.origin === "voice" && Boolean(body.message) && !body.event && session.mode === "voice";
+}
+
+// The Mute reminder is given once per session. The model decides whether a turn needs it; the
+// server records that it was given (the reply names Mute) and then stops offering it.
+const MUTE_MENTION = /\bmute\b/i;
+
 function sendEvent(res: Response, event: Record<string, unknown>) {
   res.write(`data: ${JSON.stringify(event)}\n\n`);
 }
@@ -233,6 +245,7 @@ async function streamTutorReply(res: Response, { session, conversation, body, sc
     topic: getTopic(session.topicId),
     workbookState: describeWorkbook(session, body.workbook),
     turnInstruction: turnInstruction(body, session, scopedNow),
+    voiceTurn: isVoiceTurn(body, session) ? { canRemindMute: !session.muteReminderAt } : undefined,
   });
   const messages: Anthropic.MessageParam[] = conversation.messages.map(({ role, content }) => ({ role, content }));
   // A workbook event isn't stored; it only asks the tutor to speak.
@@ -255,6 +268,9 @@ async function streamTutorReply(res: Response, { session, conversation, body, sc
   }
   if (result.type === "done") {
     if (result.text) await appendMessage(conversation.id, "assistant", prefix + result.text);
+    if (isVoiceTurn(body, session) && !session.muteReminderAt && MUTE_MENTION.test(result.text)) {
+      await updateSession(session.id, (current) => ({ ...current, muteReminderAt: new Date().toISOString() }));
+    }
     sendEvent(res, { type: "done" });
   } else {
     sendEvent(res, { type: result.type });

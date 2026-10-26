@@ -23,8 +23,9 @@ function useTutorSlots(chat: ChatContext): FeatureSlots {
     enabled: active && session?.mode === "voice" && !tutor.introOpen && tutor.busy !== "exit" && tutor.busy !== "mode",
     armed: tutor.voiceArmed,
     replyStreaming: chat.isStreaming,
-    // What the learner said is sent as their chat message, and shown in the thread.
-    onTranscript: (text) => chat.send(text),
+    // What the learner said is sent as their chat message, and shown in the thread. Marked as
+    // spoken, so the tutor can tell talk that wasn't meant for it (see TUTOR-PLAN.md, Voice).
+    onTranscript: (text) => chat.send(text, { data: { origin: "voice" } }),
     onUnavailable: tutor.fallbackToText,
     // The next workbook item waits until the tutor has finished speaking, not just streaming.
     onSpeakingChange: tutor.setSpeaking,

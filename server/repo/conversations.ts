@@ -18,10 +18,9 @@ export function titleFromMessage(message: string): string {
 export async function listConversations(): Promise<ConversationSummary[]> {
   const conversations = await readJson<Conversation[]>(FILE);
   return conversations
-    .map(({ id, title, pinned, icon, createdAt, updatedAt }) => ({
+    .map(({ id, title, icon, createdAt, updatedAt }) => ({
       id,
       title,
-      pinned,
       icon,
       createdAt,
       updatedAt,
@@ -39,7 +38,6 @@ export function createConversation(firstMessage: string): Promise<Conversation> 
   const conversation: Conversation = {
     id: randomUUID(),
     title: titleFromMessage(firstMessage),
-    pinned: false,
     icon: null,
     messages: [],
     createdAt: now,
@@ -70,6 +68,14 @@ export function appendMessage(
       return updated;
     });
     return { data, result: updated };
+  });
+}
+
+// Resolves to false when there was no such conversation.
+export function deleteConversation(conversationId: string): Promise<boolean> {
+  return updateJson<Conversation[], boolean>(FILE, (conversations) => {
+    const data = conversations.filter((conversation) => conversation.id !== conversationId);
+    return { data, result: data.length < conversations.length };
   });
 }
 

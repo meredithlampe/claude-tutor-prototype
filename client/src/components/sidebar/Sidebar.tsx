@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import {
   BriefcaseBusiness,
   ChevronRight,
@@ -14,6 +15,7 @@ import type { ApiState } from "@/hooks/useApiData";
 import { cn } from "@/lib/utils";
 import type { ConversationSummary, User } from "@/types";
 import { ConversationList } from "./ConversationList";
+import { DeleteConversationDialog } from "./DeleteConversationDialog";
 import { NavItem } from "./NavItem";
 import { SidebarHeader } from "./SidebarHeader";
 import { UserFooter } from "./UserFooter";
@@ -26,6 +28,8 @@ type SidebarProps = {
   onToggle: () => void;
   // Called after a navigation, so the mobile drawer can close itself.
   onNavigate?: () => void;
+  // Deletes the conversation, leaving it first if it's open, and refreshes the list.
+  onDeleteConversation: (id: string) => Promise<void>;
 };
 
 function ProjectsIcon(props: LucideProps) {
@@ -39,12 +43,42 @@ export function Sidebar({
   toggleLabel,
   onToggle,
   onNavigate,
+  onDeleteConversation,
 }: SidebarProps) {
   const { nav } = content.sidebar;
   const summaries = conversations.status === "success" ? conversations.data : [];
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [pendingDelete, setPendingDelete] = useState<ConversationSummary | null>(null);
+  // Where focus goes after a delete: the next chat in the list, else the previous, else New.
+  const focusAfterDeleteRef = useRef<string | null>(null);
+  const [deletedNotice, setDeletedNotice] = useState("");
+
+  function requestDelete(conversation: ConversationSummary) {
+    const index = summaries.findIndex((summary) => summary.id === conversation.id);
+    focusAfterDeleteRef.current = (summaries[index + 1] ?? summaries[index - 1])?.id ?? null;
+    setDeletedNotice("");
+    setPendingDelete(conversation);
+  }
+
+  async function confirmDelete(conversation: ConversationSummary) {
+    await onDeleteConversation(conversation.id);
+    setDeletedNotice(content.sidebar.chatDeleted(conversation.title));
+  }
+
+  // After the dialog: a deleted chat's neighbour (or New), or back to the chat's More button.
+  function placeFocus(deleted: boolean, conversation: ConversationSummary) {
+    const root = rootRef.current;
+    if (!root) return;
+    const neighbourId = focusAfterDeleteRef.current;
+    const target = deleted
+      ? (neighbourId && root.querySelector<HTMLElement>(`[data-conversation-id="${CSS.escape(neighbourId)}"]`)) ||
+        root.querySelector<HTMLElement>('nav a[href="/"]')
+      : root.querySelector<HTMLElement>(`[data-conversation-menu="${CSS.escape(conversation.id)}"]`);
+    target?.focus();
+  }
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-sidebar text-sidebar-foreground">
+    <div ref={rootRef} className="flex h-full min-h-0 flex-col bg-sidebar text-sidebar-foreground">
       <SidebarHeader collapsed={collapsed} toggleLabel={toggleLabel} onToggle={onToggle} />
 
       <ScrollArea className="min-h-0 flex-1 [&_[data-slot=scroll-area-viewport]]:relative [&_[data-slot=scroll-area-viewport]>div]:!block">
@@ -80,19 +114,27 @@ export function Sidebar({
                 </p>
               )}
               <ConversationList
-                title={content.sidebar.pinned}
-                conversations={summaries.filter((conversation) => conversation.pinned)}
-                onNavigate={onNavigate}
-              />
-              <ConversationList
                 title={content.sidebar.recents}
-                conversations={summaries.filter((conversation) => !conversation.pinned)}
+                conversations={summaries}
                 onNavigate={onNavigate}
+                onDelete={requestDelete}
               />
             </nav>
           )}
         </div>
       </ScrollArea>
+
+      <p role="status" className="sr-only">
+        {deletedNotice}
+      </p>
+      {pendingDelete && (
+        <DeleteConversationDialog
+          conversation={pendingDelete}
+          onConfirm={confirmDelete}
+          onClose={() => setPendingDelete(null)}
+          onClosed={(deleted) => placeFocus(deleted, pendingDelete)}
+        />
+      )}
 
       <UserFooter user={user.status === "success" ? user.data : undefined} collapsed={collapsed} />
     </div>

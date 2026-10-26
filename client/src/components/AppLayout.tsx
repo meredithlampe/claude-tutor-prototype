@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { Menu } from "lucide-react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useMatch, useNavigate } from "react-router-dom";
 import { DebugMenu } from "@/components/DebugMenu";
 import { IconButton } from "@/components/IconButton";
 import { Sidebar } from "@/components/sidebar/Sidebar";
@@ -9,7 +9,7 @@ import { content } from "@/constants/content";
 import { debugActions } from "@/features";
 import { useApiData, type ApiState } from "@/hooks/useApiData";
 import { useStartChat } from "@/hooks/useStartChat";
-import { fetchConversations, fetchUser, resetChats } from "@/lib/api";
+import { deleteConversation, fetchConversations, fetchUser, resetChats } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { DebugAction } from "@/features/types";
 import type { ConversationSummary, User } from "@/types";
@@ -53,6 +53,15 @@ export function AppLayout() {
     ],
     [navigate, refreshConversations],
   );
+  const openChatId = useMatch("/chat/:id")?.params.id;
+  const handleDeleteConversation = useCallback(
+    async (id: string) => {
+      await deleteConversation(id);
+      if (id === openChatId) navigate("/");
+      refreshConversations();
+    },
+    [openChatId, navigate, refreshConversations],
+  );
   const [collapsed, setCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const closeDrawer = () => setDrawerOpen(false);
@@ -72,6 +81,7 @@ export function AppLayout() {
           collapsed={collapsed}
           toggleLabel={collapsed ? content.sidebar.expandSidebar : content.sidebar.collapseSidebar}
           onToggle={() => setCollapsed((value) => !value)}
+          onDeleteConversation={handleDeleteConversation}
         />
       </aside>
 
@@ -90,6 +100,7 @@ export function AppLayout() {
             toggleLabel={content.sidebar.closeSidebar}
             onToggle={closeDrawer}
             onNavigate={closeDrawer}
+            onDeleteConversation={handleDeleteConversation}
           />
         </SheetContent>
       </Sheet>

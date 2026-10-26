@@ -8,9 +8,10 @@ type ConversationListProps = {
   title: string;
   conversations: ConversationSummary[];
   onNavigate?: () => void;
+  onDelete: (conversation: ConversationSummary) => void;
 };
 
-export function ConversationList({ title, conversations, onNavigate }: ConversationListProps) {
+export function ConversationList({ title, conversations, onNavigate, onDelete }: ConversationListProps) {
   const [expanded, setExpanded] = useState(true);
   const listId = useId();
 
@@ -39,6 +40,7 @@ export function ConversationList({ title, conversations, onNavigate }: Conversat
             key={conversation.id}
             conversation={conversation}
             onNavigate={onNavigate}
+            onDelete={onDelete}
           />
         ))}
       </ul>

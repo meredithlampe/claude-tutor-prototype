@@ -2,7 +2,6 @@ import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import express from "express";
 import { features, resetFeatures } from "./features";
-import { listArtifacts } from "./repo/artifacts";
 import { resetConversations } from "./repo/conversations";
 import { seedDataDir } from "./repo/jsonFile";
 import { getUser } from "./repo/user";
@@ -30,10 +29,6 @@ app.use("/api/conversations", conversationsRouter);
 for (const feature of features) {
   if (feature.router) app.use(`/api/${feature.id}`, feature.router);
 }
-
-app.get("/api/artifacts", async (_req, res) => {
-  res.json(await listArtifacts());
-});
 
 app.get("/api/user", async (_req, res) => {
   res.json(await getUser());

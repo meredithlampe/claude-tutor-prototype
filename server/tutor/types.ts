@@ -153,6 +153,8 @@ export interface TutorSession {
   // stepsMs: step 1 (what the learner waits for); laterStepsMs: steps 2 and 3, in the background.
   generation: { assessmentMs?: number; stepsMs?: number; laterStepsMs?: number; practiceMs?: number; error?: string; summaryError?: string };
   learnerSummary?: string;
+  // When the tutor first reminded a voice learner about the Mute button (once per session).
+  muteReminderAt?: string;
   tutorSummary?: string;
   delayedCheckConsent?: boolean;
   // Set on Exit: the status to return to on Resume ("paused" only), and the conversation's last

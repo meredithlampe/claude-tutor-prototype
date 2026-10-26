@@ -1,5 +1,4 @@
 import type {
-  Artifact,
   Conversation,
   ConversationSummary,
   FeatureEvent,
@@ -39,6 +38,14 @@ export async function createConversation(content: string): Promise<Conversation>
   return (await response.json()) as Conversation;
 }
 
+// Permanent. A conversation that's already gone counts as deleted.
+export async function deleteConversation(id: string): Promise<void> {
+  const response = await fetch(`/api/conversations/${encodeURIComponent(id)}`, { method: "DELETE" });
+  if (!response.ok && response.status !== 404) {
+    throw new Error(`DELETE conversation failed with ${response.status}`);
+  }
+}
+
 type SendMessageOptions = {
   content: string;
   // Re-requests a reply to `content` without storing it again if it is already the
@@ -71,10 +78,6 @@ export async function* sendMessage(
   for await (const data of readSseData(response.body)) {
     yield JSON.parse(data) as StreamEvent | FeatureEvent;
   }
-}
-
-export function fetchArtifacts(signal?: AbortSignal) {
-  return getJson<Artifact[]>("/api/artifacts", signal);
 }
 
 export function fetchUser(signal?: AbortSignal) {

@@ -6,7 +6,6 @@ import { IconButton } from "@/components/IconButton";
 import { Composer } from "@/components/chat/Composer";
 import { ComposerOptions } from "@/components/home/ComposerOptions";
 import { Greeting } from "@/components/home/Greeting";
-import { RecentArtifacts } from "@/components/home/RecentArtifacts";
 import { content } from "@/constants/content";
 import { useStartChat } from "@/hooks/useStartChat";
 
@@ -47,7 +46,6 @@ export function HomePage() {
           )}
           <ComposerOptions />
         </div>
-        <RecentArtifacts />
       </div>
     </>
   );

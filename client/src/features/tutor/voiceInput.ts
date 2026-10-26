@@ -3,9 +3,12 @@ import { speechLang } from "./voiceOutput";
 // How the learner's speech is heard. Only the browser's SpeechRecognition for now; another
 // vendor would be another function returning a ListenSession.
 
-// How long the learner can pause before what they said is sent. Chrome's own end-of-speech
-// cuts people off mid-thought, so recognition runs continuously and this decides the turn.
-export const SILENCE_BEFORE_SUBMIT_MS = 2500;
+// When the learner's turn ends. Chrome's own end-of-speech cuts people off mid-thought, so
+// recognition runs continuously and these decide the turn: after END_OF_SPEECH_MS of silence
+// following speech, a visible countdown of COUNTDOWN_MS starts, and what was heard is sent when
+// it reaches 0 (about 4 s after the learner stops). Speaking again cancels the countdown.
+export const END_OF_SPEECH_MS = 1000;
+export const COUNTDOWN_MS = 3000;
 // Recognition that ends this soon after starting, with nothing heard, several times running,
 // isn't working (no audio, or the recognition service is unreachable).
 const QUICK_END_MS = 1500;
@@ -41,7 +44,10 @@ export interface ListenHandlers {
   onStart: () => void;
   // Everything heard so far this turn, including words not yet final.
   onHeard: (text: string) => void;
-  // The learner has stopped talking: their whole turn.
+  // The learner has paused: the countdown to sending started (its length in ms), or was
+  // cancelled because they spoke again (null).
+  onCountdown: (ms: number | null) => void;
+  // The learner has stopped talking (or chose Send now): their whole turn.
   onTranscript: (text: string) => void;
   onFail: (reason: ListenFailure) => void;
 }
@@ -49,6 +55,8 @@ export interface ListenHandlers {
 export interface ListenSession {
   // Stops listening without sending anything.
   stop(): void;
+  // Sends what's been heard right away, ending the turn.
+  sendNow(): void;
 }
 
 function join(...parts: string[]): string {
@@ -72,15 +80,39 @@ export function listenWithBrowser(handlers: ListenHandlers): ListenSession | und
   let interim = "";
   let quickEnds = 0;
   let silenceTimer: ReturnType<typeof setTimeout> | undefined;
+  let countdownTimer: ReturnType<typeof setTimeout> | undefined;
+  // What was heard when the latest pause began, so a repeat of the same words (Chrome
+  // finalizing what it already heard) doesn't count as speaking again.
+  let lastWords = "";
   let recognition: Recognition | null = null;
 
   function heard() {
     return join(earlier, final, interim);
   }
 
+  function words(text: string) {
+    return text.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+  }
+
+  function cancelCountdown() {
+    clearTimeout(silenceTimer);
+    silenceTimer = undefined;
+    if (countdownTimer === undefined) return;
+    clearTimeout(countdownTimer);
+    countdownTimer = undefined;
+    handlers.onCountdown(null);
+  }
+
+  function startCountdown() {
+    silenceTimer = undefined;
+    countdownTimer = setTimeout(submit, COUNTDOWN_MS);
+    handlers.onCountdown(COUNTDOWN_MS);
+  }
+
   function finish(reason?: ListenFailure) {
     stopped = true;
     clearTimeout(silenceTimer);
+    clearTimeout(countdownTimer);
     if (recognition) {
       recognition.onstart = null;
       recognition.onresult = null;
@@ -124,9 +156,12 @@ export function listenWithBrowser(handlers: ListenHandlers): ListenSession | und
       }
       const text = heard();
       handlers.onHeard(text);
-      // Each result restarts the countdown; the turn ends after a pause with something said.
-      clearTimeout(silenceTimer);
-      if (text) silenceTimer = setTimeout(submit, SILENCE_BEFORE_SUBMIT_MS);
+      // New words cancel the countdown and restart the wait for a pause; the turn ends after a
+      // pause and the countdown, with something said.
+      if (words(text) === lastWords) return;
+      lastWords = words(text);
+      cancelCountdown();
+      if (text) silenceTimer = setTimeout(startCountdown, END_OF_SPEECH_MS);
     };
     current.onerror = (event) => {
       if (event.error === "not-allowed" || event.error === "service-not-allowed") finish("denied");
@@ -160,5 +195,10 @@ export function listenWithBrowser(handlers: ListenHandlers): ListenSession | und
     finish("stalled");
     return undefined;
   }
-  return { stop: () => finish() };
+  return {
+    stop: () => finish(),
+    sendNow: () => {
+      if (!stopped) submit();
+    },
+  };
 }

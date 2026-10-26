@@ -50,11 +50,37 @@ function readBody(body: unknown): ChatBody {
   };
 }
 
-// Scoping asks for the goal, then the time available. A tapped choice and a typed reply both
-// answer the current question.
+// Scoping asks for the goal, then the time available, and takes each answer as given (no
+// confirming). A goal the opening question already states isn't asked for again.
+const GOALS_IN_QUESTION: { pattern: RegExp; goal: string }[] = [
+  { pattern: /\b(exams?|finals?|midterms?|quiz(zes)?)\b/i, goal: "An exam" },
+  { pattern: /\b(homework|assignments?|problem sets?|coursework)\b/i, goal: "Homework" },
+];
+
+function goalIn(text: string): string | undefined {
+  return GOALS_IN_QUESTION.find(({ pattern }) => pattern.test(text))?.goal;
+}
+
+// The question Tutor was offered after (or, failing that, the conversation's first).
+function goalInQuestion(session: TutorSession, conversation: Conversation): string | undefined {
+  const users = conversation.messages.filter((message) => message.role === "user");
+  const question = users.find((message) => message.id === session.offerMessageId) ?? users[0];
+  return goalIn(question?.content ?? "");
+}
+
+// "20 minutes", "an hour", "as long as it takes": an answer about time, whichever was asked.
+const TIME_ANSWER =
+  /\b(\d+|an?|one|two|three|five|ten|fifteen|twenty|thirty|forty|forty-five|sixty|half an?)[\s-]*(min|mins|minutes?|hours?|hrs?)\b|long as it takes|no (rush|time limit)/i;
+
+// A tapped choice and a typed reply both answer the current question. A time given when the
+// goal was asked counts as the time (with the goal too, if it names one: "exam, 20 minutes").
 function recordScoping(session: TutorSession, message: string): TutorSession {
-  if (!session.scoping.goal) session.scoping.goal = message;
-  else if (!session.scoping.time) session.scoping.time = message;
+  const { scoping } = session;
+  if (!scoping.goal && !scoping.time && TIME_ANSWER.test(message)) {
+    scoping.time = message;
+    scoping.goal = goalIn(message);
+  } else if (!scoping.goal) scoping.goal = message;
+  else if (!scoping.time) scoping.time = message;
   if (session.scoping.goal && session.scoping.time) {
     session.status = "assessing";
     session.position = 0;
@@ -89,10 +115,17 @@ function turnInstruction(body: ChatBody, session: TutorSession, scopedNow: boole
     const opening = body.opening
       ? `Your message starts with this fixed line, which the app has already written and shown: "${body.opening}" Continue straight after it; don't repeat it, introduce yourself again or greet them. `
       : "";
-    return `The learner just asked the question above and chose Tutor mode instead of a straight answer, so they haven't been given an answer. ${opening}Write your opening message: in one short sentence, say you'll work through their question together so they can solve ones like it; then ask what they're working toward. Tappable choices appear below your message (homework, an exam, curiosity). Two short sentences in total. Don't answer or start solving their question.`;
+    const intro = `The learner just asked the question above and chose Tutor mode instead of a straight answer, so they haven't been given an answer. ${opening}Write your opening message: in one short sentence, say you'll work through their question together so they can solve ones like it`;
+    const ask = session.scoping.goal
+      ? `${intro} (their question shows they're working toward this: ${session.scoping.goal.toLowerCase()}); then ask how much time they have. Tappable choices appear below your message (about 10 minutes, about 20 minutes, as long as it takes).`
+      : `${intro}; then ask what they're working toward. Tappable choices appear below your message (homework, an exam, curiosity). Ask only that; don't ask about time yet.`;
+    return `${ask} Two short sentences in total. Don't answer or start solving their question.`;
   }
   if (session.status === "scoping" && session.scoping.goal && !session.scoping.time) {
-    return `The learner's goal: "${session.scoping.goal}". Acknowledge it in a few words, then ask how much time they have. Tappable choices appear below your message (about 10 minutes, about 20 minutes, as long as it takes). One or two sentences.`;
+    return `The learner's goal: "${session.scoping.goal}". Acknowledge it in a few words, then ask how much time they have. Tappable choices appear below your message (about 10 minutes, about 20 minutes, as long as it takes). One or two sentences. Ask only this.`;
+  }
+  if (session.status === "scoping" && session.scoping.time && !session.scoping.goal) {
+    return `The learner has "${session.scoping.time}". That's their session length: acknowledge it in a few words, without asking about time again, then ask what they're working toward. Tappable choices appear below your message (homework, an exam, curiosity). One or two sentences.`;
   }
   if (scopedNow) {
     return `Scoping is done (goal: "${session.scoping.goal}", time: "${session.scoping.time}"). The workbook now shows a short opening check: one question about what feels unclear, then two questions. In at most two short sentences, tell the learner to start it in the workbook; that it's a check, so you can give hints but not answers; and that it's fine to guess. Don't ask them anything else.`;
@@ -138,6 +171,17 @@ export async function handleChat(req: Request<{ conversationId: string }>, res: 
   if (!conversation) {
     res.status(404).json({ error: "Conversation not found" });
     return;
+  }
+
+  // A goal the learner's question already states isn't asked for.
+  if (body.event?.type === "session_started" && session.status === "scoping" && !session.scoping.goal) {
+    const goal = goalInQuestion(session, conversation);
+    if (goal) {
+      session = await updateSession(session.id, (current) => {
+        current.scoping.goal ??= goal;
+        return current;
+      });
+    }
   }
 
   let scopedNow = false;

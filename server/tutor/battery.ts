@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import Anthropic from "@anthropic-ai/sdk";
 import type { StoredMessage } from "../types";
-import { GENERATION_SYSTEM, describeItem } from "./prompts";
+import { GENERATION_SYSTEM, describeItem, questionStem } from "./prompts";
 import { sanitizeSvg } from "./svg";
 import type {
   BloomLevel,
@@ -58,7 +58,10 @@ export function selfReportPrompt(topicName: string): string {
 export function fixedAssessment(topic: Topic, form: 1 | 2): TutorQuestion[] {
   const [first, second] = form === 1 ? ["A1", "A2"] as const : ["F1", "F2"] as const;
   return [
-    fromTopicItem({ ...topic.items.selfReport, prompt: selfReportPrompt(topic.name) }, "self_report"),
+    {
+      ...fromTopicItem({ ...topic.items.selfReport, prompt: selfReportPrompt(topic.name) }, "self_report"),
+      context: topic.definition,
+    },
     fromTopicItem(topic.items[first], "check"),
     fromTopicItem(topic.items[second], "check"),
   ];
@@ -175,13 +178,21 @@ const artifactSchema = {
   },
 };
 
+// Shown above the instruction or prompt, so an item makes sense without its visual or the chat.
+const scenarioDescription =
+  'One plain sentence that states the situation and its numbers in words (e.g. "A thousand people take a screening test: 100 have the condition, the test flags 80 of them, and it also wrongly flags 180 healthy people."). The text after it doesn\'t repeat it.';
+
 const questionSchema = {
   type: "object",
   additionalProperties: false,
-  required: ["kind", "prompt", "artifact", "options", "answer", "rubric"],
+  required: ["kind", "scenario", "prompt", "artifact", "options", "answer", "rubric"],
   properties: {
     kind: { type: "string", enum: ["multiple_choice", "freeform"] },
-    prompt: { type: "string", description: "One or two short sentences. Refers to the question's visual." },
+    scenario: {
+      type: "string",
+      description: `${scenarioDescription} Empty only for a step's question that asks about the step's own scenario and visual, shown right above it.`,
+    },
+    prompt: { type: "string", description: "One or two short sentences, after the scenario. Refers to the question's visual." },
     artifact: {
       ...artifactSchema,
       description: "The question's own visual: its scenario and given numbers, never its answer. All fields empty when it has none.",
@@ -205,11 +216,12 @@ const KNOWLEDGE_TYPES: KnowledgeType[] = ["factual", "conceptual", "procedural",
 const stepSchema = {
   type: "object",
   additionalProperties: false,
-  required: ["instruction", "bloomLevel", "knowledgeType", "artifact", "question", "parallel"],
+  required: ["scenario", "instruction", "bloomLevel", "knowledgeType", "artifact", "question", "parallel"],
   properties: {
+    scenario: { type: "string", description: scenarioDescription },
     instruction: {
       type: "string",
-      description: "Markdown, 1 or 2 short sentences (under 40 words) that point at the step's visual.",
+      description: "Markdown, 1 or 2 short sentences (under 40 words) after the scenario, that point at the step's visual.",
     },
     bloomLevel: { type: "string", enum: BLOOM_LEVELS },
     knowledgeType: { type: "string", enum: KNOWLEDGE_TYPES },
@@ -238,6 +250,8 @@ interface GeneratedArtifact {
 
 interface GeneratedQuestion {
   kind: TutorQuestion["kind"];
+  // Empty only for a step's question about the step's own scenario.
+  scenario: string;
   prompt: string;
   // An empty svg means none.
   artifact: GeneratedArtifact;
@@ -248,6 +262,7 @@ interface GeneratedQuestion {
 }
 
 interface GeneratedStep {
+  scenario: string;
   instruction: string;
   bloomLevel: BloomLevel;
   knowledgeType: KnowledgeType;
@@ -281,10 +296,12 @@ function toQuestion(
   role: TutorQuestion["role"],
   prefix: string,
   artifact: TutorArtifact | undefined,
+  context: string | undefined,
 ): TutorQuestion {
   return {
     id: newId(prefix),
     prompt: question.prompt,
+    context,
     kind: question.kind,
     role,
     artifact,
@@ -359,25 +376,69 @@ ${VISUAL_RULES}`;
 
 function questionText(question: GeneratedQuestion): string {
   const options = question.options.map((option, index) => `${String.fromCharCode(65 + index)}) ${option.text}`);
-  return [question.prompt, ...options].join("\n");
+  return [questionStem({ context: question.scenario, prompt: question.prompt }), ...options].join("\n");
 }
 
-// A generated question with its visual checked. `required`: it must have its own visual
-// (everything except a step's question, which can use the step's visual above it).
-async function questionWithVisual(
+// Every practice item stands alone: a scenario sentence states the situation and its numbers
+// before any text that refers to the visual. A missing one gets one short call to write it; if
+// that fails too, the build fails and the workbook offers a retry.
+async function checkedScenario(
+  scenario: string,
+  target: { label: string; text: string; visual?: string },
+  required: boolean,
+): Promise<string | undefined> {
+  const given = scenario.trim();
+  if (given || !required) return given || undefined;
+  console.warn(`Tutor: ${target.label} had no scenario; writing one`);
+  const prompt = `A workbook practice item is missing its scenario sentence, so it doesn't make sense on its own. Write it. ${scenarioDescription}
+Use only facts and numbers already in the item and its visual; add nothing new, and don't give away the answer.
+
+The item:
+"""${target.text}"""
+${target.visual ? `\nIts visual: ${target.visual}\n` : ""}`;
+  const repaired = await structuredCall<{ scenario: string }>(
+    "scenario repair",
+    prompt,
+    {
+      type: "object",
+      additionalProperties: false,
+      required: ["scenario"],
+      properties: { scenario: { type: "string" } },
+    },
+    "low",
+  );
+  const written = repaired.scenario.trim();
+  if (!written) throw new Error(`${target.label}: no scenario`);
+  return written;
+}
+
+interface QuestionNeeds {
+  // It must have its own visual (everything except a step's question, which can use the
+  // step's visual above it).
+  visual: boolean;
+  // It must have its own scenario. A practice question with its own visual (a new scenario)
+  // always does.
+  scenario: boolean;
+}
+
+// A generated question with its visual and scenario checked.
+async function checkedQuestion(
   question: GeneratedQuestion,
   role: TutorQuestion["role"],
   prefix: string,
   topic: Topic | undefined,
-  required: boolean,
+  needs: QuestionNeeds,
 ): Promise<TutorQuestion> {
-  const artifact = await checkedVisual(
-    question.artifact.svg.trim() ? question.artifact : null,
-    { label: prefix, kind: "question", text: questionText(question) },
-    topic,
-    required,
-  );
-  return toQuestion(question, role, prefix, artifact);
+  const ownVisual = question.artifact.svg.trim() ? question.artifact : null;
+  const [artifact, context] = await Promise.all([
+    checkedVisual(ownVisual, { label: prefix, kind: "question", text: questionText(question) }, topic, needs.visual),
+    checkedScenario(
+      question.scenario,
+      { label: prefix, text: questionText(question), visual: ownVisual?.description },
+      needs.scenario || (role === "practice" && Boolean(ownVisual)),
+    ),
+  ]);
+  return toQuestion(question, role, prefix, artifact, context);
 }
 
 // ---------------------------------------------------------------------------------------
@@ -444,12 +505,13 @@ const MC_RULES = `Multiple choice: exactly 4 short options and exactly one corre
 function stepRules(first: boolean): string {
   return `Write ${first ? "step 1" : "steps 2 and 3"} of 3 teaching steps. Rules:
 - Steps climb Bloom's levels: step 1 "understand", step 2 "apply", step 3 "analyze" or "evaluate". Each step teaches one idea${first ? "" : ", building on step 1 without repeating it"}.
-- Instruction: 1 or 2 short sentences (under 40 words) that point at the step's visual, e.g. "Of the 1,000 people in the grid, find the ones who test positive." The visual does the explaining.
+- Every step opens with a scenario: one plain sentence that states the situation and its numbers in words, so the step makes sense to someone who can't see the visual and hasn't read the chat (e.g. "A thousand people take a screening test: 100 have the condition, the test flags 80 of them, and it also wrongly flags 180 healthy people."). It comes before any text that refers to the visual.
+- Instruction: after the scenario, 1 or 2 short sentences (under 40 words) that point at the step's visual, e.g. "Of the 1,000 people in the grid, find the ones who test positive." The visual does the explaining.
 - Every step has a visual (see the visual rules).
 - Then one question that checks the step's idea, in one or two short sentences. Steps 1 and 2 are multiple choice. ${MC_RULES}
 - Step 3 is freeform, asking the learner to explain in their own words ("explain why…", "spot the error in…"), with a rubric for 2 / 1 / 0 points. Set options to [].
-- Question visuals: when the step's question asks about the step's visual (shown right above it), leave the question's artifact fields empty. When it uses a new scenario, give it its own visual.
-- Each step also has a parallel question: same idea, same kind, similar difficulty, but a different scenario or numbers, so it can't be answered by eliminating options already tried. Every parallel question has its own visual of its scenario.
+- Question visuals: when the step's question asks about the step's scenario and visual (shown right above it), leave the question's scenario and artifact fields empty. When it uses a new scenario, give it its own scenario sentence and its own visual.
+- Each step also has a parallel question: same idea, same kind, similar difficulty, but a different scenario or numbers, so it can't be answered by eliminating options already tried. It's shown on its own, so every parallel question has its own scenario sentence and its own visual of that scenario.
 - Pitch the steps at the level the opening check showed, aiming for about 80% first-try success. Build toward the learner's own question, without solving it outright.
 - Every question must have one defensible correct answer. Double-check any arithmetic.
 
@@ -467,7 +529,7 @@ Learner's goal: ${session.scoping.goal ?? "not given"}. Time available: ${sessio
 ${openingExchange(messages)}
 
 Write the opening check for a short Tutor session on this subject:
-1. The options for a self-report question, "${selfReportPrompt(session.subject)}": 3 or 4 short options naming parts of the subject, the last being "Not sure". No visual.
+1. A self-report question, "${selfReportPrompt(session.subject)}": a definition (one plain sentence saying what the subject is, for an adult non-expert, shown above the question) and 3 or 4 short options naming parts of the subject, the last being "Not sure". No visual.
 2. Two probe questions that show what the learner understands now: one multiple choice ("apply" level; ${MC_RULES}) and one freeform ("understand" level, explain in their own words, with a rubric). Each probe has its own visual that pictures the scenario plainly and never gives away the answer.
 Use a different scenario from the learner's question, so the probes test transfer.
 
@@ -481,27 +543,31 @@ ${VISUAL_RULES}`;
       selfReport: {
         type: "object",
         additionalProperties: false,
-        required: ["options"],
-        properties: { options: { type: "array", items: { type: "string" } } },
+        required: ["definition", "options"],
+        properties: {
+          definition: { type: "string", description: "One plain sentence saying what the subject is." },
+          options: { type: "array", items: { type: "string" } },
+        },
       },
       probes: { type: "array", items: questionSchema },
     },
   };
 
   const result = await structuredCall<{
-    selfReport: { options: string[] };
+    selfReport: { definition: string; options: string[] };
     probes: GeneratedQuestion[];
   }>("assessment", prompt, schema, "medium");
 
   if (result.probes.length !== 2) throw new Error("assessment: expected 2 probes");
   result.probes.forEach((probe, index) => checkQuestion(probe, `assessment probe ${index + 1}`));
   const probes = await Promise.all(
-    result.probes.map((probe, index) => questionWithVisual(probe, "check", `probe${index + 1}`, topic, true)),
+    result.probes.map((probe, index) => checkedQuestion(probe, "check", `probe${index + 1}`, topic, { visual: true, scenario: false })),
   );
   return [
     {
       id: newId("self-report"),
       prompt: selfReportPrompt(session.subject),
+      context: result.selfReport.definition.trim() || undefined,
       kind: "multiple_choice",
       role: "self_report",
       options: result.selfReport.options.map((text) => ({ text })),
@@ -531,12 +597,12 @@ export async function generateSteps(
   const count = first ? 1 : STEP_COUNT - earlier.length;
   const withFinalCheck = !topic && !first;
   const avoid = laterItems.length
-    ? `\nThese questions come later in the session. Don't reuse their scenarios, numbers or wording:\n${laterItems.map((item) => `- ${item.prompt}`).join("\n")}\n`
+    ? `\nThese questions come later in the session. Don't reuse their scenarios, numbers or wording:\n${laterItems.map((item) => `- ${questionStem(item)}`).join("\n")}\n`
     : "";
   const earlierText = first
     ? ""
     : `\nThe steps already written (the learner is working on them now):\n${earlier
-        .map((step, index) => `Step ${index + 1} (${step.bloomLevel}): ${step.instruction}\nVisual: ${step.artifact?.description ?? "none"}\nQuestion: ${step.question.prompt}`)
+        .map((step, index) => `Step ${index + 1} (${step.bloomLevel}): ${questionStem({ context: step.context, prompt: step.instruction })}\nVisual: ${step.artifact?.description ?? "none"}\nQuestion: ${questionStem(step.question)}`)
         .join("\n\n")}\n`;
   const finalRules = withFinalCheck
     ? `\nAlso write the final check: 2 questions, each parallel to one opening-check probe above (same kind and difficulty, different scenario or numbers), mixing ideas from the steps. ${MC_RULES} Freeform needs a rubric. Each has its own visual that pictures the scenario without giving away the answer.`
@@ -586,13 +652,16 @@ ${stepRules(first)}${finalRules}`;
   const steps = await Promise.all(
     result.steps.map(async (step, index): Promise<TutorStep> => {
       const number = earlier.length + index + 1;
-      const [artifact, question, parallel] = await Promise.all([
-        checkedVisual(step.artifact, { label: `step ${number}`, kind: "instruction", text: step.instruction }, topic, true),
-        questionWithVisual(step.question, "practice", `step${number}`, topic, false),
-        questionWithVisual(step.parallel, "practice", `step${number}-parallel`, topic, true),
+      const text = questionStem({ context: step.scenario, prompt: step.instruction });
+      const [artifact, context, question, parallel] = await Promise.all([
+        checkedVisual(step.artifact, { label: `step ${number}`, kind: "instruction", text }, topic, true),
+        checkedScenario(step.scenario, { label: `step ${number}`, text, visual: step.artifact.description }, true),
+        checkedQuestion(step.question, "practice", `step${number}`, topic, { visual: false, scenario: false }),
+        checkedQuestion(step.parallel, "practice", `step${number}-parallel`, topic, { visual: true, scenario: true }),
       ]);
       return {
         id: `step-${number}`,
+        context,
         instruction: step.instruction,
         artifact,
         bloomLevel: step.bloomLevel,
@@ -603,7 +672,11 @@ ${stepRules(first)}${finalRules}`;
     }),
   );
   const finalCheck = result.finalCheck
-    ? await Promise.all(result.finalCheck.map((question, index) => questionWithVisual(question, "check", `final${index + 1}`, topic, true)))
+    ? await Promise.all(
+        result.finalCheck.map((question, index) =>
+          checkedQuestion(question, "check", `final${index + 1}`, topic, { visual: true, scenario: false }),
+        ),
+      )
     : undefined;
   return { steps, finalCheck };
 }
@@ -685,7 +758,7 @@ async function morePracticeQuestion(
 ${topic ? topicContext(topic) : "There are no vetted notes for this subject. Be careful to stay accurate."}
 
 The learner finished a Tutor session with these teaching steps:
-${steps.map((step, i) => `Step ${i + 1} (${step.bloomLevel}): ${step.instruction}`).join("\n\n")}
+${steps.map((step, i) => `Step ${i + 1} (${step.bloomLevel}): ${questionStem({ context: step.context, prompt: step.instruction })}`).join("\n\n")}
 
 How the steps went:
 ${results}
@@ -694,12 +767,12 @@ Their own summary of what they learned: """${session.learnerSummary ?? "(none)"}
 
 They asked for more practice. Write ONE practice question (number ${index + 1} of ${MORE_PRACTICE_COUNT}; the others are written separately). Rules:
 - Base it mainly on step ${focusStep}'s idea, mixed with another step's where natural, so the learner has to choose which idea applies (interleaved practice).
-- One or two short sentences, with its own visual of its scenario (see the visual rules); the prompt refers to it.
+- It's shown on its own, so it opens with a scenario: one plain sentence that states the situation and its numbers in words, before any text that refers to the visual. Then the prompt: one or two short sentences that refer to the question's own visual of that scenario (see the visual rules).
 - Use a new scenario and numbers. Don't reuse the scenarios, numbers or wording of these earlier questions:
-${earlierItems.map((item) => `  - ${item.prompt}`).join("\n")}
+${earlierItems.map((item) => `  - ${questionStem(item)}`).join("\n")}
 - ${kindRule}
 - Aim for about 80% first-try success, a little harder than the steps.
-- Add a parallel question: same idea, same kind, similar difficulty, different scenario or numbers, with its own visual.
+- Add a parallel question: same idea, same kind, similar difficulty, different scenario or numbers, with its own scenario sentence and its own visual.
 - One defensible correct answer. Double-check any arithmetic.
 
 ${VISUAL_RULES}`;
@@ -716,7 +789,7 @@ ${VISUAL_RULES}`;
     },
   };
 
-  const item = await structuredCall<Omit<GeneratedStep, "instruction" | "artifact">>(
+  const item = await structuredCall<Omit<GeneratedStep, "scenario" | "instruction" | "artifact">>(
     `more practice ${index + 1}`,
     prompt,
     itemSchema,
@@ -727,8 +800,8 @@ ${VISUAL_RULES}`;
   checkQuestion(item.parallel, `more practice ${index + 1} parallel`);
   const id = newId("practice");
   const [question, parallel] = await Promise.all([
-    questionWithVisual(item.question, "practice", id, topic, true),
-    questionWithVisual(item.parallel, "practice", `${id}-parallel`, topic, true),
+    checkedQuestion(item.question, "practice", id, topic, { visual: true, scenario: true }),
+    checkedQuestion(item.parallel, "practice", `${id}-parallel`, topic, { visual: true, scenario: true }),
   ]);
   return { id, instruction: "", bloomLevel: item.bloomLevel, knowledgeType: item.knowledgeType, question, parallel };
 }
@@ -795,7 +868,7 @@ export async function gradeFreeform(
   const tags = topic?.notes.misconceptions.map((m) => m.tag).join(", ");
   const prompt = `Grade a learner's freeform answer against the rubric.
 
-Question: ${question.prompt}
+Question: ${questionStem(question)}
 Rubric:
 - 2 points (correct): ${question.rubric?.full}
 - 1 point (partially correct): ${question.rubric?.partial}

@@ -34,6 +34,7 @@ How you tutor:
 - You can't change the workbook. Never say or imply that you submitted, revealed, marked, skipped or advanced anything; only the learner does that, by clicking in the workbook. If the learner gives an answer in the chat, respond to their reasoning and remind them to submit it in the workbook.
 - Practice questions (the teaching steps): help freely. Work through it together, and you may confirm their reasoning.
 - Check questions (the opening check and the final check): give hints only. Never give, confirm or rule out an answer, even if asked directly, until it has been submitted. You aren't shown the answer key for checks. After a check is submitted, don't tell the learner whether they got it right; the workbook doesn't show that either.
+- Scoping (the learner's goal and time): take each answer as given. Never ask them to confirm it, or offer another option ("or would you rather…").
 - Stay on the session's subject. If the learner moves meaningfully to a different subject, answer briefly, then suggest they finish or exit this session (the Exit button at the top) and ask about the new subject in the normal chat, where a new Tutor session can be offered.
 - Stay consistent with the vetted notes below. Where they differ from your own knowledge, follow the notes.
 - Write plain chat text. Light markdown (bold, short lists) is fine; no headings. Don't restate the workbook's instruction; point to it ("in the workbook, step 2…"). In voice mode, follow the voice rules instead.`;
@@ -90,8 +91,13 @@ Time available: ${session.scoping.time ?? "not given yet"}`,
 
 export const GENERATION_SYSTEM = `You write workbook content for Tutor mode, an interactive learning workbook. Follow the instructions in each request exactly. Use clear, plain language for an adult non-expert. Be accurate; where vetted notes are given, stay consistent with them.`;
 
+// A question's full stem as the learner sees it: its context (scenario or definition), then the prompt.
+export function questionStem(question: Pick<TutorQuestion, "context" | "prompt">): string {
+  return [question.context, question.prompt].filter(Boolean).join(" ");
+}
+
 export function describeItem(question: TutorQuestion, withKey: boolean): string {
-  const lines = [`[${question.kind}] ${question.prompt}`];
+  const lines = [`[${question.kind}] ${questionStem(question)}`];
   question.options?.forEach((option, index) => {
     const letter = String.fromCharCode(65 + index);
     const key = withKey && option.correct ? " (correct)" : "";

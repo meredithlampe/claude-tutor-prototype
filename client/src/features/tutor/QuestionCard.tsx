@@ -103,6 +103,8 @@ export function QuestionCard({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+      {question.context && <p className="text-base leading-7 text-foreground">{question.context}</p>}
+
       {question.resource && (
         <div className="rounded-xl border border-input bg-background p-3 text-sm">
           <Markdown>{question.resource}</Markdown>

@@ -38,6 +38,9 @@ export interface TutorQuestion {
   // The fixed item this came from, e.g. "stats.A1". Undefined for generated items.
   itemKey?: string;
   prompt: string;
+  // A plain sentence or two above the prompt: a practice item's scenario (the situation and its
+  // numbers in words), or the self-report's short definition of the topic.
+  context?: string;
   kind: QuestionKind;
   role: QuestionRole;
   // Shown before the question, e.g. the bonus item's embedded resource. Markdown.
@@ -60,6 +63,9 @@ export interface TutorArtifact {
 
 export interface TutorStep {
   id: string;
+  // The step's scenario, shown above the instruction: the situation and its numbers in words.
+  // Empty for More practice items, whose questions carry their own.
+  context?: string;
   instruction: string;
   artifact?: TutorArtifact;
   bloomLevel: BloomLevel;
@@ -176,6 +182,8 @@ export interface Topic {
   title: string;
   // Short and learner-facing, for mid-sentence use: "base rates", "the bystander effect".
   name: string;
+  // 1–2 plain sentences saying what the topic is, shown above the self-report question.
+  definition: string;
   subjectArea: string;
   detection: { keywords: string[]; exampleQuestions: string[] };
   notes: {

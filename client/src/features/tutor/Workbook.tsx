@@ -99,7 +99,11 @@ export function Workbook({ session, tutor, onExit }: WorkbookProps) {
           </p>
         </header>
         {item.step?.instruction && (
-          <InstructionCard instruction={item.step.instruction} artifact={item.step.artifact} />
+          <InstructionCard
+            context={item.step.context}
+            instruction={item.step.instruction}
+            artifact={item.step.artifact}
+          />
         )}
         <QuestionCard
           key={item.question.id}

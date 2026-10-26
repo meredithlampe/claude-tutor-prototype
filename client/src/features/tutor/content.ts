@@ -64,6 +64,12 @@ export const tutorContent = {
     waiting: "Your tutor is replying…",
     muted: "Microphone muted. Unmute to talk, or type below.",
     ready: "Your tutor will listen when it's your turn.",
+    // While counting down to sending what was heard. The number counts down; the
+    // announcement is read once, when the countdown starts.
+    countdown: (seconds: number) => `Tutor will respond in ${seconds}`,
+    countdownAnnouncement: (seconds: number) =>
+      `Your tutor will respond in ${seconds} seconds. Keep talking to add more, or choose Send now.`,
+    sendNow: "Send now",
     mute: "Mute",
     muteLabel: "Mute microphone",
     stopSpeaking: "Stop speaking",

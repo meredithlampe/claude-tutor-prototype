@@ -96,7 +96,8 @@ type UseSpeechOptions = {
   armed: boolean;
   // A reply is streaming, so it isn't the learner's turn.
   replyStreaming: boolean;
-  // What the learner said, once they have paused (see SILENCE_BEFORE_SUBMIT_MS).
+  // What the learner said, once they have paused and the countdown has run (see voiceInput.ts),
+  // or they chose Send now.
   onTranscript: (text: string) => void;
   onUnavailable: (reason: VoiceUnavailable) => void;
   // Called as soon as the tutor starts or stops speaking, in the same update as the reply's
@@ -112,6 +113,8 @@ export function useSpeech({ enabled, armed, replyStreaming, onTranscript, onUnav
   const [speaking, setSpeakingState] = useState(false);
   const [listening, setListening] = useState(false);
   const [interim, setInterim] = useState("");
+  // The countdown to sending what was heard, while it runs: when it started and its length.
+  const [countdown, setCountdown] = useState<{ startedAt: number; ms: number } | null>(null);
   const [muted, setMuted] = useState(false);
   const [stalled, setStalled] = useState(false);
   const [activated, setActivated] = useState(false);
@@ -206,6 +209,12 @@ export function useSpeech({ enabled, armed, replyStreaming, onTranscript, onUnav
       session?.stop();
       setListening(false);
       setInterim("");
+      setCountdown(null);
+    }
+
+    // Send now: what's been heard goes at once, without waiting for the countdown.
+    function sendNow() {
+      listenRef.current?.sendNow();
     }
 
     function unavailable(reason: VoiceUnavailable) {
@@ -225,11 +234,15 @@ export function useSpeech({ enabled, armed, replyStreaming, onTranscript, onUnav
         onHeard: (text) => {
           if (own()) setInterim(text);
         },
+        onCountdown: (ms) => {
+          if (own()) setCountdown(ms === null ? null : { startedAt: Date.now(), ms });
+        },
         onTranscript: (text) => {
           if (!own()) return;
           listenRef.current = null;
           setListening(false);
           setInterim("");
+          setCountdown(null);
           callbacksRef.current.onTranscript(text);
         },
         onFail: (reason) => {
@@ -237,6 +250,7 @@ export function useSpeech({ enabled, armed, replyStreaming, onTranscript, onUnav
           listenRef.current = null;
           setListening(false);
           setInterim("");
+          setCountdown(null);
           if (reason === "stalled") {
             setStalled(true);
             setMuted(true);
@@ -265,7 +279,7 @@ export function useSpeech({ enabled, armed, replyStreaming, onTranscript, onUnav
       cancel: cancelSpeech,
     };
 
-    return { speaker, cancelSpeech, startListening, stopListening, voiceKnown };
+    return { speaker, cancelSpeech, startListening, stopListening, sendNow, voiceKnown };
   }, []);
 
   // Asked on mount, before voice is on, so the first sentence rarely has to wait.
@@ -318,6 +332,9 @@ export function useSpeech({ enabled, armed, replyStreaming, onTranscript, onUnav
   return {
     status,
     interim,
+    // Only while listening: muting, stopping or the tutor replying ends it.
+    countdown: status === "listening" ? countdown : null,
+    sendNow: controls.sendNow,
     muted,
     speaker: controls.speaker,
     toggleMute() {

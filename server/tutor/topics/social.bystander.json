@@ -2,6 +2,7 @@
   "id": "social.bystander",
   "title": "The bystander effect",
   "name": "the bystander effect",
+  "definition": "The bystander effect is the finding that people are less likely to help someone in trouble when other people are around.",
   "subjectArea": "Social psychology",
   "detection": {
     "keywords": [

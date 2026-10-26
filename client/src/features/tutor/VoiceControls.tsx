@@ -1,8 +1,9 @@
 import { useId } from "react";
-import { AudioLines, Mic, MicOff, Square } from "lucide-react";
+import { AudioLines, Mic, MicOff, Send, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { tutorContent } from "./content";
+import { ResponseCountdown } from "./ResponseCountdown";
 import type { SpeechState, VoiceStatus } from "./useSpeech";
 
 type VoiceControlsProps = {
@@ -20,7 +21,8 @@ const STATUS_TEXT: Record<Exclude<VoiceStatus, "off">, string> = {
 };
 
 // Above the composer in voice mode: what voice is doing now (in words and an icon, never
-// color alone), the live transcript while listening, Stop speaking, and the mic mute toggle.
+// color alone), the live transcript while listening, the countdown to sending it once the
+// learner pauses, Send now, Stop speaking, and the mic mute toggle.
 // Typing in the composer below still works at any time.
 export function VoiceControls({ speech }: VoiceControlsProps) {
   const groupId = useId();
@@ -29,6 +31,7 @@ export function VoiceControls({ speech }: VoiceControlsProps) {
   if (status === "off") return null;
 
   const listening = status === "listening";
+  const { countdown } = speech;
   const StatusIcon = status === "speaking" ? AudioLines : speech.muted ? MicOff : Mic;
 
   return (
@@ -53,6 +56,10 @@ export function VoiceControls({ speech }: VoiceControlsProps) {
           {listening && speech.interim && (
             <p className="truncate text-secondary-foreground">{voice.heard(speech.interim)}</p>
           )}
+          {/* Announced once as the countdown starts, not every second. */}
+          <p aria-live="polite" className="sr-only">
+            {countdown ? voice.countdownAnnouncement(Math.round(countdown.ms / 1000)) : ""}
+          </p>
         </div>
       </div>
       <div className="flex items-center gap-2">
@@ -73,6 +80,12 @@ export function VoiceControls({ speech }: VoiceControlsProps) {
             {voice.stopSpeaking}
           </Button>
         )}
+        {listening && speech.interim && (
+          <Button type="button" variant="outline" size="sm" onClick={speech.sendNow} className="pointer-coarse:h-11">
+            <Send aria-hidden="true" />
+            {voice.sendNow}
+          </Button>
+        )}
         {status !== "needsActivation" && (
           <Button
             type="button"
@@ -88,6 +101,7 @@ export function VoiceControls({ speech }: VoiceControlsProps) {
           </Button>
         )}
       </div>
+      {countdown && <ResponseCountdown key={countdown.startedAt} startedAt={countdown.startedAt} ms={countdown.ms} />}
     </div>
   );
 }

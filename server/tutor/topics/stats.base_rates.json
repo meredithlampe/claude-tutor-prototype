@@ -2,6 +2,7 @@
   "id": "stats.base_rates",
   "title": "Base rates in a positive test result",
   "name": "base rates",
+  "definition": "A base rate is how common something is in a whole group, before you look at any one person's details. For a test result, it's how many people have the condition to begin with.",
   "subjectArea": "Statistics",
   "detection": {
     "keywords": [

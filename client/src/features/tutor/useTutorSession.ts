@@ -201,10 +201,9 @@ export function useTutorSession(chat: ChatContext) {
     if (!active || talking || revealing) return;
     const next = queueRef.current.shift();
     if (!next) return;
-    // With tabs, the opening (the scoping question) is a chat reply: the Chat tab stays up, with
-    // its choices, until the first workbook item appears. Side by side, it's unchanged.
-    const chatReply =
-      next.event.type === "explain_my_thinking" || (next.event.type === "session_started" && !isSideBySide());
+    // The opening (the first scoping question) is a chat reply: the chat stays in focus, with its
+    // choices, through scoping, until the first workbook item (the self-report) appears.
+    const chatReply = next.event.type === "explain_my_thinking" || next.event.type === "session_started";
     replyKindRef.current = chatReply ? "chat" : "workbook";
     chatRef.current.send(next.text ?? "", { silent: !next.text, data: { event: next.event, opening: next.opening } });
   }, [active, talking, queueVersion, revealing]);

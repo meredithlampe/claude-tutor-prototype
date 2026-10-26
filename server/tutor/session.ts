@@ -611,6 +611,7 @@ export function setMode(session: TutorSession, mode: TutorSession["mode"]) {
 export interface PublicQuestion {
   id: string;
   prompt: string;
+  context?: string;
   kind: TutorQuestion["kind"];
   role: TutorQuestion["role"];
   resource?: string;
@@ -622,6 +623,7 @@ function publicQuestion(question: TutorQuestion): PublicQuestion {
   return {
     id: question.id,
     prompt: question.prompt,
+    context: question.context,
     kind: question.kind,
     role: question.role,
     resource: question.resource,
@@ -689,6 +691,7 @@ export function publicSession(session: TutorSession) {
       section: item.section,
       stepIndex: item.stepIndex,
       step: item.step && {
+        context: item.step.context,
         instruction: item.step.instruction,
         artifact: item.step.artifact,
         bloomLevel: item.step.bloomLevel,
@@ -814,6 +817,7 @@ export function describeWorkbook(session: TutorSession, draft: WorkbookDraft | u
         ? [session.position - (session.practiceRoundStart ?? 0) + 1, practiceRoundSize(session)]
         : [session.position + 1, practiceSteps(session).length];
     lines.push(`${SECTION_LABELS[item.section]} ${number} of ${total} (practice: help freely).`);
+    if (item.step.context) lines.push(`Scenario shown above the instruction:\n${item.step.context}`);
     if (item.step.instruction) lines.push(`Instruction shown:\n${item.step.instruction}`);
     if (item.step.artifact) lines.push(`Visual shown below the instruction: ${item.step.artifact.title}. ${item.step.artifact.description}`);
     if (item.progress.activeQuestionId !== item.step.question.id) {

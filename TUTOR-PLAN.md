@@ -31,8 +31,8 @@ We may throw Tutor away and rebuild it on the same clone, so it should come out 
 
    Buttons: **Start with voice (recommended)**, **Start with text**, **No thanks**. See Voice below.
 3. **First-time intro (dialog):** the first time a user starts Tutor mode, a dialog explains the two surfaces before anything else happens: **Tutor** (arrow pointing left at the chat: discuss questions, get more context, have confusing concepts explained) and **Workbook** (arrow pointing right: assessments and exercises appear there), plus "Interacting with the tutor does not affect progress in the workbook." It has a hand-drawn sketch of the screen and one button, **Got it**. The tutor doesn't speak or stream, and voice doesn't listen, until it's closed; in voice mode, Got it is the click that lets the browser speak (the microphone was asked for on Start with voice). On narrow screens the sections stack and name their tab. "Seen" is stored per user in `server/data/tutor-users.json`; `DELETE /api/tutor/intro` resets it.
-4. **Scoping (chat):** every session's first tutor message opens with fixed copy from `content.ts`: "I'm your <topic> tutor." (the topic file's short `name`, or the session's subject outside the library), then "You can talk to me, and I'll listen through your microphone." (voice) or "You can chat with me by typing into the input on the left side of Tutor mode." (text). It's spoken in voice mode. The model's opening follows it, in at most 2 short sentences: it says they'll work through the question together so the learner can solve ones like it, then asks what to focus on, with tappable choices for goal (homework, exam, curiosity) and time available. Scoping and assessment together take about 4 turns at most. A loading state shows while the workbook is generated.
-5. **Assessment (workbook):** 1 self-report question ("Which part of <topic> feels confusing?", with the same short topic name; multiple choice) and 1–2 real probe questions. This is a **check** (see Practice and checks). For library topics, these are the topic's fixed items.
+4. **Scoping (chat):** every session's first tutor message opens with fixed copy from `content.ts`: "I'm your <topic> tutor." (the topic file's short `name`, or the session's subject outside the library), then "You can talk to me, and I'll listen through your microphone." (voice) or "You can chat with me by typing into the input on the left side of Tutor mode." (text). It's spoken in voice mode. The model's opening follows it, in at most 2 short sentences: it says they'll work through the question together so the learner can solve ones like it, then asks what to focus on, with tappable choices for goal (homework, exam, curiosity) and time available. Each answer is taken as given: the tutor never asks the learner to confirm their goal or time. If the opening question already names the goal ("studying for my final"), the server records it and the tutor asks only for the time; a time given when the goal was asked counts as the time. The chat stays the surface in focus through scoping, on every screen size; the workbook takes focus when its first item appears. Scoping and assessment together take about 4 turns at most. A loading state shows while the workbook is generated.
+5. **Assessment (workbook):** 1 self-report question ("Which part of <topic> feels confusing?", with the same short topic name; multiple choice), with 1–2 plain sentences above it saying what the topic is (the topic file's `definition`, or one sentence the model writes with the item outside the library), and 1–2 real probe questions. This is a **check** (see Practice and checks). For library topics, these are the topic's fixed items.
 6. **Steps (workbook):** the 3 teaching steps are generated **after** the assessment, pitched at the level it showed. Each step is an instruction plus visual, then a question. The tutor introduces each step in a sentence or two in the chat, and the full explanation is in the workbook.
 7. **Final check (workbook):** 2 questions with no instruction before them, mixing content from the earlier steps. At least one matches an assessment question, so the session gives a before/after comparison. This is a **check**. For library topics, these are the topic's fixed items. An optional bonus item follows.
 8. **Wrap-up:** the learner writes a short summary of what they learned, and then the tutor gives its own summary. Tutor asks whether the learner will do a short check-in in 3–7 days (see `TUTOR-MEASUREMENT.md`). The learner then chooses **More practice** (a few more questions on the same topic) or **Exit**.
@@ -64,6 +64,7 @@ Topics come from a topic library (`server/tutor/topics/`, one file per topic; se
 ### Steps
 
 - **One idea per step:** 1–2 sentences of instruction with a visual that carries the explanation, then a question (Rosenshine: small steps, check for understanding, aim for about 80% success). See `docs/reference/principles-of-instruction.webp`.
+- **Every practice item stands alone:** each step, parallel question and More practice question opens with a one-sentence **scenario** that states the situation and its numbers in words ("A thousand people take a screening test: 100 have the condition…"), before any text that refers to the visual. It sits on top of the 1–2-sentence instruction or prompt. A step's question that asks about the step's own visual can share the step's scenario. Generation checks it's there; a missing one is written by a short follow-up call, and if that fails the build fails and the workbook offers a retry.
 - **The steps climb Bloom's levels:** roughly Understand, then Apply, then Analyze or Evaluate. Step 3 is freeform ("explain why", "spot the error") so the learner explains in their own words.
 - **"Show me"** on every practice question reveals the answer and explanation. The step then counts as not mastered.
 - The learner moves to the next step with a **Next** button once the step is answered or revealed.
@@ -96,6 +97,7 @@ type TutorBattery = {
 
 type TutorStep = {
   id: string;
+  context?: string;             // the scenario sentence, shown above the instruction
   instruction: string;          // markdown, a few sentences
   artifact?: TutorArtifact;
   bloomLevel: "remember" | "understand" | "apply" | "analyze" | "evaluate" | "create";
@@ -106,6 +108,7 @@ type TutorStep = {
 type TutorQuestion = {
   id: string;
   prompt: string;
+  context?: string;             // shown above the prompt: a scenario, or the self-report's definition
   kind: "multiple_choice" | "freeform";
   role: "practice" | "check" | "self_report";
   options?: { text: string; rationale: string }[];  // server only: rationale
@@ -138,7 +141,7 @@ type TutorArtifact = { kind: "svg"; title: string; description: string; content:
 
 Chosen on the offer card: **Start with voice (recommended)** or **Start with text**. The user can switch at any time from the banner.
 
-- **Voice:** the tutor's chat messages are spoken aloud, sentence by sentence, by the configured voice provider (below). The user replies to the tutor by speaking: `SpeechRecognition` listens when the tutor finishes talking, and there's a visible mic mute button and listening indicator. Recognition runs continuously and the turn is sent after about 2.5 s of silence (`SILENCE_BEFORE_SUBMIT_MS` in `voiceInput.ts`), so short pauses don't cut the learner off. The click on "Start with voice" asks for microphone permission.
+- **Voice:** the tutor's chat messages are spoken aloud, sentence by sentence, by the configured voice provider (below). The user replies to the tutor by speaking: `SpeechRecognition` listens when the tutor finishes talking, and there's a visible mic mute button and listening indicator. Recognition runs continuously, so short pauses don't cut the learner off. After about 1 s of silence following speech (`END_OF_SPEECH_MS` in `voiceInput.ts`), the Listening box shows a small ring and "Tutor will respond in 3", counting down (`COUNTDOWN_MS`, 3 s), and the turn is sent at 0, about 4 s after the learner stops. Speaking again cancels the countdown and keeps adding to the turn; Mute, stopping, or typing a reply also cancel it. **Send now** (left of Mute, shown once something has been heard) sends at once. The countdown is announced once through a polite live region, not every second, and the ring steps instead of sweeping with reduced motion. The click on "Start with voice" asks for microphone permission.
 - **Where to look in voice mode:** the next workbook item appears once the tutor has finished speaking, not just finished streaming.
 - **Text:** a normal typed chat with the tutor.
 - **Voice is for the chat only.** The workbook is never read aloud, and workbook answers are always clicked or typed.

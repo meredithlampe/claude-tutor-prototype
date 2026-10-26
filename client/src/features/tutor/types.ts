@@ -30,6 +30,8 @@ export type Section = "assessment" | "step" | "final" | "bonus" | "practice";
 export interface PublicQuestion {
   id: string;
   prompt: string;
+  // Shown above the prompt: a practice item's scenario, or the self-report's topic definition.
+  context?: string;
   kind: "multiple_choice" | "freeform";
   role: "practice" | "check" | "self_report";
   resource?: string;
@@ -66,7 +68,8 @@ export interface PracticeState {
 export interface CurrentItem {
   section: Section;
   stepIndex?: number;
-  step?: { instruction: string; artifact?: TutorArtifact; bloomLevel: string };
+  // `context`: the step's scenario, shown above the instruction.
+  step?: { context?: string; instruction: string; artifact?: TutorArtifact; bloomLevel: string };
   question: PublicQuestion;
   attempts: PublicAttempt[];
   reveal?: { via: string; answer: string; explanation: string };

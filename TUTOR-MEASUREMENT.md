@@ -7,6 +7,7 @@ How we tell whether Tutor sessions produce learning. This companion to `TUTOR-PL
 Each topic is one file in `server/tutor/topics/` (e.g. `stats.base_rates.json`). A topic file holds:
 
 - `id`, `title`, `subject area`, and detection hints (keywords and example questions)
+- `name` (short, for mid-sentence use) and `definition`: 1–2 plain sentences saying what the topic is, shown above the self-report question
 - **vetted content notes:** key ideas, the learning model (L0–L3), common misconceptions, and accuracy caveats, which the tutor is told to stay consistent with
 - **sources:** the real learning resources the content was checked against
 - **fixed items:** self-report, assessment probes, final-check items in two counterbalanced forms, and an optional bonus item, each with an answer key, option rationales and misconception tags
@@ -16,7 +17,7 @@ To add a topic, add a file. To switch topics for a test, change which files are 
 
 **Long-term direction:** topics live in a database of carefully generated topics, each mapped back to real, vetted learning resources, so learners don't depend on the model getting answers right. The topic files are the prototype version of that.
 
-**Subjects outside the library:** Tutor falls back to generating the items. These sessions are flagged `itemSource: "generated"` in the logs and excluded from the learning analysis. Test scripts use library topics only.
+**Subjects outside the library:** Tutor falls back to generating the items. The model also writes the self-report's one-sentence definition. These sessions are flagged `itemSource: "generated"` in the logs and excluded from the learning analysis. Test scripts use library topics only.
 
 ## Topics
 
@@ -61,7 +62,7 @@ Latané and Darley's diffusion of responsibility and their decision model of hel
 
 ### `stats.base_rates`
 
-**S0 (self-report, not scored):** "Which part of base rates feels confusing?"
+**S0 (self-report, not scored):** "Which part of base rates feels confusing?" Shown below the topic's definition: "A base rate is how common something is in a whole group, before you look at any one person's details. For a test result, it's how many people have the condition to begin with."
 - (a) Which numbers to use
 - (b) Why the answer isn't just the accuracy
 - (c) How much the condition's rarity matters
@@ -97,7 +98,7 @@ Latané and Darley's diffusion of responsibility and their decision model of hel
 
 ### `social.bystander`
 
-**B0 (self-report, not scored):** "Which part of the bystander effect feels confusing?"
+**B0 (self-report, not scored):** "Which part of the bystander effect feels confusing?" Shown below the topic's definition: "The bystander effect is the finding that people are less likely to help someone in trouble when other people are around."
 - (a) Why groups change behaviour
 - (b) What the theory predicts
 - (c) How it applies to real life

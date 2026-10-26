@@ -4,21 +4,25 @@ import type { ChatContext } from "@/features/types";
 import { ChoiceChips } from "./ChoiceChips";
 import { tutorContent } from "./content";
 import type { TutorSession } from "./types";
+import type { SpeechState } from "./useSpeech";
+import { VoiceControls } from "./VoiceControls";
 
 type TutorComposerProps = {
   chat: ChatContext;
   session: TutorSession;
   scopingAsked: boolean;
   inputRef: RefObject<HTMLTextAreaElement | null>;
+  speech: SpeechState;
 };
 
-export function TutorComposer({ chat, session, scopingAsked, inputRef }: TutorComposerProps) {
+export function TutorComposer({ chat, session, scopingAsked, inputRef, speech }: TutorComposerProps) {
   const { chat: copy } = tutorContent;
   const showChips = session.status === "scoping" && scopingAsked && !chat.isStreaming;
   const askingGoal = !session.scoping.goal;
 
   return (
     <div className="flex flex-col gap-3">
+      <VoiceControls speech={speech} />
       {showChips && (
         <ChoiceChips
           // Re-mounted per question, so focus doesn't sit on a chip that changed meaning.

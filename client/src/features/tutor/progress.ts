@@ -5,7 +5,8 @@ import type { TutorSession } from "./types";
 export function progressLabel(session: TutorSession): string {
   const { progress } = tutorContent.banner;
   if (session.status === "scoping") return progress.scoping;
-  if (session.status === "wrap_up" || session.status === "complete") return progress.complete;
+  if (session.status === "wrap_up") return progress.wrapUp;
+  if (session.status === "complete") return progress.complete;
   if (session.building) return progress.building;
   const current = session.current;
   if (!current) return progress.building;
@@ -18,5 +19,7 @@ export function progressLabel(session: TutorSession): string {
       return progress.final(session.position + 1, session.counts.finalCheck);
     case "bonus":
       return progress.bonus;
+    case "practice":
+      return progress.practice(session.practicePosition + 1, session.counts.morePractice);
   }
 }

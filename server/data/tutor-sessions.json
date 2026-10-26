@@ -1,1 +1,1090 @@
-[]
+[
+  {
+    "conversationId": "cdfb5c4a-bf14-4931-9731-4cdecb9cd665",
+    "userId": "Meredith",
+    "subject": "Social psychology: the bystander effect",
+    "topicId": "social.bystander",
+    "reason": "The user is studying for a psychology midterm and wants to understand the bystander effect, which matches a library topic.",
+    "trigger": "detected",
+    "offerMessageId": "579dc248-a260-428f-b5d8-266e50dd058c",
+    "mode": "text",
+    "previousSettings": {
+      "responseStyle": "default",
+      "voice": false
+    },
+    "status": "paused",
+    "scoping": {
+      "goal": "An exam",
+      "time": "About 20 minutes"
+    },
+    "position": 2,
+    "answers": [
+      {
+        "questionId": "social-B0-f8472e5f",
+        "role": "self_report",
+        "attempts": [
+          {
+            "response": "What the theory predicts",
+            "at": "2026-10-25T01:43:25.371Z"
+          }
+        ]
+      },
+      {
+        "questionId": "social-A1-e3d3fe9a",
+        "role": "check",
+        "attempts": [
+          {
+            "response": "Less likely, because responsibility feels shared and others' calm suggests it's not an emergency",
+            "at": "2026-10-25T01:44:23.667Z",
+            "confidence": "guessing",
+            "result": "correct",
+            "score": 2,
+            "feedback": "Diffusion of responsibility and reading others' calm both lower each person's chance of acting."
+          }
+        ]
+      },
+      {
+        "questionId": "social-A2-82902b18",
+        "role": "check",
+        "attempts": [
+          {
+            "response": "Drivers see other drivers not stopping so they do the same",
+            "at": "2026-10-25T01:44:45.048Z",
+            "confidence": "think_so",
+            "result": "partial",
+            "score": 1,
+            "feedback": "You've noticed one real situational effect: other drivers not stopping shapes what each driver does, and that can make the scene seem like it isn't an emergency. For full marks, add a second situational reason, such as how drivers might think about who is responsible for helping when so many people are around."
+          }
+        ]
+      },
+      {
+        "questionId": "step1-917eaf80",
+        "role": "practice",
+        "attempts": [
+          {
+            "response": "Nothing really changes; whether someone helps depends on what kind of person they are.",
+            "at": "2026-10-25T01:48:58.333Z",
+            "result": "incorrect",
+            "score": 0,
+            "feedback": "This puts the cause in character, but the same person can behave differently depending on the situation.",
+            "misconceptionTag": "dispositional"
+          }
+        ],
+        "reveal": {
+          "via": "show_answer",
+          "answer": "Each individual becomes less likely to help than they would be if they were alone.",
+          "explanation": "The bystander effect predicts that each individual is less likely to help when others are present than when alone. It says nothing about crowds producing fewer helpers overall; in real incidents, someone in a larger group often does step in."
+        }
+      },
+      {
+        "questionId": "step2-b83af1da",
+        "role": "practice",
+        "attempts": [
+          {
+            "response": "Diffusion of responsibility: they know it's an emergency, but each assumes someone else will act (step 3).",
+            "at": "2026-10-25T02:07:12.124Z",
+            "result": "correct",
+            "score": 2,
+            "feedback": "Right: they've already judged it an emergency, so the failure is in taking personal responsibility."
+          }
+        ]
+      },
+      {
+        "questionId": "step3-e3194f31",
+        "role": "practice",
+        "attempts": [
+          {
+            "response": "I'm not sure",
+            "at": "2026-10-25T02:08:33.671Z",
+            "result": "incorrect",
+            "score": 0,
+            "feedback": "No problem, this is a good one to work through. Try looking at what each group is unsure about: is the first group unsure whether this is an emergency at all, and is the second group unsure whether it's their job to act? Then think of something that would clear up that doubt."
+          }
+        ],
+        "reveal": {
+          "via": "show_answer",
+          "answer": "",
+          "explanation": "The first group fails at step 2 (interpreting it as an emergency) through pluralistic ignorance: they read others' calm as a sign nothing is wrong. The second group fails at step 3 (taking responsibility) through diffusion of responsibility: they see a problem but assume security is handling it. An intervention could be one shopper pointing at a specific person and saying, \"You, call an ambulance; I'll alert security,\" which fixes step 3. Another option is a sign saying \"If someone looks unwell, don't assume others have reported it,\" which also targets step 3."
+        }
+      },
+      {
+        "questionId": "social-F1-76d806a5",
+        "role": "check",
+        "attempts": [
+          {
+            "response": "Less likely, because everyone can assume someone else will reply, and others' silence suggests it's handled",
+            "at": "2026-10-25T02:10:03.315Z",
+            "confidence": "sure",
+            "result": "correct",
+            "score": 2,
+            "feedback": "Diffusion of responsibility, plus reading the silence as 'someone's on it'."
+          }
+        ]
+      },
+      {
+        "questionId": "social-F2-7b96f1d2",
+        "role": "check",
+        "attempts": [
+          {
+            "response": "Each individual is less likely to act the more people there are around",
+            "at": "2026-10-25T02:10:29.753Z",
+            "confidence": "think_so",
+            "result": "partial",
+            "score": 1,
+            "feedback": "You've correctly spotted that the crowd itself is the cause: people are less likely to act when many others are around. To earn full marks, explain why the presence of others holds each person back, giving two distinct reasons. One reason could involve how people interpret the situation, and another could involve who feels it's their job to act."
+          }
+        ]
+      }
+    ],
+    "stepProgress": [
+      {
+        "activeQuestionId": "step1-917eaf80",
+        "misses": 1,
+        "partialRetryUsed": false,
+        "explainRequested": false,
+        "revealed": true,
+        "done": true,
+        "mastered": false,
+        "startedAt": "2026-10-25T01:45:49.984Z"
+      },
+      {
+        "activeQuestionId": "step2-b83af1da",
+        "misses": 0,
+        "partialRetryUsed": false,
+        "explainRequested": false,
+        "revealed": false,
+        "done": true,
+        "mastered": true,
+        "startedAt": "2026-10-25T01:50:25.522Z"
+      },
+      {
+        "activeQuestionId": "step3-e3194f31",
+        "misses": 1,
+        "partialRetryUsed": false,
+        "explainRequested": false,
+        "revealed": true,
+        "done": true,
+        "mastered": false,
+        "startedAt": "2026-10-25T02:07:13.964Z"
+      }
+    ],
+    "shownAt": {
+      "social-B0-f8472e5f": "2026-10-25T01:43:06.954Z",
+      "social-A1-e3d3fe9a": "2026-10-25T01:43:25.375Z",
+      "social-A2-82902b18": "2026-10-25T01:44:23.668Z",
+      "step1-917eaf80": "2026-10-25T01:45:49.985Z",
+      "step2-b83af1da": "2026-10-25T01:50:25.522Z",
+      "step3-e3194f31": "2026-10-25T02:07:13.964Z",
+      "social-F1-76d806a5": "2026-10-25T02:08:45.539Z",
+      "social-F2-7b96f1d2": "2026-10-25T02:10:03.316Z",
+      "social-P1-67289fad": "2026-10-25T02:10:29.754Z"
+    },
+    "generation": {
+      "assessmentMs": 3,
+      "stepsMs": 64918
+    },
+    "id": "32f7d80e-9797-453b-b7a5-c8af1994f1fc",
+    "createdAt": "2026-10-25T01:42:23.371Z",
+    "updatedAt": "2026-10-25T02:11:41.274Z",
+    "requestedMode": "voice",
+    "form": 1,
+    "battery": {
+      "itemSource": "fixed",
+      "assessment": [
+        {
+          "id": "social-B0-f8472e5f",
+          "itemKey": "social.B0",
+          "prompt": "What's least clear?",
+          "kind": "multiple_choice",
+          "role": "self_report",
+          "options": [
+            {
+              "text": "Why groups change behaviour"
+            },
+            {
+              "text": "What the theory predicts"
+            },
+            {
+              "text": "How it applies to real life"
+            },
+            {
+              "text": "Not sure"
+            }
+          ]
+        },
+        {
+          "id": "social-A1-e3d3fe9a",
+          "itemKey": "social.A1",
+          "prompt": "A man collapses on a crowded train platform. Is any one person there more or less likely to step in than the only other person on an empty platform?",
+          "kind": "multiple_choice",
+          "role": "check",
+          "options": [
+            {
+              "text": "More likely, because crowds make people braver",
+              "correct": false,
+              "misconceptionTag": "additive",
+              "rationale": "Other people don't add courage to each person; they spread out the sense of responsibility."
+            },
+            {
+              "text": "Less likely, because responsibility feels shared and others' calm suggests it's not an emergency",
+              "correct": true,
+              "rationale": "Diffusion of responsibility and reading others' calm both lower each person's chance of acting."
+            },
+            {
+              "text": "About the same, because it depends on what kind of person you are",
+              "correct": false,
+              "misconceptionTag": "dispositional",
+              "rationale": "The same person behaves differently depending on who else is there. The situation matters, not just character."
+            },
+            {
+              "text": "Less likely, because people in crowds are selfish",
+              "correct": false,
+              "misconceptionTag": "moral",
+              "rationale": "Right direction, wrong reason: it's not that people stop caring, it's that responsibility feels shared."
+            }
+          ],
+          "answer": "Less likely. With many people around, each person feels less responsible (someone else will help), and when everyone looks calm, each person reads that as a sign it isn't an emergency."
+        },
+        {
+          "id": "social-A2-82902b18",
+          "itemKey": "social.A2",
+          "prompt": "A car is smoking by a busy road and dozens of drivers pass without stopping. Explain why.",
+          "kind": "freeform",
+          "role": "check",
+          "answer": "Each driver sees many others passing and assumes someone else will stop or has already called for help (diffusion of responsibility). Seeing no one else stop also makes it look like it isn't an emergency. Some may not notice it at speed, or not know how they could help.",
+          "rubric": {
+            "full": "Gives two situational mechanisms, e.g. diffusion of responsibility (someone else will stop or has called), others' calm or not stopping read as 'not an emergency', not noticing, or not knowing how to help.",
+            "partial": "Gives one situational mechanism.",
+            "none": "Personality only (selfish, uncaring, in a hurry by nature); tag dispositional."
+          }
+        }
+      ],
+      "steps": [
+        {
+          "id": "step-1",
+          "instruction": "The bystander effect predicts something about **each individual**: as the group grows, any one person becomes *less* likely to help. In the graph, each person's chance of helping falls as more bystanders are added. It does **not** predict that a crowd is less likely to produce *any* helper. CCTV studies of real public conflicts (Philpot et al., 2020) found that someone usually steps in, and more bystanders made it more likely that at least one person helped. The effect is also weaker in clearly dangerous emergencies.",
+          "artifact": {
+            "kind": "svg",
+            "title": "Each person's likelihood of helping vs. group size",
+            "description": "A line graph. The horizontal axis is the number of bystanders, from 1 to many. The vertical axis is each person's likelihood of helping, from low to high. The line starts high when there is 1 bystander and slopes downward as the group grows.",
+            "content": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 420 280\"><rect x=\"0\" y=\"0\" width=\"420\" height=\"280\" fill=\"#f8f9fb\"/><line x1=\"70\" y1=\"30\" x2=\"70\" y2=\"220\" stroke=\"#222\" stroke-width=\"2\"/><line x1=\"70\" y1=\"220\" x2=\"390\" y2=\"220\" stroke=\"#222\" stroke-width=\"2\"/><path d=\"M80 50 Q160 150 240 180 T380 205\" fill=\"none\" stroke=\"#1f5fbf\" stroke-width=\"4\"/><circle cx=\"80\" cy=\"50\" r=\"5\" fill=\"#1f5fbf\"/><text x=\"60\" y=\"55\" font-family=\"Arial, sans-serif\" font-size=\"14\" fill=\"#222\" text-anchor=\"end\">High</text><text x=\"60\" y=\"215\" font-family=\"Arial, sans-serif\" font-size=\"14\" fill=\"#222\" text-anchor=\"end\">Low</text><text x=\"80\" y=\"240\" font-family=\"Arial, sans-serif\" font-size=\"14\" fill=\"#222\" text-anchor=\"middle\">1</text><text x=\"380\" y=\"240\" font-family=\"Arial, sans-serif\" font-size=\"14\" fill=\"#222\" text-anchor=\"middle\">Many</text><text x=\"230\" y=\"268\" font-family=\"Arial, sans-serif\" font-size=\"15\" fill=\"#222\" text-anchor=\"middle\">Number of bystanders</text><text x=\"20\" y=\"135\" font-family=\"Arial, sans-serif\" font-size=\"15\" fill=\"#222\" text-anchor=\"middle\" transform=\"rotate(-90 20 135)\">Each person's chance of helping</text></svg>"
+          },
+          "bloomLevel": "understand",
+          "knowledgeType": "conceptual",
+          "question": {
+            "id": "step1-917eaf80",
+            "prompt": "According to the bystander effect, what changes as more people witness someone in need?",
+            "kind": "multiple_choice",
+            "role": "practice",
+            "options": [
+              {
+                "text": "Nothing really changes; whether someone helps depends on what kind of person they are.",
+                "correct": false,
+                "rationale": "This puts the cause in character, but the same person can behave differently depending on the situation.",
+                "misconceptionTag": "dispositional"
+              },
+              {
+                "text": "Each individual becomes more likely to help, because people want to look good in front of others.",
+                "correct": false,
+                "rationale": "This assumes an audience makes each person braver or keener to help, but the effect describes others' presence holding people back.",
+                "misconceptionTag": "additive"
+              },
+              {
+                "text": "Each individual becomes less likely to help than they would be if they were alone.",
+                "correct": true,
+                "rationale": "Right: the prediction is about each person's likelihood, which drops because others are present."
+              },
+              {
+                "text": "Bigger crowds make it less likely that anyone at all will help.",
+                "correct": false,
+                "rationale": "This mixes up each individual's likelihood with the group's total, and real-world CCTV evidence shows larger groups often do produce at least one helper.",
+                "misconceptionTag": "individual_vs_group_total"
+              }
+            ],
+            "answer": "The bystander effect predicts that each individual is less likely to help when others are present than when alone. It says nothing about crowds producing fewer helpers overall; in real incidents, someone in a larger group often does step in."
+          },
+          "parallel": {
+            "id": "step1-parallel-45a461ae",
+            "prompt": "A cyclist falls in a park. In one version, 2 people are nearby; in another, 20 people are nearby. What does the bystander effect predict?",
+            "kind": "multiple_choice",
+            "role": "practice",
+            "options": [
+              {
+                "text": "The 20 people care less about strangers because people in big groups are more selfish.",
+                "correct": false,
+                "rationale": "This assumes crowds lower how much people care, but the effect works through how people read the situation and their own role, not through caring less.",
+                "misconceptionTag": "moral"
+              },
+              {
+                "text": "It depends only on whether there happen to be kind, caring people in the park.",
+                "correct": false,
+                "rationale": "This explains helping by personality, but the bystander effect is about how the situation changes anyone's behaviour.",
+                "misconceptionTag": "dispositional"
+              },
+              {
+                "text": "Each of the 20 is individually less likely to help than each of the 2, even though someone among the 20 may still help.",
+                "correct": true,
+                "rationale": "Right: the effect concerns each person's likelihood, not whether the group as a whole produces a helper."
+              },
+              {
+                "text": "Each of the 20 is more likely to help, because a bigger audience makes people want to look like heroes.",
+                "correct": false,
+                "rationale": "This assumes more onlookers push each person toward helping, but the effect describes the opposite pull on each individual.",
+                "misconceptionTag": "additive"
+              }
+            ],
+            "answer": "Each of the 20 is less likely to help than each of the 2, because others' presence weighs on each person's decision. That doesn't mean nobody helps; with 20 people, at least one may still step in."
+          }
+        },
+        {
+          "id": "step-2",
+          "instruction": "Your earlier answer about the drivers was half the story: copying others' calm is **pluralistic ignorance**, which blocks step 2 (*is this an emergency?*). **Diffusion of responsibility** blocks step 3: people *do* see it's an emergency, but each assumes someone else will act. A quick test is to ask whether the person thinks something is wrong. If they're unsure and are reading others' calm, it's pluralistic ignorance. If they're sure but think \"someone else has got this,\" it's diffusion.",
+          "bloomLevel": "apply",
+          "knowledgeType": "conceptual",
+          "question": {
+            "id": "step2-b83af1da",
+            "prompt": "In a busy car park, a dog is panting hard inside a locked car on a hot day. Several passers-by stop, agree out loud that the dog is in danger, say \"someone should call,\" and walk on, each assuming another person already has. What is mainly going on?",
+            "kind": "multiple_choice",
+            "role": "practice",
+            "options": [
+              {
+                "text": "Diffusion of responsibility: they know it's an emergency, but each assumes someone else will act (step 3).",
+                "correct": true,
+                "rationale": "Right: they've already judged it an emergency, so the failure is in taking personal responsibility."
+              },
+              {
+                "text": "They are uncaring people who don't like animals.",
+                "correct": false,
+                "rationale": "This blames character, but the same people might well act if they were alone with the car.",
+                "misconceptionTag": "dispositional"
+              },
+              {
+                "text": "People in groups simply care less about the suffering of others.",
+                "correct": false,
+                "rationale": "This assumes crowds reduce caring, yet these people clearly showed concern; the problem lies elsewhere.",
+                "misconceptionTag": "moral"
+              },
+              {
+                "text": "Pluralistic ignorance: they read each other's calm as a sign the dog is fine (step 2).",
+                "correct": false,
+                "rationale": "This would fit if they were unsure whether anything was wrong, but check what these passers-by actually said about the danger.",
+                "misconceptionTag": "confuses_pi_with_diffusion"
+              }
+            ],
+            "answer": "The passers-by openly agreed the dog was in danger, so step 2 (interpreting it as an emergency) was passed. They failed at step 3 because each assumed someone else had called, which is diffusion of responsibility."
+          },
+          "parallel": {
+            "id": "step2-parallel-e3e084e5",
+            "prompt": "At a riverside, people hear a swimmer shouting and splashing. They can't tell whether he's messing about or in trouble. Each glances at the relaxed people around them, decides it's probably a game, and carries on. What is mainly going on?",
+            "kind": "multiple_choice",
+            "role": "practice",
+            "options": [
+              {
+                "text": "Pluralistic ignorance: each person reads the others' calm as a sign nothing is wrong (step 2).",
+                "correct": true,
+                "rationale": "Right: they're unsure whether it's an emergency and use others' relaxed behaviour to decide it isn't."
+              },
+              {
+                "text": "More onlookers made each person feel braver, so they felt no need to act.",
+                "correct": false,
+                "rationale": "This assumes more people boosts each person's readiness to act, which isn't how others' presence works here.",
+                "misconceptionTag": "additive"
+              },
+              {
+                "text": "They are selfish people who don't want to get wet.",
+                "correct": false,
+                "rationale": "This blames character, but the scenario shows a situational cue shaping their judgment.",
+                "misconceptionTag": "dispositional"
+              },
+              {
+                "text": "Diffusion of responsibility: they know he's drowning but assume someone else will help (step 3).",
+                "correct": false,
+                "rationale": "This would fit if they were sure it was an emergency, but check whether these people actually believed he was in trouble.",
+                "misconceptionTag": "confuses_pi_with_diffusion"
+              }
+            ],
+            "answer": "The onlookers weren't sure it was an emergency and used others' relaxed behaviour as the cue, so they failed at step 2. That is pluralistic ignorance."
+          }
+        },
+        {
+          "id": "step-3",
+          "instruction": "Real scenarios often block more than one step at once, and a good intervention targets the specific step that's failing. If people misread the situation (step 2), the fix makes the emergency unmistakable, for example by someone saying clearly, \"This man needs help.\" If people assume someone else will act (step 3), the fix gives one specific person the job. To analyze a scenario, look for clues about what bystanders *believe*, then match each clue to a step.",
+          "bloomLevel": "analyze",
+          "knowledgeType": "procedural",
+          "question": {
+            "id": "step3-e3194f31",
+            "prompt": "In a busy shopping centre, an elderly man is slumped on a bench, breathing oddly. Some shoppers slow down, see everyone else walking past calmly, and decide he's probably just resting. Others think he looks unwell but figure a security guard must already know. Explain which decision step each group of shoppers fails at and why, then suggest one intervention and say which step it fixes.",
+            "kind": "freeform",
+            "role": "practice",
+            "answer": "The first group fails at step 2 (interpreting it as an emergency) through pluralistic ignorance: they read others' calm as a sign nothing is wrong. The second group fails at step 3 (taking responsibility) through diffusion of responsibility: they see a problem but assume security is handling it. An intervention could be one shopper pointing at a specific person and saying, \"You, call an ambulance; I'll alert security,\" which fixes step 3. Another option is a sign saying \"If someone looks unwell, don't assume others have reported it,\" which also targets step 3.",
+            "rubric": {
+              "full": "Correctly maps the first group to step 2 (pluralistic ignorance, reading others' calm) and the second group to step 3 (diffusion of responsibility, assuming security knows), and offers an intervention that is clearly linked to the step it fixes.",
+              "partial": "Correctly maps one group to its step or mechanism, or maps both but gives no intervention or one not linked to a step; or gives a sensible intervention with only a vague link to the mechanisms.",
+              "none": "Explains the inaction by personality or by people caring less in crowds, confuses which mechanism belongs to which group throughout, or gives no situational explanation."
+            }
+          },
+          "parallel": {
+            "id": "step3-parallel-36ba6b76",
+            "prompt": "On a crowded beach, a child far out in the water is splashing and waving. Some sunbathers notice, see everyone around them lying back relaxed, and decide the child is just playing. Others suspect the child is struggling but assume the lifeguard has probably spotted it. Explain which decision step each group fails at and why, then suggest one intervention and say which step it fixes.",
+            "kind": "freeform",
+            "role": "practice",
+            "answer": "The first group fails at step 2 through pluralistic ignorance: others' relaxed behaviour convinces them it isn't an emergency. The second group fails at step 3 through diffusion of responsibility: they sense danger but assume the lifeguard is on it. An intervention could be one person standing up and telling a specific sunbather, \"You, run and tell the lifeguard now,\" which fixes step 3. Another is one person loudly saying, \"That child is in trouble,\" which fixes step 2.",
+            "rubric": {
+              "full": "Correctly maps the first group to step 2 (pluralistic ignorance, reading others' calm) and the second group to step 3 (diffusion of responsibility, assuming the lifeguard knows), and offers an intervention that is clearly linked to the step it fixes.",
+              "partial": "Correctly maps one group to its step or mechanism, or maps both but gives no intervention or one not linked to a step; or gives a sensible intervention with only a vague link to the mechanisms.",
+              "none": "Explains the inaction by personality or by people caring less in crowds, confuses which mechanism belongs to which group throughout, or gives no situational explanation."
+            }
+          }
+        }
+      ],
+      "finalCheck": [
+        {
+          "id": "social-F1-76d806a5",
+          "itemKey": "social.F1",
+          "prompt": "\"Can someone cover my 2pm shift? Urgent.\" It's posted in a 60-person channel. Compared with sending it as a DM to one coworker, is any one person in the channel more or less likely to reply?",
+          "kind": "multiple_choice",
+          "role": "check",
+          "options": [
+            {
+              "text": "The same, because it depends on how helpful each person is",
+              "correct": false,
+              "misconceptionTag": "dispositional",
+              "rationale": "The same coworker would answer a DM but scroll past a channel post. The situation matters, not just character."
+            },
+            {
+              "text": "More likely, because people want to look good in public",
+              "correct": false,
+              "misconceptionTag": "additive",
+              "rationale": "A public audience doesn't add to each person's drive to help; it spreads out who feels it's their job."
+            },
+            {
+              "text": "Less likely, because everyone can assume someone else will reply, and others' silence suggests it's handled",
+              "correct": true,
+              "rationale": "Diffusion of responsibility, plus reading the silence as 'someone's on it'."
+            },
+            {
+              "text": "Less likely, because big teams care less",
+              "correct": false,
+              "misconceptionTag": "moral",
+              "rationale": "Right direction, wrong reason: people don't care less, they each assume it's someone else's job."
+            }
+          ],
+          "answer": "Less likely. In the channel, everyone can assume someone else will reply, and when no one has replied, the silence looks like it's handled. A DM puts the responsibility on one person."
+        },
+        {
+          "id": "social-F2-7b96f1d2",
+          "itemKey": "social.F2",
+          "prompt": "A faint alarm sounds in an open-plan office and a little smoke comes from a vent. Everyone glances around and keeps working. Explain why.",
+          "kind": "freeform",
+          "role": "check",
+          "answer": "Each person glances at the others, sees them staying calm, and concludes it's probably nothing, even though everyone is unsure (pluralistic ignorance). Responsibility also feels shared: with so many people there, each assumes someone else will report it.",
+          "rubric": {
+            "full": "Gives two situational mechanisms, e.g. everyone reads the others' calm as 'not an emergency' (pluralistic ignorance), responsibility feels shared (someone else will report it), not wanting to overreact in front of others, or not knowing what to do.",
+            "partial": "Gives one situational mechanism.",
+            "none": "Personality only (lazy, uncaring); tag dispositional."
+          }
+        }
+      ],
+      "bonus": {
+        "id": "social-P1-67289fad",
+        "itemKey": "social.P1",
+        "prompt": "\"Any questions?\" is met with silence in a lecture of 300, though many students are lost. Use both audience inhibition and one idea from earlier to explain it, and suggest one change that would help.",
+        "kind": "freeform",
+        "role": "check",
+        "resource": "**Audience inhibition** is another reason people hold back when others are present. Acting means doing something in front of an audience, and people worry about looking foolish if they've misread the situation or get it wrong. The bigger the audience, the stronger that worry can be.",
+        "answer": "Students fear looking foolish in front of 300 people (audience inhibition), and each sees everyone else silent and assumes they're the only one lost (pluralistic ignorance), or that someone else will ask (diffusion of responsibility). Anonymous question tools, or a minute of pair discussion before asking, target those mechanisms.",
+        "rubric": {
+          "full": "Uses audience inhibition plus one earlier mechanism (diffusion of responsibility, or reading others' silence as everyone understanding), and the suggested change targets a mechanism (anonymous questions, calling on a specific person, pair discussion first).",
+          "partial": "Does one of the two: either the explanation with both ideas, or a change that targets a mechanism.",
+          "none": "Neither."
+        }
+      }
+    },
+    "learnerSummary": "Any individual is less likely to act the more people there are around",
+    "tutorSummary": "You nailed the core idea: the bystander effect is about **each individual**, whose likelihood of helping drops as more people are around.\n\n- This doesn't mean crowds produce less help overall. Real CCTV studies show someone usually steps in, and more bystanders make it *more* likely at least one helps. The effect is also weaker in clearly dangerous emergencies.\n- Your summary left out the *why*. **Pluralistic ignorance** blocks step 2: unsure people read others' calm as \"nothing's wrong.\"\n- **Diffusion of responsibility** blocks step 3: people see the emergency but assume someone else will act.\n\nNext time, look for clues about what bystanders believe, match them to a step, then design a fix for that step.",
+    "pausedFrom": "wrap_up",
+    "exitedAfterMessageId": "3ee617f0-2f9b-41ad-8e16-c1ad3e5068d3"
+  },
+  {
+    "conversationId": "22514c2f-0701-4010-9061-ddf228ae5673",
+    "userId": "Meredith",
+    "subject": "The bystander effect",
+    "topicId": "social.bystander",
+    "reason": "The user is studying for a psychology midterm and wants to understand the bystander effect, which matches a library topic.",
+    "trigger": "detected",
+    "offerMessageId": "0070a9bd-8a0b-41dd-9a93-5813db350e98",
+    "mode": "voice",
+    "previousSettings": {
+      "responseStyle": "default",
+      "voice": false
+    },
+    "status": "complete",
+    "scoping": {
+      "goal": "there will be a little bit of both I think",
+      "time": "10 minutes"
+    },
+    "position": 3,
+    "answers": [
+      {
+        "questionId": "social-B0-1962d0df",
+        "role": "self_report",
+        "attempts": [
+          {
+            "response": "What the theory predicts",
+            "at": "2026-10-26T13:36:58.204Z"
+          }
+        ]
+      },
+      {
+        "questionId": "social-F1-723db0ab",
+        "role": "check",
+        "attempts": [
+          {
+            "response": "Less likely, because everyone can assume someone else will reply, and others' silence suggests it's handled",
+            "at": "2026-10-26T13:39:14.260Z",
+            "confidence": "think_so",
+            "result": "correct",
+            "score": 2,
+            "feedback": "Diffusion of responsibility, plus reading the silence as 'someone's on it'."
+          }
+        ]
+      },
+      {
+        "questionId": "social-F2-deba6cc6",
+        "role": "check",
+        "attempts": [
+          {
+            "response": "If nobody else acts, everyone else is less likely to act",
+            "at": "2026-10-26T13:39:35.746Z",
+            "confidence": "think_so",
+            "result": "partial",
+            "score": 1,
+            "feedback": "You've noticed that people take their cue from each other, which is one real situational reason. Your answer doesn't yet explain why each person is less likely to act, though. Try to add a second, separate reason that comes from being in a group."
+          }
+        ]
+      },
+      {
+        "questionId": "step1-eca04dc2",
+        "role": "practice",
+        "attempts": [
+          {
+            "response": "They're less likely to help than if they were alone",
+            "at": "2026-10-26T13:41:49.605Z",
+            "result": "correct",
+            "score": 2,
+            "feedback": "Right: the graph tracks each individual's chance, which drops as more people are present."
+          }
+        ]
+      },
+      {
+        "questionId": "step2-03e6b898",
+        "role": "practice",
+        "attempts": [
+          {
+            "response": "Step 3: they each left it to someone else",
+            "at": "2026-10-26T13:43:33.020Z",
+            "result": "correct",
+            "score": 2,
+            "feedback": "Right: they knew it was an emergency, but responsibility felt shared, so each assumed another neighbour had acted."
+          }
+        ]
+      },
+      {
+        "questionId": "step3-bae29a1d",
+        "role": "practice",
+        "attempts": [
+          {
+            "response": "The coworkers walk past because of diffusion of responsibility. The question says \"clearly hurt\" so they should know its an emergency, which points away from pluralistic ignorance. The fix is for one person to take responsibility.",
+            "at": "2026-10-26T13:45:47.847Z",
+            "result": "correct",
+            "score": 2,
+            "feedback": "Good work: you correctly named diffusion of responsibility and used how obvious the injury is to rule out pluralistic ignorance. Your fix rightly targets responsibility. It would be even stronger if you showed how that one person gets chosen, for example by naming someone directly."
+          }
+        ]
+      },
+      {
+        "questionId": "social-A1-592fd8a7",
+        "role": "check",
+        "attempts": [
+          {
+            "response": "Less likely, because responsibility feels shared and others' calm suggests it's not an emergency",
+            "at": "2026-10-26T13:47:08.093Z",
+            "confidence": "sure",
+            "result": "correct",
+            "score": 2,
+            "feedback": "Diffusion of responsibility and reading others' calm both lower each person's chance of acting."
+          }
+        ]
+      },
+      {
+        "questionId": "social-A2-cbc9fad8",
+        "role": "check",
+        "attempts": [
+          {
+            "response": "Pluralistic ignorance is at play because each driver is seeing the other drivers not stopping as a sign that it is not an emergency. There could also be diffusion of responsibility because there are many cars and soemone could be calling for help while still driving.",
+            "at": "2026-10-26T13:51:05.642Z",
+            "confidence": "think_so",
+            "result": "correct",
+            "score": 2,
+            "feedback": "You named two situational mechanisms: pluralistic ignorance, where other drivers not stopping makes it look like there's no emergency, and diffusion of responsibility, where each driver assumes someone else is already calling for help."
+          }
+        ]
+      },
+      {
+        "questionId": "social-P1-9176eae4",
+        "role": "check",
+        "attempts": [
+          {
+            "response": "They could think the silence means that other students understand everything, and they might be afraid of being embarrassed if they speak up.",
+            "at": "2026-10-26T13:52:20.596Z",
+            "confidence": "sure",
+            "result": "partial",
+            "score": 1,
+            "feedback": "You explained the silence well: fear of embarrassment is audience inhibition, and reading others' silence as understanding is the earlier idea. To get full credit, you still need to suggest a change to how the lecturer asks for questions that would weaken one of those mechanisms."
+          }
+        ]
+      }
+    ],
+    "stepProgress": [
+      {
+        "activeQuestionId": "step1-eca04dc2",
+        "misses": 0,
+        "partialRetryUsed": false,
+        "explainRequested": false,
+        "revealed": false,
+        "done": true,
+        "mastered": true,
+        "startedAt": "2026-10-26T13:40:45.881Z"
+      },
+      {
+        "activeQuestionId": "step2-03e6b898",
+        "misses": 0,
+        "partialRetryUsed": false,
+        "explainRequested": false,
+        "revealed": false,
+        "done": true,
+        "mastered": true,
+        "startedAt": "2026-10-26T13:42:37.872Z"
+      },
+      {
+        "activeQuestionId": "step3-bae29a1d",
+        "misses": 0,
+        "partialRetryUsed": false,
+        "explainRequested": false,
+        "revealed": false,
+        "done": true,
+        "mastered": true,
+        "startedAt": "2026-10-26T13:43:34.816Z"
+      }
+    ],
+    "shownAt": {
+      "social-B0-1962d0df": "2026-10-26T13:35:44.483Z",
+      "social-F1-723db0ab": "2026-10-26T13:36:58.205Z",
+      "social-F2-deba6cc6": "2026-10-26T13:39:14.261Z",
+      "step1-eca04dc2": "2026-10-26T13:40:45.881Z",
+      "step2-03e6b898": "2026-10-26T13:42:37.872Z",
+      "step3-bae29a1d": "2026-10-26T13:43:34.816Z",
+      "social-A1-592fd8a7": "2026-10-26T13:45:58.579Z",
+      "social-A2-cbc9fad8": "2026-10-26T13:47:08.095Z",
+      "social-P1-9176eae4": "2026-10-26T13:51:05.645Z"
+    },
+    "generation": {
+      "assessmentMs": 4,
+      "stepsMs": 70126,
+      "laterStepsMs": 111977
+    },
+    "id": "c5624f3b-6cac-456c-b977-dd02a3499bc0",
+    "createdAt": "2026-10-26T13:34:45.213Z",
+    "updatedAt": "2026-10-26T13:53:18.963Z",
+    "requestedMode": "voice",
+    "form": 2,
+    "battery": {
+      "itemSource": "fixed",
+      "assessment": [
+        {
+          "id": "social-B0-1962d0df",
+          "itemKey": "social.B0",
+          "prompt": "What's least clear?",
+          "kind": "multiple_choice",
+          "role": "self_report",
+          "options": [
+            {
+              "text": "Why groups change behaviour"
+            },
+            {
+              "text": "What the theory predicts"
+            },
+            {
+              "text": "How it applies to real life"
+            },
+            {
+              "text": "Not sure"
+            }
+          ]
+        },
+        {
+          "artifact": {
+            "kind": "svg",
+            "title": "Same request, two places",
+            "description": "The message 'Can someone cover my 2pm shift? Urgent.' shown twice: once in a team channel of 60 people, once as a direct message to one coworker.",
+            "content": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 250\" width=\"400\" height=\"250\"><title>Same request, two places</title><desc>The message 'Can someone cover my 2pm shift? Urgent.' shown twice: once in a team channel of 60 people, once as a direct message to one coworker.</desc><text x=\"16\" y=\"30\" font-family=\"system-ui, sans-serif\" font-size=\"18\" fill=\"#EDECE9\" text-anchor=\"start\" font-weight=\"bold\">Same request, two places</text><rect x=\"16\" y=\"44\" width=\"176\" height=\"160\" rx=\"10\" fill=\"#2A2A28\" stroke=\"#8A8983\" stroke-width=\"2\"/><text x=\"30\" y=\"68\" font-family=\"system-ui, sans-serif\" font-size=\"16\" fill=\"#EDECE9\" text-anchor=\"start\" font-weight=\"normal\">#team</text><text x=\"30\" y=\"88\" font-family=\"system-ui, sans-serif\" font-size=\"14\" fill=\"#BBBAAF\" text-anchor=\"start\" font-weight=\"normal\">60 people</text><path d=\"M16 98 H192\" stroke=\"#8A8983\" stroke-width=\"1.5\"/><rect x=\"28\" y=\"112\" width=\"152\" height=\"70\" rx=\"10\" fill=\"none\" stroke=\"#7DB4EA\" stroke-width=\"2\"/><text x=\"40\" y=\"136\" font-family=\"system-ui, sans-serif\" font-size=\"14\" fill=\"#EDECE9\" text-anchor=\"start\" font-weight=\"normal\"><tspan x=\"40\" dy=\"0em\">“Can someone cover</tspan><tspan x=\"40\" dy=\"1.25em\">my 2pm shift?</tspan><tspan x=\"40\" dy=\"1.25em\">Urgent.”</tspan></text><rect x=\"208\" y=\"44\" width=\"176\" height=\"160\" rx=\"10\" fill=\"#2A2A28\" stroke=\"#8A8983\" stroke-width=\"2\"/><text x=\"222\" y=\"68\" font-family=\"system-ui, sans-serif\" font-size=\"16\" fill=\"#EDECE9\" text-anchor=\"start\" font-weight=\"normal\">Direct message</text><text x=\"222\" y=\"88\" font-family=\"system-ui, sans-serif\" font-size=\"14\" fill=\"#BBBAAF\" text-anchor=\"start\" font-weight=\"normal\">1 coworker</text><path d=\"M208 98 H384\" stroke=\"#8A8983\" stroke-width=\"1.5\"/><rect x=\"220\" y=\"112\" width=\"152\" height=\"70\" rx=\"10\" fill=\"none\" stroke=\"#7DB4EA\" stroke-width=\"2\"/><text x=\"232\" y=\"136\" font-family=\"system-ui, sans-serif\" font-size=\"14\" fill=\"#EDECE9\" text-anchor=\"start\" font-weight=\"normal\"><tspan x=\"232\" dy=\"0em\">“Can someone cover</tspan><tspan x=\"232\" dy=\"1.25em\">my 2pm shift?</tspan><tspan x=\"232\" dy=\"1.25em\">Urgent.”</tspan></text><text x=\"16\" y=\"232\" font-family=\"system-ui, sans-serif\" font-size=\"16\" fill=\"#BBBAAF\" text-anchor=\"start\" font-weight=\"normal\">The same message, sent two ways.</text></svg>"
+          },
+          "id": "social-F1-723db0ab",
+          "itemKey": "social.F1",
+          "prompt": "\"Can someone cover my 2pm shift? Urgent.\" It's posted in a 60-person channel. Compared with sending it as a DM to one coworker, is any one person in the channel more or less likely to reply?",
+          "kind": "multiple_choice",
+          "role": "check",
+          "options": [
+            {
+              "text": "The same, because it depends on how helpful each person is",
+              "correct": false,
+              "misconceptionTag": "dispositional",
+              "rationale": "The same coworker would answer a DM but scroll past a channel post. The situation matters, not just character."
+            },
+            {
+              "text": "More likely, because people want to look good in public",
+              "correct": false,
+              "misconceptionTag": "additive",
+              "rationale": "A public audience doesn't add to each person's drive to help; it spreads out who feels it's their job."
+            },
+            {
+              "text": "Less likely, because everyone can assume someone else will reply, and others' silence suggests it's handled",
+              "correct": true,
+              "rationale": "Diffusion of responsibility, plus reading the silence as 'someone's on it'."
+            },
+            {
+              "text": "Less likely, because big teams care less",
+              "correct": false,
+              "misconceptionTag": "moral",
+              "rationale": "Right direction, wrong reason: people don't care less, they each assume it's someone else's job."
+            }
+          ],
+          "answer": "Less likely. In the channel, everyone can assume someone else will reply, and when no one has replied, the silence looks like it's handled. A DM puts the responsibility on one person."
+        },
+        {
+          "artifact": {
+            "kind": "svg",
+            "title": "An open-plan office",
+            "description": "An open-plan office with four people at desks. A faint alarm sounds and a little smoke drifts from a vent. Everyone glances around and keeps working.",
+            "content": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 234\" width=\"400\" height=\"234\"><title>An open-plan office</title><desc>An open-plan office with four people at desks. A faint alarm sounds and a little smoke drifts from a vent. Everyone glances around and keeps working.</desc><text x=\"16\" y=\"30\" font-family=\"system-ui, sans-serif\" font-size=\"18\" fill=\"#EDECE9\" text-anchor=\"start\" font-weight=\"bold\">An open-plan office</text><path d=\"M40 60 q0 -18 16 -18 q16 0 16 18 v10 h-32 z\" fill=\"none\" stroke=\"#E6C46A\" stroke-width=\"2\"/><circle cx=\"56\" cy=\"76\" r=\"3\" fill=\"#E6C46A\"/><text x=\"82\" y=\"66\" font-family=\"system-ui, sans-serif\" font-size=\"14\" fill=\"#E6C46A\" text-anchor=\"start\" font-weight=\"normal\">faint alarm</text><rect x=\"300\" y=\"62\" width=\"60\" height=\"14\" rx=\"3\" fill=\"none\" stroke=\"#8A8983\" stroke-width=\"2\"/><path d=\"M316 60 q-6 -8 0 -14 q6 -6 0 -12\" fill=\"none\" stroke=\"#8A8983\" stroke-width=\"2\"/><path d=\"M330 60 q-6 -8 0 -14 q6 -6 0 -12\" fill=\"none\" stroke=\"#8A8983\" stroke-width=\"2\"/><path d=\"M344 60 q-6 -8 0 -14 q6 -6 0 -12\" fill=\"none\" stroke=\"#8A8983\" stroke-width=\"2\"/><text x=\"292\" y=\"74\" font-family=\"system-ui, sans-serif\" font-size=\"14\" fill=\"#BBBAAF\" text-anchor=\"end\" font-weight=\"normal\">vent</text><circle cx=\"52\" cy=\"118\" r=\"6.0\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><path d=\"M43.0 142.0 Q43.0 127.0 52 127.0 Q61.0 127.0 61.0 142.0 Z\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><rect x=\"24\" y=\"146\" width=\"56\" height=\"10\" rx=\"3\" fill=\"#8A8983\"/><circle cx=\"144\" cy=\"118\" r=\"6.0\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><path d=\"M135.0 142.0 Q135.0 127.0 144 127.0 Q153.0 127.0 153.0 142.0 Z\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><rect x=\"116\" y=\"146\" width=\"56\" height=\"10\" rx=\"3\" fill=\"#8A8983\"/><circle cx=\"236\" cy=\"118\" r=\"6.0\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><path d=\"M227.0 142.0 Q227.0 127.0 236 127.0 Q245.0 127.0 245.0 142.0 Z\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><rect x=\"208\" y=\"146\" width=\"56\" height=\"10\" rx=\"3\" fill=\"#8A8983\"/><circle cx=\"328\" cy=\"118\" r=\"6.0\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><path d=\"M319.0 142.0 Q319.0 127.0 328 127.0 Q337.0 127.0 337.0 142.0 Z\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><rect x=\"300\" y=\"146\" width=\"56\" height=\"10\" rx=\"3\" fill=\"#8A8983\"/><text x=\"16\" y=\"194\" font-family=\"system-ui, sans-serif\" font-size=\"16\" fill=\"#BBBAAF\" text-anchor=\"start\" font-weight=\"normal\">Everyone glances around</text><text x=\"16\" y=\"216\" font-family=\"system-ui, sans-serif\" font-size=\"16\" fill=\"#BBBAAF\" text-anchor=\"start\" font-weight=\"normal\">and keeps working.</text></svg>"
+          },
+          "id": "social-F2-deba6cc6",
+          "itemKey": "social.F2",
+          "prompt": "A faint alarm sounds in an open-plan office and a little smoke comes from a vent. Everyone glances around and keeps working. Explain why.",
+          "kind": "freeform",
+          "role": "check",
+          "answer": "Each person glances at the others, sees them staying calm, and concludes it's probably nothing, even though everyone is unsure (pluralistic ignorance). Responsibility also feels shared: with so many people there, each assumes someone else will report it.",
+          "rubric": {
+            "full": "Gives two situational mechanisms, e.g. everyone reads the others' calm as 'not an emergency' (pluralistic ignorance), responsibility feels shared (someone else will report it), not wanting to overreact in front of others, or not knowing what to do.",
+            "partial": "Gives one situational mechanism.",
+            "none": "Personality only (lazy, uncaring); tag dispositional."
+          }
+        }
+      ],
+      "steps": [
+        {
+          "id": "step-1",
+          "instruction": "Follow the line from left to right: it shows how **each person's** chance of helping changes as more people are present.",
+          "artifact": {
+            "kind": "svg",
+            "title": "What the bystander effect predicts",
+            "description": "A line graph of each person's chance of helping against the number of people present (1, 2, 5, 10). The line slopes down from high when alone to lower with 10 people. A note says this is not the chance that anyone helps.",
+            "content": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 320\" width=\"400\" height=\"320\"><title>What the bystander effect predicts</title><desc>Line graph: each person's chance of helping falls as the number of people present rises from 1 to 2, 5 and 10. Note: this is not the chance that anyone helps.</desc><text x=\"200\" y=\"30\" text-anchor=\"middle\" font-family=\"system-ui, sans-serif\" font-size=\"18\" fill=\"#EDECE9\">Each person's chance of helping</text><line x1=\"70\" y1=\"50\" x2=\"70\" y2=\"240\" stroke=\"#8A8983\" stroke-width=\"2\"/><line x1=\"70\" y1=\"240\" x2=\"370\" y2=\"240\" stroke=\"#8A8983\" stroke-width=\"2\"/><text x=\"20\" y=\"75\" font-family=\"system-ui, sans-serif\" font-size=\"14\" fill=\"#BBBAAF\">High</text><text x=\"20\" y=\"240\" font-family=\"system-ui, sans-serif\" font-size=\"14\" fill=\"#BBBAAF\">Low</text><polyline points=\"90,70 150,120 240,175 340,205\" fill=\"none\" stroke=\"#E8906F\" stroke-width=\"3\"/><circle cx=\"90\" cy=\"70\" r=\"6\" fill=\"#E8906F\"/><circle cx=\"150\" cy=\"120\" r=\"6\" fill=\"#E8906F\"/><circle cx=\"240\" cy=\"175\" r=\"6\" fill=\"#E8906F\"/><circle cx=\"340\" cy=\"205\" r=\"6\" fill=\"#E8906F\"/><text x=\"105\" y=\"66\" font-family=\"system-ui, sans-serif\" font-size=\"16\" fill=\"#EDECE9\">Alone: most likely</text><text x=\"360\" y=\"228\" text-anchor=\"end\" font-family=\"system-ui, sans-serif\" font-size=\"16\" fill=\"#EDECE9\">With 10 people: less likely</text><text x=\"90\" y=\"258\" text-anchor=\"middle\" font-family=\"system-ui, sans-serif\" font-size=\"14\" fill=\"#BBBAAF\">1</text><text x=\"150\" y=\"258\" text-anchor=\"middle\" font-family=\"system-ui, sans-serif\" font-size=\"14\" fill=\"#BBBAAF\">2</text><text x=\"240\" y=\"258\" text-anchor=\"middle\" font-family=\"system-ui, sans-serif\" font-size=\"14\" fill=\"#BBBAAF\">5</text><text x=\"340\" y=\"258\" text-anchor=\"middle\" font-family=\"system-ui, sans-serif\" font-size=\"14\" fill=\"#BBBAAF\">10</text><text x=\"220\" y=\"280\" text-anchor=\"middle\" font-family=\"system-ui, sans-serif\" font-size=\"16\" fill=\"#EDECE9\">People present</text><text x=\"200\" y=\"306\" text-anchor=\"middle\" font-family=\"system-ui, sans-serif\" font-size=\"16\" fill=\"#BBBAAF\">Not the chance that anyone helps</text></svg>"
+          },
+          "bloomLevel": "understand",
+          "knowledgeType": "conceptual",
+          "question": {
+            "id": "step1-eca04dc2",
+            "prompt": "Using the graph, what does the bystander effect predict for one person among 10 bystanders, compared with being alone?",
+            "kind": "multiple_choice",
+            "role": "practice",
+            "options": [
+              {
+                "text": "They're more likely to help, since crowds make people braver",
+                "correct": false,
+                "rationale": "This assumes extra people add courage or pressure to look good, but the line goes the other way for each person.",
+                "misconceptionTag": "additive"
+              },
+              {
+                "text": "They're less likely to help than if they were alone",
+                "correct": true,
+                "rationale": "Right: the graph tracks each individual's chance, which drops as more people are present."
+              },
+              {
+                "text": "The victim is less likely to get help from anyone at all",
+                "correct": false,
+                "rationale": "This mixes up one person's chance with the group's; the graph is about each individual, not whether anyone helps.",
+                "misconceptionTag": "group_vs_individual"
+              },
+              {
+                "text": "Just as likely; it depends on what kind of person they are",
+                "correct": false,
+                "rationale": "This puts it down to character, but the theory predicts the same person acts differently depending on the situation.",
+                "misconceptionTag": "dispositional"
+              }
+            ],
+            "answer": "The bystander effect predicts that each individual is less likely to help when others are present than when alone. It's about each person's chance, not the chance that someone in the group helps, which real-world footage shows is often still high."
+          },
+          "parallel": {
+            "id": "step1-parallel-3a7f56e2",
+            "prompt": "Someone drops a stack of papers in two hallways. What does the bystander effect predict for any one passer-by in Hallway B, compared with the lone passer-by in A?",
+            "kind": "multiple_choice",
+            "role": "practice",
+            "artifact": {
+              "kind": "svg",
+              "title": "Dropped papers in two hallways",
+              "description": "Two panels. In Hallway A, one person has dropped papers and 1 passer-by is nearby. In Hallway B, one person has dropped papers and 8 passers-by are nearby.",
+              "content": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 260\" width=\"400\" height=\"260\"><title>Dropped papers in two hallways</title><desc>Hallway A: a person has dropped papers with 1 passer-by nearby. Hallway B: a person has dropped papers with 8 passers-by nearby.</desc><defs><g id=\"p\"><circle cx=\"0\" cy=\"0\" r=\"7\"/><rect x=\"-6\" y=\"9\" width=\"12\" height=\"20\" rx=\"4\"/></g></defs><text x=\"200\" y=\"30\" text-anchor=\"middle\" font-family=\"system-ui, sans-serif\" font-size=\"18\" fill=\"#EDECE9\">Someone drops a stack of papers</text><rect x=\"16\" y=\"50\" width=\"176\" height=\"190\" rx=\"8\" fill=\"#2A2A28\" stroke=\"#8A8983\"/><rect x=\"208\" y=\"50\" width=\"176\" height=\"190\" rx=\"8\" fill=\"#2A2A28\" stroke=\"#8A8983\"/><text x=\"104\" y=\"74\" text-anchor=\"middle\" font-family=\"system-ui, sans-serif\" font-size=\"16\" fill=\"#EDECE9\">Hallway A</text><text x=\"296\" y=\"74\" text-anchor=\"middle\" font-family=\"system-ui, sans-serif\" font-size=\"16\" fill=\"#EDECE9\">Hallway B</text><use href=\"#p\" x=\"60\" y=\"140\" fill=\"#E8906F\"/><rect x=\"40\" y=\"180\" width=\"14\" height=\"10\" fill=\"#E6C46A\"/><rect x=\"58\" y=\"184\" width=\"14\" height=\"10\" fill=\"#E6C46A\"/><rect x=\"76\" y=\"178\" width=\"14\" height=\"10\" fill=\"#E6C46A\"/><use href=\"#p\" x=\"140\" y=\"130\" fill=\"none\" stroke=\"#7DB4EA\" stroke-width=\"2\"/><use href=\"#p\" x=\"240\" y=\"140\" fill=\"#E8906F\"/><rect x=\"222\" y=\"180\" width=\"14\" height=\"10\" fill=\"#E6C46A\"/><rect x=\"240\" y=\"184\" width=\"14\" height=\"10\" fill=\"#E6C46A\"/><rect x=\"258\" y=\"178\" width=\"14\" height=\"10\" fill=\"#E6C46A\"/><g fill=\"none\" stroke=\"#7DB4EA\" stroke-width=\"2\"><use href=\"#p\" x=\"290\" y=\"95\"/><use href=\"#p\" x=\"320\" y=\"95\"/><use href=\"#p\" x=\"350\" y=\"95\"/><use href=\"#p\" x=\"290\" y=\"135\"/><use href=\"#p\" x=\"320\" y=\"135\"/><use href=\"#p\" x=\"350\" y=\"135\"/><use href=\"#p\" x=\"305\" y=\"175\"/><use href=\"#p\" x=\"335\" y=\"175\"/></g><text x=\"104\" y=\"228\" text-anchor=\"middle\" font-family=\"system-ui, sans-serif\" font-size=\"16\" fill=\"#7DB4EA\">1 passer-by</text><text x=\"296\" y=\"228\" text-anchor=\"middle\" font-family=\"system-ui, sans-serif\" font-size=\"16\" fill=\"#7DB4EA\">8 passers-by</text></svg>"
+            },
+            "options": [
+              {
+                "text": "The same; it depends on whether they're kind people",
+                "correct": false,
+                "rationale": "This explains helping by personality alone, but the theory is about how the situation changes what the same person does.",
+                "misconceptionTag": "dispositional"
+              },
+              {
+                "text": "More likely, since nobody wants to look unhelpful in front of 8 people",
+                "correct": false,
+                "rationale": "This assumes an audience adds pressure to help, but the theory predicts each person holds back more, not less.",
+                "misconceptionTag": "additive"
+              },
+              {
+                "text": "Less likely to help, because of the situation, not their character",
+                "correct": true,
+                "rationale": "Right: with others present, each individual's chance of helping drops, even for people who'd help alone."
+              },
+              {
+                "text": "Less likely, because people in a crowd are more selfish",
+                "correct": false,
+                "rationale": "This treats crowds as making people care less, but the causes are situational, like assuming someone else will help.",
+                "misconceptionTag": "moral"
+              }
+            ],
+            "answer": "Each of the 8 passers-by is individually less likely to help than the lone passer-by in Hallway A. That's because of the situation, such as assuming someone else will step in, not because the people in B are less kind."
+          }
+        },
+        {
+          "id": "step-2",
+          "instruction": "Trace the five boxes in order: a helper has to get through every one. The two dashed boxes show where other people most often block the path.",
+          "artifact": {
+            "kind": "svg",
+            "title": "Five steps to helping, and where others block them",
+            "description": "A flowchart of five steps: 1 Notice it, 2 See an emergency, 3 Take responsibility, 4 Know how to help, 5 Act. Step 2 is dashed orange with the note 'Others look calm, so it's fine' (pluralistic ignorance). Step 3 is dotted blue with the note 'Others are here, so they'll act' (diffusion of responsibility).",
+            "content": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 400\" width=\"400\" height=\"400\"><title>Five steps to helping, and where others block them</title><desc>Flowchart: 1 Notice it, 2 See an emergency, 3 Take responsibility, 4 Know how to help, 5 Act. Step 2 is blocked by pluralistic ignorance (others look calm, so it is fine). Step 3 is blocked by diffusion of responsibility (others are here, so they will act).</desc><g font-family=\"system-ui, sans-serif\"><rect x=\"20\" y=\"20\" width=\"210\" height=\"48\" rx=\"6\" fill=\"#2A2A28\" stroke=\"#8A8983\" stroke-width=\"2\"/><text x=\"125\" y=\"50\" text-anchor=\"middle\" font-size=\"16\" fill=\"#EDECE9\">1. Notice it</text><rect x=\"20\" y=\"84\" width=\"210\" height=\"48\" rx=\"6\" fill=\"#2A2A28\" stroke=\"#E8906F\" stroke-width=\"2\" stroke-dasharray=\"6 4\"/><text x=\"125\" y=\"114\" text-anchor=\"middle\" font-size=\"16\" fill=\"#EDECE9\">2. See an emergency</text><rect x=\"20\" y=\"148\" width=\"210\" height=\"48\" rx=\"6\" fill=\"#2A2A28\" stroke=\"#7DB4EA\" stroke-width=\"3\" stroke-dasharray=\"2 3\"/><text x=\"125\" y=\"178\" text-anchor=\"middle\" font-size=\"16\" fill=\"#EDECE9\">3. Take responsibility</text><rect x=\"20\" y=\"212\" width=\"210\" height=\"48\" rx=\"6\" fill=\"#2A2A28\" stroke=\"#8A8983\" stroke-width=\"2\"/><text x=\"125\" y=\"242\" text-anchor=\"middle\" font-size=\"16\" fill=\"#EDECE9\">4. Know how to help</text><rect x=\"20\" y=\"276\" width=\"210\" height=\"48\" rx=\"6\" fill=\"#2A2A28\" stroke=\"#8A8983\" stroke-width=\"2\"/><text x=\"125\" y=\"306\" text-anchor=\"middle\" font-size=\"16\" fill=\"#EDECE9\">5. Act</text><g stroke=\"#8A8983\" stroke-width=\"2\"><line x1=\"125\" y1=\"68\" x2=\"125\" y2=\"79\"/><line x1=\"125\" y1=\"132\" x2=\"125\" y2=\"143\"/><line x1=\"125\" y1=\"196\" x2=\"125\" y2=\"207\"/><line x1=\"125\" y1=\"260\" x2=\"125\" y2=\"271\"/></g><g fill=\"#8A8983\"><polygon points=\"120,78 130,78 125,84\"/><polygon points=\"120,142 130,142 125,148\"/><polygon points=\"120,206 130,206 125,212\"/><polygon points=\"120,270 130,270 125,276\"/></g><line x1=\"230\" y1=\"108\" x2=\"240\" y2=\"108\" stroke=\"#E8906F\" stroke-width=\"2\"/><text x=\"244\" y=\"104\" font-size=\"14\" fill=\"#E8906F\">Others look calm</text><text x=\"244\" y=\"122\" font-size=\"14\" fill=\"#E8906F\">→ “It’s fine”</text><line x1=\"230\" y1=\"172\" x2=\"240\" y2=\"172\" stroke=\"#7DB4EA\" stroke-width=\"2\"/><text x=\"244\" y=\"168\" font-size=\"14\" fill=\"#7DB4EA\">Others are here</text><text x=\"244\" y=\"186\" font-size=\"14\" fill=\"#7DB4EA\">→ “They’ll act”</text><rect x=\"20\" y=\"332\" width=\"16\" height=\"16\" fill=\"#2A2A28\" stroke=\"#E8906F\" stroke-width=\"2\" stroke-dasharray=\"4 3\"/><text x=\"44\" y=\"345\" font-size=\"14\" fill=\"#EDECE9\">Step 2 blocked: pluralistic ignorance</text><rect x=\"20\" y=\"358\" width=\"16\" height=\"16\" fill=\"#2A2A28\" stroke=\"#7DB4EA\" stroke-width=\"3\" stroke-dasharray=\"2 3\"/><text x=\"44\" y=\"371\" font-size=\"14\" fill=\"#EDECE9\">Step 3 blocked: diffusion of responsibility</text></g></svg>"
+          },
+          "bloomLevel": "apply",
+          "knowledgeType": "conceptual",
+          "question": {
+            "id": "step2-03e6b898",
+            "prompt": "Late at night, neighbours hear a clear cry of “Help!” from a flat. Each sees other lights on and assumes someone has already called the police. Which step is blocked?",
+            "kind": "multiple_choice",
+            "role": "practice",
+            "artifact": {
+              "kind": "svg",
+              "title": "A cry for help in a block of flats",
+              "description": "A block of flats at night with many lit windows. One window has the cry 'Help!'. A thought box says each neighbour thinks 'Someone must have called the police.'",
+              "content": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 300\" width=\"400\" height=\"300\"><title>A cry for help in a block of flats</title><desc>A block of flats at night with lit windows. One window shouts Help. Each neighbour thinks: someone must have called the police.</desc><g font-family=\"system-ui, sans-serif\"><rect x=\"40\" y=\"60\" width=\"150\" height=\"220\" fill=\"none\" stroke=\"#8A8983\" stroke-width=\"2\"/><g fill=\"#E6C46A\"><rect x=\"56\" y=\"76\" width=\"30\" height=\"30\"/><rect x=\"136\" y=\"76\" width=\"30\" height=\"30\"/><rect x=\"96\" y=\"126\" width=\"30\" height=\"30\"/><rect x=\"56\" y=\"176\" width=\"30\" height=\"30\"/><rect x=\"136\" y=\"176\" width=\"30\" height=\"30\"/><rect x=\"96\" y=\"226\" width=\"30\" height=\"30\"/></g><g fill=\"none\" stroke=\"#8A8983\" stroke-width=\"2\"><rect x=\"96\" y=\"76\" width=\"30\" height=\"30\"/><rect x=\"56\" y=\"126\" width=\"30\" height=\"30\"/><rect x=\"96\" y=\"176\" width=\"30\" height=\"30\"/><rect x=\"56\" y=\"226\" width=\"30\" height=\"30\"/><rect x=\"136\" y=\"226\" width=\"30\" height=\"30\"/></g><rect x=\"136\" y=\"126\" width=\"30\" height=\"30\" fill=\"#2A2A28\" stroke=\"#E8906F\" stroke-width=\"3\"/><text x=\"112\" y=\"40\" text-anchor=\"middle\" font-size=\"18\" fill=\"#E8906F\">“Help!”</text><line x1=\"140\" y1=\"46\" x2=\"150\" y2=\"122\" stroke=\"#E8906F\" stroke-width=\"2\"/><rect x=\"214\" y=\"100\" width=\"170\" height=\"110\" rx=\"10\" fill=\"#2A2A28\" stroke=\"#7DB4EA\" stroke-width=\"2\"/><text x=\"228\" y=\"126\" font-size=\"14\" fill=\"#BBBAAF\">Each neighbour:</text><text x=\"228\" y=\"152\" font-size=\"16\" fill=\"#EDECE9\">“Someone must</text><text x=\"228\" y=\"174\" font-size=\"16\" fill=\"#EDECE9\">have called</text><text x=\"228\" y=\"196\" font-size=\"16\" fill=\"#EDECE9\">the police.”</text></g></svg>"
+            },
+            "options": [
+              {
+                "text": "Step 1: they didn't really notice it",
+                "correct": false,
+                "rationale": "The scenario says they heard the cry and thought about the police, so noticing wasn't the problem.",
+                "misconceptionTag": "misplaced_step"
+              },
+              {
+                "text": "Step 2: they misread it as not an emergency",
+                "correct": false,
+                "rationale": "This mixes up the two causes: the cry was clear and nobody doubted it was an emergency, so the misreading step isn't where it broke down.",
+                "misconceptionTag": "confuses_with_pluralistic_ignorance"
+              },
+              {
+                "text": "Step 3: they each left it to someone else",
+                "correct": true,
+                "rationale": "Right: they knew it was an emergency, but responsibility felt shared, so each assumed another neighbour had acted."
+              },
+              {
+                "text": "None: those neighbours are just uncaring people",
+                "correct": false,
+                "rationale": "This blames character, but the same people would likely call if they thought they were the only one who heard.",
+                "misconceptionTag": "dispositional"
+              }
+            ],
+            "answer": "The neighbours noticed the cry and knew it was serious, but each assumed someone else had already called. That is diffusion of responsibility, which blocks step 3, taking responsibility."
+          },
+          "parallel": {
+            "id": "step2-parallel-e272cfcb",
+            "prompt": "In a busy café, a man slumps forward onto his table. Customers glance at each other, see everyone looking relaxed, and each decides he's probably just napping. Which step is blocked?",
+            "kind": "multiple_choice",
+            "role": "practice",
+            "artifact": {
+              "kind": "svg",
+              "title": "A man slumps in a café",
+              "description": "A café with several tables. One man is slumped onto his table. Other customers glance around; a note says everyone looks relaxed, and a thought says 'He's just napping.'",
+              "content": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 280\" width=\"400\" height=\"280\"><title>A man slumps in a café</title><desc>A man is slumped forward onto a café table. Other customers glance at each other and all look relaxed. Each thinks: he is just napping.</desc><g font-family=\"system-ui, sans-serif\"><ellipse cx=\"110\" cy=\"170\" rx=\"60\" ry=\"14\" fill=\"#2A2A28\" stroke=\"#8A8983\" stroke-width=\"2\"/><circle cx=\"100\" cy=\"148\" r=\"14\" fill=\"#E8906F\"/><path d=\"M100 162 Q90 190 80 220\" stroke=\"#E8906F\" stroke-width=\"4\" fill=\"none\"/><text x=\"110\" y=\"210\" font-size=\"14\" fill=\"#E8906F\">slumped</text><g fill=\"none\" stroke=\"#7DB4EA\" stroke-width=\"3\"><circle cx=\"250\" cy=\"120\" r=\"12\"/><line x1=\"250\" y1=\"132\" x2=\"250\" y2=\"170\"/><circle cx=\"300\" cy=\"120\" r=\"12\"/><line x1=\"300\" y1=\"132\" x2=\"300\" y2=\"170\"/><circle cx=\"350\" cy=\"120\" r=\"12\"/><line x1=\"350\" y1=\"132\" x2=\"350\" y2=\"170\"/></g><text x=\"300\" y=\"196\" text-anchor=\"middle\" font-size=\"14\" fill=\"#BBBAAF\">Everyone looks relaxed</text><rect x=\"200\" y=\"30\" width=\"184\" height=\"50\" rx=\"10\" fill=\"#2A2A28\" stroke=\"#8A8983\" stroke-width=\"2\"/><text x=\"292\" y=\"61\" text-anchor=\"middle\" font-size=\"16\" fill=\"#EDECE9\">“He’s just napping.”</text><text x=\"200\" y=\"250\" text-anchor=\"middle\" font-size=\"16\" fill=\"#EDECE9\">Customers glance at each other</text></g></svg>"
+            },
+            "options": [
+              {
+                "text": "Step 1: nobody noticed him slump",
+                "correct": false,
+                "rationale": "The customers did see him and glanced around, so noticing wasn't where it broke down.",
+                "misconceptionTag": "misplaced_step"
+              },
+              {
+                "text": "Step 2: others' calm made it look harmless",
+                "correct": true,
+                "rationale": "Right: each person read everyone else's calm as a sign nothing was wrong, which is pluralistic ignorance."
+              },
+              {
+                "text": "People in crowded cafés just care less",
+                "correct": false,
+                "rationale": "This treats it as crowds making people more selfish, but the problem is how each person read the situation, not how much they care.",
+                "misconceptionTag": "moral"
+              },
+              {
+                "text": "Step 3: each assumed someone else would act",
+                "correct": false,
+                "rationale": "This mixes up the two causes: no one got as far as thinking it was an emergency someone should deal with.",
+                "misconceptionTag": "confuses_with_diffusion"
+              }
+            ],
+            "answer": "Each customer looked to the others to judge the situation, saw calm faces, and concluded it wasn't an emergency. That is pluralistic ignorance, which blocks step 2."
+          }
+        },
+        {
+          "id": "step-3",
+          "instruction": "Compare the two columns: the key difference is whether people **already know** it's an emergency. Notice that each cause has a different fix.",
+          "artifact": {
+            "kind": "svg",
+            "title": "Two causes, two fixes",
+            "description": "Two columns. Diffusion of responsibility: it is clearly an emergency, the thought is 'Someone else will do it', and the fix is to point at one person. Pluralistic ignorance: people are unsure if it is an emergency, the thought is 'They're calm, so it's fine', and the fix is to say aloud that it is an emergency.",
+            "content": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 360\" width=\"400\" height=\"360\"><title>Two causes, two fixes</title><desc>Diffusion of responsibility: clearly an emergency; thinks someone else will do it; fix: point at one person. Pluralistic ignorance: unsure if an emergency; thinks they are calm so it is fine; fix: say aloud it is an emergency.</desc><g font-family=\"system-ui, sans-serif\"><rect x=\"20\" y=\"20\" width=\"172\" height=\"320\" rx=\"8\" fill=\"#2A2A28\" stroke=\"#7DB4EA\" stroke-width=\"2\"/><rect x=\"208\" y=\"20\" width=\"172\" height=\"320\" rx=\"8\" fill=\"#2A2A28\" stroke=\"#E8906F\" stroke-width=\"2\" stroke-dasharray=\"6 4\"/><text x=\"106\" y=\"48\" text-anchor=\"middle\" font-size=\"17\" fill=\"#7DB4EA\">Diffusion of</text><text x=\"106\" y=\"70\" text-anchor=\"middle\" font-size=\"17\" fill=\"#7DB4EA\">responsibility</text><text x=\"294\" y=\"48\" text-anchor=\"middle\" font-size=\"17\" fill=\"#E8906F\">Pluralistic</text><text x=\"294\" y=\"70\" text-anchor=\"middle\" font-size=\"17\" fill=\"#E8906F\">ignorance</text><line x1=\"32\" y1=\"86\" x2=\"180\" y2=\"86\" stroke=\"#8A8983\"/><line x1=\"220\" y1=\"86\" x2=\"368\" y2=\"86\" stroke=\"#8A8983\"/><g font-size=\"14\" fill=\"#BBBAAF\"><text x=\"34\" y=\"110\">Emergency?</text><text x=\"222\" y=\"110\">Emergency?</text><text x=\"34\" y=\"166\">Thinks:</text><text x=\"222\" y=\"166\">Thinks:</text><text x=\"34\" y=\"242\">Fix:</text><text x=\"222\" y=\"242\">Fix:</text></g><g font-size=\"15\" fill=\"#EDECE9\"><text x=\"34\" y=\"132\">Yes, clearly</text><text x=\"222\" y=\"132\">Unsure</text><text x=\"34\" y=\"188\">“Someone else</text><text x=\"34\" y=\"208\">will do it.”</text><text x=\"222\" y=\"188\">“They’re calm,</text><text x=\"222\" y=\"208\">so it’s fine.”</text><text x=\"34\" y=\"264\">Point at one</text><text x=\"34\" y=\"284\">person: “You,</text><text x=\"34\" y=\"304\">call for help.”</text><text x=\"222\" y=\"264\">Say it aloud:</text><text x=\"222\" y=\"284\">“This is an</text><text x=\"222\" y=\"304\">emergency!”</text></g></g></svg>"
+          },
+          "bloomLevel": "analyze",
+          "knowledgeType": "conceptual",
+          "question": {
+            "id": "step3-bae29a1d",
+            "prompt": "A colleague falls on the office stairs and sits clutching her ankle, obviously hurt. Ten coworkers walk past, each thinking someone else will stop. Explain which cause fits better and suggest one fix.",
+            "kind": "freeform",
+            "role": "practice",
+            "artifact": {
+              "kind": "svg",
+              "title": "A fall on the office stairs",
+              "description": "A colleague sits at the bottom of a staircase holding her ankle, clearly hurt. A label says 10 coworkers walk past, and a thought box says 'Someone else will stop.'",
+              "content": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 280\" width=\"400\" height=\"280\"><title>A fall on the office stairs</title><desc>A colleague sits at the foot of the stairs holding her ankle, clearly hurt. 10 coworkers walk past, each thinking: someone else will stop.</desc><g font-family=\"system-ui, sans-serif\"><polyline points=\"20,240 70,240 70,210 110,210 110,180 150,180 150,150 190,150\" fill=\"none\" stroke=\"#8A8983\" stroke-width=\"3\"/><circle cx=\"50\" cy=\"200\" r=\"12\" fill=\"#E8906F\"/><line x1=\"50\" y1=\"212\" x2=\"50\" y2=\"236\" stroke=\"#E8906F\" stroke-width=\"4\"/><line x1=\"50\" y1=\"236\" x2=\"34\" y2=\"238\" stroke=\"#E8906F\" stroke-width=\"4\"/><text x=\"24\" y=\"266\" font-size=\"14\" fill=\"#E8906F\">hurt ankle</text><g fill=\"none\" stroke=\"#7DB4EA\" stroke-width=\"3\"><circle cx=\"250\" cy=\"170\" r=\"11\"/><line x1=\"250\" y1=\"181\" x2=\"250\" y2=\"220\"/><circle cx=\"300\" cy=\"170\" r=\"11\"/><line x1=\"300\" y1=\"181\" x2=\"300\" y2=\"220\"/><circle cx=\"350\" cy=\"170\" r=\"11\"/><line x1=\"350\" y1=\"181\" x2=\"350\" y2=\"220\"/></g><text x=\"300\" y=\"248\" text-anchor=\"middle\" font-size=\"16\" fill=\"#EDECE9\">10 coworkers walk past</text><rect x=\"210\" y=\"40\" width=\"174\" height=\"80\" rx=\"10\" fill=\"#2A2A28\" stroke=\"#8A8983\" stroke-width=\"2\"/><text x=\"224\" y=\"68\" font-size=\"14\" fill=\"#BBBAAF\">Each one thinks:</text><text x=\"224\" y=\"96\" font-size=\"16\" fill=\"#EDECE9\">“Someone else</text><text x=\"224\" y=\"114\" font-size=\"16\" fill=\"#EDECE9\">will stop.”</text></g></svg>"
+            },
+            "answer": "Diffusion of responsibility fits better: everyone can see she's hurt, so it isn't a misreading of others' calm; each person feels the duty is shared and assumes another coworker will help. A fix is for someone to name one person directly, e.g. “Sam, can you help her up and call first aid?”",
+            "rubric": {
+              "full": "Names diffusion of responsibility, explains why it fits (the injury is obvious, so the problem is shared duty, not misreading others' calm), and gives a fix that targets responsibility, such as naming one specific person.",
+              "partial": "Names diffusion of responsibility with a thin or missing reason, or gives no workable fix; or explains the shared-duty idea well but doesn't rule out pluralistic ignorance.",
+              "none": "Picks pluralistic ignorance, blames the coworkers' character or says busy offices make people care less, or gives no situational cause."
+            }
+          },
+          "parallel": {
+            "id": "step3-parallel-762151cc",
+            "prompt": "In a park, a small child stands alone crying, looking around. Several adults glance at each other, see everyone relaxed, and each assumes the parent is nearby. Explain which cause fits better and suggest one fix.",
+            "kind": "freeform",
+            "role": "practice",
+            "artifact": {
+              "kind": "svg",
+              "title": "A crying child in the park",
+              "description": "A small child stands alone crying. Several adults on benches glance at each other and all look relaxed; a thought box says 'The parent must be nearby.'",
+              "content": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 280\" width=\"400\" height=\"280\"><title>A crying child in the park</title><desc>A small child stands alone crying. Adults on benches glance at each other and all look relaxed. Each thinks: the parent must be nearby.</desc><g font-family=\"system-ui, sans-serif\"><circle cx=\"80\" cy=\"160\" r=\"10\" fill=\"#E8906F\"/><line x1=\"80\" y1=\"170\" x2=\"80\" y2=\"200\" stroke=\"#E8906F\" stroke-width=\"4\"/><text x=\"80\" y=\"228\" text-anchor=\"middle\" font-size=\"14\" fill=\"#E8906F\">crying child</text><line x1=\"200\" y1=\"200\" x2=\"380\" y2=\"200\" stroke=\"#8A8983\" stroke-width=\"4\"/><g fill=\"none\" stroke=\"#7DB4EA\" stroke-width=\"3\"><circle cx=\"230\" cy=\"160\" r=\"11\"/><line x1=\"230\" y1=\"171\" x2=\"230\" y2=\"196\"/><circle cx=\"290\" cy=\"160\" r=\"11\"/><line x1=\"290\" y1=\"171\" x2=\"290\" y2=\"196\"/><circle cx=\"350\" cy=\"160\" r=\"11\"/><line x1=\"350\" y1=\"171\" x2=\"350\" y2=\"196\"/></g><text x=\"290\" y=\"228\" text-anchor=\"middle\" font-size=\"14\" fill=\"#BBBAAF\">Adults glance around:</text><text x=\"290\" y=\"248\" text-anchor=\"middle\" font-size=\"14\" fill=\"#BBBAAF\">everyone looks relaxed</text><rect x=\"196\" y=\"30\" width=\"188\" height=\"80\" rx=\"10\" fill=\"#2A2A28\" stroke=\"#8A8983\" stroke-width=\"2\"/><text x=\"210\" y=\"58\" font-size=\"14\" fill=\"#BBBAAF\">Each one thinks:</text><text x=\"210\" y=\"86\" font-size=\"16\" fill=\"#EDECE9\">“The parent must</text><text x=\"210\" y=\"104\" font-size=\"16\" fill=\"#EDECE9\">be nearby.”</text></g></svg>"
+            },
+            "answer": "Pluralistic ignorance fits better: each adult is unsure whether the child is lost, reads the others' calm as a sign that all is well, and so never sees it as an emergency. A fix is for one person to say it aloud, e.g. “I think this child is lost,” or to go and ask the child.",
+            "rubric": {
+              "full": "Names pluralistic ignorance, explains that the adults are unsure and take others' calm as evidence nothing is wrong (blocking the 'is it an emergency?' step), and gives a fix that ends the misreading, such as saying aloud the child seems lost or checking with the child.",
+              "partial": "Names pluralistic ignorance with a thin reason or no workable fix; or describes the misreading well but labels it wrongly.",
+              "none": "Picks diffusion of responsibility without the misreading idea, blames the adults' character or says groups care less, or gives no situational cause."
+            }
+          }
+        }
+      ],
+      "finalCheck": [
+        {
+          "artifact": {
+            "kind": "svg",
+            "title": "Same emergency, two platforms",
+            "description": "Two scenes of a man collapsing on a train platform: on the left a crowded platform with eight people, on the right an empty platform with one other person.",
+            "content": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 240\" width=\"400\" height=\"240\"><title>Same emergency, two platforms</title><desc>Two scenes of a man collapsing on a train platform: on the left a crowded platform with eight people, on the right an empty platform with one other person.</desc><text x=\"16\" y=\"30\" font-family=\"system-ui, sans-serif\" font-size=\"18\" fill=\"#EDECE9\" text-anchor=\"start\" font-weight=\"bold\">Same emergency, two platforms</text><rect x=\"16\" y=\"44\" width=\"176\" height=\"150\" rx=\"10\" fill=\"#2A2A28\" stroke=\"#8A8983\" stroke-width=\"2\"/><text x=\"104\" y=\"68\" font-family=\"system-ui, sans-serif\" font-size=\"16\" fill=\"#EDECE9\" text-anchor=\"middle\" font-weight=\"normal\">Crowded platform</text><circle cx=\"40\" cy=\"92\" r=\"6.0\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><path d=\"M31.0 116.0 Q31.0 101.0 40 101.0 Q49.0 101.0 49.0 116.0 Z\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><circle cx=\"74\" cy=\"92\" r=\"6.0\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><path d=\"M65.0 116.0 Q65.0 101.0 74 101.0 Q83.0 101.0 83.0 116.0 Z\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><circle cx=\"108\" cy=\"92\" r=\"6.0\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><path d=\"M99.0 116.0 Q99.0 101.0 108 101.0 Q117.0 101.0 117.0 116.0 Z\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><circle cx=\"142\" cy=\"92\" r=\"6.0\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><path d=\"M133.0 116.0 Q133.0 101.0 142 101.0 Q151.0 101.0 151.0 116.0 Z\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><circle cx=\"40\" cy=\"128\" r=\"6.0\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><path d=\"M31.0 152.0 Q31.0 137.0 40 137.0 Q49.0 137.0 49.0 152.0 Z\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><circle cx=\"74\" cy=\"128\" r=\"6.0\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><path d=\"M65.0 152.0 Q65.0 137.0 74 137.0 Q83.0 137.0 83.0 152.0 Z\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><circle cx=\"108\" cy=\"128\" r=\"6.0\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><path d=\"M99.0 152.0 Q99.0 137.0 108 137.0 Q117.0 137.0 117.0 152.0 Z\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><circle cx=\"142\" cy=\"128\" r=\"6.0\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><path d=\"M133.0 152.0 Q133.0 137.0 142 137.0 Q151.0 137.0 151.0 152.0 Z\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><circle cx=\"56\" cy=\"176\" r=\"6\" fill=\"#E8906F\" stroke=\"#E8906F\" stroke-width=\"2\"/><rect x=\"64\" y=\"171\" width=\"26\" height=\"10\" rx=\"5\" fill=\"#E8906F\"/><rect x=\"208\" y=\"44\" width=\"176\" height=\"150\" rx=\"10\" fill=\"#2A2A28\" stroke=\"#8A8983\" stroke-width=\"2\"/><text x=\"296\" y=\"68\" font-family=\"system-ui, sans-serif\" font-size=\"16\" fill=\"#EDECE9\" text-anchor=\"middle\" font-weight=\"normal\">Empty platform</text><circle cx=\"300\" cy=\"110\" r=\"6.0\" fill=\"#7DB4EA\" stroke=\"#7DB4EA\" stroke-width=\"2\"/><path d=\"M291.0 134.0 Q291.0 119.0 300 119.0 Q309.0 119.0 309.0 134.0 Z\" fill=\"#7DB4EA\" stroke=\"#7DB4EA\" stroke-width=\"2\"/><circle cx=\"248\" cy=\"176\" r=\"6\" fill=\"#E8906F\" stroke=\"#E8906F\" stroke-width=\"2\"/><rect x=\"256\" y=\"171\" width=\"26\" height=\"10\" rx=\"5\" fill=\"#E8906F\"/><path d=\"M16 186 H192 M208 186 H384\" stroke=\"#8A8983\" stroke-width=\"2\"/><text x=\"16\" y=\"222\" font-family=\"system-ui, sans-serif\" font-size=\"16\" fill=\"#BBBAAF\" text-anchor=\"start\" font-weight=\"normal\">A man collapses (orange) in each scene.</text></svg>"
+          },
+          "id": "social-A1-592fd8a7",
+          "itemKey": "social.A1",
+          "prompt": "A man collapses on a crowded train platform. Is any one person there more or less likely to step in than the only other person on an empty platform?",
+          "kind": "multiple_choice",
+          "role": "check",
+          "options": [
+            {
+              "text": "More likely, because crowds make people braver",
+              "correct": false,
+              "misconceptionTag": "additive",
+              "rationale": "Other people don't add courage to each person; they spread out the sense of responsibility."
+            },
+            {
+              "text": "Less likely, because responsibility feels shared and others' calm suggests it's not an emergency",
+              "correct": true,
+              "rationale": "Diffusion of responsibility and reading others' calm both lower each person's chance of acting."
+            },
+            {
+              "text": "About the same, because it depends on what kind of person you are",
+              "correct": false,
+              "misconceptionTag": "dispositional",
+              "rationale": "The same person behaves differently depending on who else is there. The situation matters, not just character."
+            },
+            {
+              "text": "Less likely, because people in crowds are selfish",
+              "correct": false,
+              "misconceptionTag": "moral",
+              "rationale": "Right direction, wrong reason: it's not that people stop caring, it's that responsibility feels shared."
+            }
+          ],
+          "answer": "Less likely. With many people around, each person feels less responsible (someone else will help), and when everyone looks calm, each person reads that as a sign it isn't an emergency."
+        },
+        {
+          "artifact": {
+            "kind": "svg",
+            "title": "A smoking car by a busy road",
+            "description": "A car stopped at the side of a busy two-lane road gives off smoke while many cars keep driving past.",
+            "content": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 238\" width=\"400\" height=\"238\"><title>A smoking car by a busy road</title><desc>A car stopped at the side of a busy two-lane road gives off smoke while many cars keep driving past.</desc><text x=\"16\" y=\"30\" font-family=\"system-ui, sans-serif\" font-size=\"18\" fill=\"#EDECE9\" text-anchor=\"start\" font-weight=\"bold\">A smoking car by a busy road</text><path d=\"M16 110 H384 M16 186 H384\" stroke=\"#8A8983\" stroke-width=\"2\"/><path d=\"M16 148 H384\" stroke=\"#8A8983\" stroke-width=\"2\" stroke-dasharray=\"12 10\"/><rect x=\"300\" y=\"92\" width=\"46\" height=\"22\" rx=\"7\" fill=\"#2A2A28\" stroke=\"#E8906F\" stroke-width=\"2\"/><circle cx=\"330\" cy=\"84\" r=\"6\" fill=\"none\" stroke=\"#8A8983\" stroke-width=\"2\"/><circle cx=\"340\" cy=\"70\" r=\"8\" fill=\"none\" stroke=\"#8A8983\" stroke-width=\"2\"/><circle cx=\"352\" cy=\"54\" r=\"10\" fill=\"none\" stroke=\"#8A8983\" stroke-width=\"2\"/><rect x=\"24\" y=\"120\" width=\"46\" height=\"22\" rx=\"7\" fill=\"#2A2A28\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><path d=\"M76 131 H90 M84 125 L90 131 L84 137\" fill=\"none\" stroke=\"#8A8983\" stroke-width=\"2\"/><rect x=\"124\" y=\"120\" width=\"46\" height=\"22\" rx=\"7\" fill=\"#2A2A28\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><path d=\"M176 131 H190 M184 125 L190 131 L184 137\" fill=\"none\" stroke=\"#8A8983\" stroke-width=\"2\"/><rect x=\"224\" y=\"120\" width=\"46\" height=\"22\" rx=\"7\" fill=\"#2A2A28\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><path d=\"M276 131 H290 M284 125 L290 131 L284 137\" fill=\"none\" stroke=\"#8A8983\" stroke-width=\"2\"/><rect x=\"64\" y=\"158\" width=\"46\" height=\"22\" rx=\"7\" fill=\"#2A2A28\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><path d=\"M116 169 H130 M124 163 L130 169 L124 175\" fill=\"none\" stroke=\"#8A8983\" stroke-width=\"2\"/><rect x=\"184\" y=\"158\" width=\"46\" height=\"22\" rx=\"7\" fill=\"#2A2A28\" stroke=\"#BBBAAF\" stroke-width=\"2\"/><path d=\"M236 169 H250 M244 163 L250 169 L244 175\" fill=\"none\" stroke=\"#8A8983\" stroke-width=\"2\"/><text x=\"16\" y=\"220\" font-family=\"system-ui, sans-serif\" font-size=\"16\" fill=\"#BBBAAF\" text-anchor=\"start\" font-weight=\"normal\">Dozens of drivers pass without stopping.</text></svg>"
+          },
+          "id": "social-A2-cbc9fad8",
+          "itemKey": "social.A2",
+          "prompt": "A car is smoking by a busy road and dozens of drivers pass without stopping. Explain why.",
+          "kind": "freeform",
+          "role": "check",
+          "answer": "Each driver sees many others passing and assumes someone else will stop or has already called for help (diffusion of responsibility). Seeing no one else stop also makes it look like it isn't an emergency. Some may not notice it at speed, or not know how they could help.",
+          "rubric": {
+            "full": "Gives two situational mechanisms, e.g. diffusion of responsibility (someone else will stop or has called), others' calm or not stopping read as 'not an emergency', not noticing, or not knowing how to help.",
+            "partial": "Gives one situational mechanism.",
+            "none": "Personality only (selfish, uncaring, in a hurry by nature); tag dispositional."
+          }
+        }
+      ],
+      "bonus": {
+        "artifact": {
+          "kind": "svg",
+          "title": "A lecture of 300",
+          "description": "A lecturer at the front asks 'Any questions?' to rows of students in a lecture of 300. The room stays silent, though many students are lost.",
+          "content": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 274\" width=\"400\" height=\"274\"><title>A lecture of 300</title><desc>A lecturer at the front asks 'Any questions?' to rows of students in a lecture of 300. The room stays silent, though many students are lost.</desc><text x=\"16\" y=\"30\" font-family=\"system-ui, sans-serif\" font-size=\"18\" fill=\"#EDECE9\" text-anchor=\"start\" font-weight=\"bold\">A lecture of 300</text><circle cx=\"200\" cy=\"56\" r=\"6.0\" fill=\"#7DB4EA\" stroke=\"#7DB4EA\" stroke-width=\"2\"/><path d=\"M191.0 80.0 Q191.0 65.0 200 65.0 Q209.0 65.0 209.0 80.0 Z\" fill=\"#7DB4EA\" stroke=\"#7DB4EA\" stroke-width=\"2\"/><rect x=\"222\" y=\"44\" width=\"150\" height=\"40\" rx=\"10\" fill=\"#2A2A28\" stroke=\"#7DB4EA\" stroke-width=\"2\"/><text x=\"297\" y=\"70\" font-family=\"system-ui, sans-serif\" font-size=\"16\" fill=\"#EDECE9\" text-anchor=\"middle\" font-weight=\"normal\">“Any questions?”</text><rect x=\"150\" y=\"96\" width=\"100\" height=\"10\" rx=\"3\" fill=\"#8A8983\"/><circle cx=\"40\" cy=\"150\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"69\" cy=\"150\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"98\" cy=\"150\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"127\" cy=\"150\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"156\" cy=\"150\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"185\" cy=\"150\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"214\" cy=\"150\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"243\" cy=\"150\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"272\" cy=\"150\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"301\" cy=\"150\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"330\" cy=\"150\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"359\" cy=\"150\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"40\" cy=\"172\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"69\" cy=\"172\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"98\" cy=\"172\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"127\" cy=\"172\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"156\" cy=\"172\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"185\" cy=\"172\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"214\" cy=\"172\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"243\" cy=\"172\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"272\" cy=\"172\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"301\" cy=\"172\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"330\" cy=\"172\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"359\" cy=\"172\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"40\" cy=\"194\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"69\" cy=\"194\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"98\" cy=\"194\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"127\" cy=\"194\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"156\" cy=\"194\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"185\" cy=\"194\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"214\" cy=\"194\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"243\" cy=\"194\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"272\" cy=\"194\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"301\" cy=\"194\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"330\" cy=\"194\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"359\" cy=\"194\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"40\" cy=\"216\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"69\" cy=\"216\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"98\" cy=\"216\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"127\" cy=\"216\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"156\" cy=\"216\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"185\" cy=\"216\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"214\" cy=\"216\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"243\" cy=\"216\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"272\" cy=\"216\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"301\" cy=\"216\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"330\" cy=\"216\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><circle cx=\"359\" cy=\"216\" r=\"6\" fill=\"none\" stroke=\"#BBBAAF\" stroke-width=\"1.5\"/><text x=\"16\" y=\"256\" font-family=\"system-ui, sans-serif\" font-size=\"16\" fill=\"#BBBAAF\" text-anchor=\"start\" font-weight=\"normal\">Silence, though many students are lost.</text></svg>"
+        },
+        "id": "social-P1-9176eae4",
+        "itemKey": "social.P1",
+        "prompt": "\"Any questions?\" is met with silence in a lecture of 300, though many students are lost. Use both audience inhibition and one idea from earlier to explain it, and suggest one change that would help.",
+        "kind": "freeform",
+        "role": "check",
+        "resource": "**Audience inhibition** is another reason people hold back when others are present. Acting means doing something in front of an audience, and people worry about looking foolish if they've misread the situation or get it wrong. The bigger the audience, the stronger that worry can be.",
+        "answer": "Students fear looking foolish in front of 300 people (audience inhibition), and each sees everyone else silent and assumes they're the only one lost (pluralistic ignorance), or that someone else will ask (diffusion of responsibility). Anonymous question tools, or a minute of pair discussion before asking, target those mechanisms.",
+        "rubric": {
+          "full": "Uses audience inhibition plus one earlier mechanism (diffusion of responsibility, or reading others' silence as everyone understanding), and the suggested change targets a mechanism (anonymous questions, calling on a specific person, pair discussion first).",
+          "partial": "Does one of the two: either the explanation with both ideas, or a change that targets a mechanism.",
+          "none": "Neither."
+        }
+      }
+    },
+    "learnerSummary": "I learned about pluralistic ignorance and the bystander effect, and how to apply them to different situations",
+    "tutorSummary": "You correctly picked out **pluralistic ignorance** as a key cause of the bystander effect, and you're right that the real goal is applying these ideas to new situations.\n\n- **The bystander effect:** with others present, *each person* is less likely to help, though someone in a crowd often still does.\n- Helping means passing five steps: notice, interpret as an emergency, take responsibility, know how, act.\n- Your summary left out **diffusion of responsibility**: people *know* it's an emergency but assume someone else will act. Pluralistic ignorance is different: everyone reads others' calm as \"nothing's wrong.\"\n- Causes are situational, not about character, and each has its own fix.\n\nNext time, ask which step is blocked, then target it, e.g. point to one person and give them a job.",
+    "delayedCheckConsent": false,
+    "exitedAfterMessageId": "99b4d36b-48a0-47de-98de-74646e572343"
+  }
+]

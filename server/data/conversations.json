@@ -310,5 +310,283 @@
     ],
     "createdAt": "2026-10-22T15:00:00.000Z",
     "updatedAt": "2026-10-22T15:03:00.000Z"
+  },
+  {
+    "id": "cdfb5c4a-bf14-4931-9731-4cdecb9cd665",
+    "title": "I'm studying for my psych midterm. Can…",
+    "pinned": false,
+    "icon": null,
+    "messages": [
+      {
+        "id": "8c4aac73-344e-468e-ba22-d146366a4471",
+        "role": "user",
+        "content": "I'm studying for my psych midterm. Can you help me understand the bystander effect?",
+        "createdAt": "2026-10-25T01:42:07.350Z"
+      },
+      {
+        "id": "579dc248-a260-428f-b5d8-266e50dd058c",
+        "role": "assistant",
+        "content": "Here's a clear walkthrough of the bystander effect, organized the way it usually shows up on psych exams.\n\n## What it is\nThe **bystander effect** is the finding that **the more people who witness an emergency, the less likely any one of them is to help**, and the slower help tends to come. It's not just that people are uncaring. The presence of other people changes how each person thinks about the situation.\n\n## The case that started it\nIn **1964, Kitty Genovese** was murdered outside her apartment in Queens, New York. The *New York Times* reported that 38 neighbors saw or heard the attack and did nothing. Later investigations showed that report was exaggerated: fewer people actually witnessed it, and at least one person called the police. Still, the story led researchers to study why groups of people sometimes fail to act. Your professor may ask about this correction, so it's worth knowing.\n\n## The key experiment: Darley & Latané (1968)\n- Participants talked over an intercom with what they thought were 1, 2, or 5 other people. In fact, the others were recordings.\n- During the conversation, one \"participant\" seemed to have a seizure.\n- **Results:**\n  - When participants thought they were the only listener, about **85%** helped before the seizure ended.\n  - When they thought 4 others were also listening, only about **31%** did.\n- **Takeaway:** perceived group size strongly predicted whether people helped and how fast.\n\nA related study is the **smoke-filled room study** (Latané & Darley, 1968). Participants alone reported the smoke quickly. Participants sitting with calm confederates who ignored the smoke usually didn't report it at all.\n\n## Why it happens: the main mechanisms\n1. **Diffusion of responsibility:** With more people around, each person feels less personally responsible. \"Someone else will do it.\"\n2. **Pluralistic ignorance:** In an unclear situation, people look to others for cues. Everyone tries to look calm, so everyone concludes it isn't an emergency.\n3. **Evaluation apprehension (audience inhibition):** People worry about embarrassing themselves, for example by overreacting or helping the wrong way, in front of others.\n\n## Latané & Darley's 5-step decision model\nTo help, a bystander has to get through **all five steps**, and the presence of others can cause failure at any of them:\n1. **Notice** the event. Busy, crowded settings make this harder.\n2. **Interpret** it as an emergency. This is where pluralistic ignorance acts.\n3. **Assume responsibility.** This is where diffusion of responsibility acts.\n4. **Know how to help.** This depends on skill or competence.\n5. **Decide to help**, after weighing costs and benefits, including evaluation apprehension.\n\nExam questions often give a scenario and ask which step failed. Matching each mechanism to its step is a good way to prepare.\n\n## Factors that reduce the effect\n- **Clear emergencies.** Fischer et al. (2011) found in a meta-analysis that the effect is weaker in dangerous, unambiguous situations.\n- **Knowing the other bystanders,** such as friends or group members.\n- **Having relevant skills,** such as medical training.\n- **Being singled out.** For example: \"You in the red jacket, call 911!\" This removes diffusion of responsibility.\n- **Knowing about the bystander effect itself.** Research suggests that learning about it makes people more likely to help.\n\n## Quick self-check\nTry answering these without looking:\n- A woman collapses on a busy sidewalk. People glance around, see that no one else looks alarmed, and keep walking. Which mechanism is this?\n- What is the difference between diffusion of responsibility and pluralistic ignorance?\n\n*(Answers: pluralistic ignorance. Diffusion is about who is responsible; pluralistic ignorance is about whether it's an emergency at all.)*\n\nWant me to quiz you with more scenario questions, or go deeper on any of these studies?",
+        "createdAt": "2026-10-25T01:42:23.366Z"
+      },
+      {
+        "id": "a3ffc39e-d273-4948-8087-9b9a9027c895",
+        "role": "assistant",
+        "content": "You've got the full rundown from earlier. Now let's make sure you could crack the next scenario question on your own. You mentioned a midterm, so is that the main thing you're working toward, or something else?",
+        "createdAt": "2026-10-25T01:42:35.834Z"
+      },
+      {
+        "id": "d053ace8-9ea6-4776-9121-f25fd38182e5",
+        "role": "user",
+        "content": "An exam",
+        "createdAt": "2026-10-25T01:42:59.907Z"
+      },
+      {
+        "id": "316702c2-5070-4171-a546-36fad58f9264",
+        "role": "assistant",
+        "content": "Got it, we'll get you exam-ready. How much time do you have for this session?",
+        "createdAt": "2026-10-25T01:43:02.382Z"
+      },
+      {
+        "id": "fd2b3993-e1ab-4639-b63b-4f541c0884e3",
+        "role": "user",
+        "content": "About 20 minutes",
+        "createdAt": "2026-10-25T01:43:06.946Z"
+      },
+      {
+        "id": "64188186-b081-47f9-b74b-13e3e7a60f28",
+        "role": "assistant",
+        "content": "Great, start the short opening check in the workbook. It's a check, so I can give hints but not answers, and it's completely fine to guess.",
+        "createdAt": "2026-10-25T01:43:08.813Z"
+      },
+      {
+        "id": "3d39eb3e-b756-4da2-a8d4-79f2ba21c12e",
+        "role": "assistant",
+        "content": "With the opening check done, step 1 pins down exactly **who** the bystander effect makes a prediction about, which is easy to blur on an exam. Read the instruction and graph in the workbook, then try the question. Tell me what you're thinking if you want to talk it through.",
+        "createdAt": "2026-10-25T01:45:53.143Z"
+      },
+      {
+        "id": "dada4076-da19-4aa9-83e6-ff21c7fd9d74",
+        "role": "assistant",
+        "content": "Good try, and it's a really common instinct. Think back to the intercom study: if the *same kind of person* helped 85% of the time alone but only 31% with others listening, what changed? You can talk it through with me, or use **Explain my thinking** or **Show answer** in the workbook.",
+        "createdAt": "2026-10-25T01:49:00.715Z"
+      },
+      {
+        "id": "d6e9f9ed-491a-4afc-90fe-a51f07d6e656",
+        "role": "assistant",
+        "content": "Step 2 picks up from your answer about the drivers. It separates **pluralistic ignorance** from **diffusion of responsibility**, two causes that are easy to mix up on an exam. Read the instruction in the workbook, especially the quick test it gives you, then try the car park question.",
+        "createdAt": "2026-10-25T01:50:28.377Z"
+      },
+      {
+        "id": "f5f7c85e-fe2d-474f-a739-bf20d7bc8cfa",
+        "role": "assistant",
+        "content": "Step 3 builds on the distinction you nailed in step 2. Now a single scenario contains **both** causes at once, and you'll match each to its decision step and design an intervention that targets the right one. That last part is the kind of \"apply it\" question exams love. Read the instruction in the workbook, then tackle the shopping centre question. Talk it through with me if you'd like.",
+        "createdAt": "2026-10-25T02:07:18.031Z"
+      },
+      {
+        "id": "eacb340b-bed0-46b0-a06d-d81e6aaa3f2d",
+        "role": "assistant",
+        "content": "No worries, this one has two parts. Start with the first group: when they see everyone else walking past calmly, what are they concluding about whether the man is even in trouble?\n\nWe can work it through here, or you can use **Explain my thinking** or **Show answer** in the workbook.",
+        "createdAt": "2026-10-25T02:08:38.825Z"
+      },
+      {
+        "id": "922deda7-d481-4cb1-94df-26e4164e1023",
+        "role": "assistant",
+        "content": "You've reached the final check, which works like the opening check: I can give hints but not answers, and it's completely fine to be unsure. Have a go at the first question in the workbook.",
+        "createdAt": "2026-10-25T02:08:47.546Z"
+      },
+      {
+        "id": "3ee617f0-2f9b-41ad-8e16-c1ad3e5068d3",
+        "role": "assistant",
+        "content": "Nice work. You went from *who* the effect makes predictions about, to separating pluralistic ignorance from diffusion of responsibility, to designing interventions for a real scenario. Now head to the summary box in the workbook and write a few sentences, in your own words, about what you'd want to remember for your midterm.",
+        "createdAt": "2026-10-25T02:10:45.901Z"
+      }
+    ],
+    "createdAt": "2026-10-25T01:42:07.306Z",
+    "updatedAt": "2026-10-25T02:10:45.901Z"
+  },
+  {
+    "id": "22514c2f-0701-4010-9061-ddf228ae5673",
+    "title": "I'm studying for my psych midterm. Can…",
+    "pinned": false,
+    "icon": null,
+    "messages": [
+      {
+        "id": "0070a9bd-8a0b-41dd-9a93-5813db350e98",
+        "role": "user",
+        "content": "I'm studying for my psych midterm. Can you help me understand the bystander effect?",
+        "createdAt": "2026-10-26T13:34:36.647Z"
+      },
+      {
+        "id": "dcf68675-8396-41f8-82d7-b5ea8affd4b9",
+        "role": "assistant",
+        "content": "Let's work through the bystander effect together so you can handle midterm questions on it yourself. Is your exam mostly about defining terms, or applying them to new scenarios?",
+        "createdAt": "2026-10-26T13:35:18.940Z"
+      },
+      {
+        "id": "e1581ec7-7372-455c-8540-270fa462ea79",
+        "role": "user",
+        "content": "there will be a little bit of both I think",
+        "createdAt": "2026-10-26T13:35:35.027Z"
+      },
+      {
+        "id": "2278361c-feac-458d-aa35-b58ac23b06d0",
+        "role": "assistant",
+        "content": "Got it, a mix of definitions and applying them to scenarios. How much time do you have today?",
+        "createdAt": "2026-10-26T13:35:36.641Z"
+      },
+      {
+        "id": "8313bcce-c0c5-4ad1-9756-924b2abe116a",
+        "role": "user",
+        "content": "10 minutes",
+        "createdAt": "2026-10-26T13:35:44.475Z"
+      },
+      {
+        "id": "e423a870-7dfb-4df2-9880-d65275cb9c6f",
+        "role": "assistant",
+        "content": "Great, start the short opening check in the workbook; it's a check, so I can give hints but not answers. Guessing is totally fine.",
+        "createdAt": "2026-10-26T13:35:46.297Z"
+      },
+      {
+        "id": "7edf334b-f76b-4a79-9d71-5a159b5c7706",
+        "role": "user",
+        "content": "what should we do next",
+        "createdAt": "2026-10-26T13:39:53.325Z"
+      },
+      {
+        "id": "73611d46-ea76-4f47-9447-b3f42c73e200",
+        "role": "assistant",
+        "content": "Your first lesson step is loading in the workbook now. While it does, why do you think someone in a crowd might be less likely to help?",
+        "createdAt": "2026-10-26T13:39:56.010Z"
+      },
+      {
+        "id": "8870867a-b3be-4620-a320-15e9f7a0d8dc",
+        "role": "user",
+        "content": "I think if they look around and see other people not helping they just think the problem is not as much of a problem",
+        "createdAt": "2026-10-26T13:40:16.728Z"
+      },
+      {
+        "id": "1cf2c900-9da8-4835-89be-b7838faaaf56",
+        "role": "assistant",
+        "content": "Nice, that's called pluralistic ignorance: everyone reads the others' calm as a sign nothing's wrong. What if everyone knew it was an emergency; why might they still not act?",
+        "createdAt": "2026-10-26T13:40:18.970Z"
+      },
+      {
+        "id": "80e7f63a-7d1f-4d62-8f23-11d8dcf64609",
+        "role": "user",
+        "content": "bring someone else will act I think it's called distributed",
+        "createdAt": "2026-10-26T13:40:36.356Z"
+      },
+      {
+        "id": "4d751ba1-b966-40fe-ac03-469bff64e10e",
+        "role": "assistant",
+        "content": "Yes, assuming someone else will act. The term is diffusion of responsibility: the responsibility feels spread across everyone. Check the workbook to see if your first lesson step is ready.",
+        "createdAt": "2026-10-26T13:40:38.810Z"
+      },
+      {
+        "id": "8dbde860-7c12-447d-b029-f7c26db7c3d0",
+        "role": "assistant",
+        "content": "This step shows what the bystander effect predicts for each person as the group grows. Follow the line graph in the workbook from left to right, then try the question.",
+        "createdAt": "2026-10-26T13:40:48.432Z"
+      },
+      {
+        "id": "3e4643c0-7d91-486c-9f27-69f7a3c9b343",
+        "role": "assistant",
+        "content": "This step places the two causes you just named into a five-step path to helping. Trace the flowchart in the workbook, then try the question about the neighbours.",
+        "createdAt": "2026-10-26T13:42:40.573Z"
+      },
+      {
+        "id": "f56ac5e3-2979-41f0-96cf-8869e8a33a1e",
+        "role": "assistant",
+        "content": "This step puts your two causes side by side, each with its own fix. Compare the two columns in the workbook, then try the office stairs question.",
+        "createdAt": "2026-10-26T13:43:36.671Z"
+      },
+      {
+        "id": "9448db2e-de5a-4cef-8267-e1cb7ca77930",
+        "role": "user",
+        "content": "the coworkers walk past",
+        "createdAt": "2026-10-26T13:44:47.487Z"
+      },
+      {
+        "id": "7295b7cc-9b4e-4666-aca1-601579df9344",
+        "role": "assistant",
+        "content": "Right, ten coworkers walk past her. Can they all clearly see she's hurt, and does that point to diffusion of responsibility or pluralistic ignorance?",
+        "createdAt": "2026-10-26T13:44:50.131Z"
+      },
+      {
+        "id": "44b7a1fa-15d2-4a20-8605-1f2a5f9df705",
+        "role": "assistant",
+        "content": "The final check works just like the opening check: I can only give hints, and it's completely fine to be unsure.",
+        "createdAt": "2026-10-26T13:46:00.858Z"
+      },
+      {
+        "id": "1a421947-71f6-47fb-af0d-b146f25b2f17",
+        "role": "user",
+        "content": "the one thing I'm not sure about here is like",
+        "createdAt": "2026-10-26T13:48:17.279Z"
+      },
+      {
+        "id": "ca9d300d-71c1-4532-bdb2-2be5f5db2bf5",
+        "role": "assistant",
+        "content": "Sounds like you got cut off. What's the part you're not sure about?",
+        "createdAt": "2026-10-26T13:48:27.653Z"
+      },
+      {
+        "id": "7d24b053-3663-4375-bf94-e9215e4857af",
+        "role": "user",
+        "content": "in this example each driver doesn't think that the other driver is going to help",
+        "createdAt": "2026-10-26T13:48:46.888Z"
+      },
+      {
+        "id": "705edc2a-c139-409d-b262-b76b84787dbb",
+        "role": "assistant",
+        "content": "That's a different thought from your typed answer, about who's responsible. Which cause does that match, and do you think the scene shows one cause or more than one?",
+        "createdAt": "2026-10-26T13:48:50.843Z"
+      },
+      {
+        "id": "07677feb-e945-42a7-b515-8f71abd77c01",
+        "role": "user",
+        "content": "I'm trying to remember the two options",
+        "createdAt": "2026-10-26T13:49:13.491Z"
+      },
+      {
+        "id": "bff814f3-34b3-4baa-a828-4ac90b2bd326",
+        "role": "assistant",
+        "content": "You named both earlier. Pluralistic ignorance is reading others' calm as nothing wrong, and diffusion of responsibility is assuming someone else will act. Which fits your new thought?",
+        "createdAt": "2026-10-26T13:49:18.418Z"
+      },
+      {
+        "id": "06d66eb4-d850-4d16-8abc-029675aa5472",
+        "role": "user",
+        "content": "I think this one is more like pluralistic ignorance because they are reading others calm and not stopping as a sign that nothing is wrong and they are not assuming that someone else will act because they can see that they're not acting",
+        "createdAt": "2026-10-26T13:49:47.133Z"
+      },
+      {
+        "id": "ecd8d21f-8049-4843-81d0-bf342837eae2",
+        "role": "assistant",
+        "content": "You've reasoned that through clearly. One thing to weigh: could a driver who does think it's an emergency still drive on? Then finish your answer and submit it in the workbook.",
+        "createdAt": "2026-10-26T13:49:51.611Z"
+      },
+      {
+        "id": "d5207b4f-1649-4d94-bbd9-08e5c24f0454",
+        "role": "user",
+        "content": "oh this is a new one",
+        "createdAt": "2026-10-26T13:51:15.513Z"
+      },
+      {
+        "id": "4707ba40-703e-469a-872c-b7758b73f876",
+        "role": "assistant",
+        "content": "Yes, it's an optional bonus, so hints only. Look at the silent lecture hall: why might a lost student stay quiet, and what might they think the silence means?",
+        "createdAt": "2026-10-26T13:51:18.080Z"
+      },
+      {
+        "id": "99b4d36b-48a0-47de-98de-74646e572343",
+        "role": "assistant",
+        "content": "Well done working through both causes and applying them to new scenes. Now write a short summary in your own words in the summary box in the workbook.",
+        "createdAt": "2026-10-26T13:52:22.836Z"
+      }
+    ],
+    "createdAt": "2026-10-26T13:34:36.605Z",
+    "updatedAt": "2026-10-26T13:52:22.836Z"
   }
 ]

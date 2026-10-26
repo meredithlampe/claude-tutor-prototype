@@ -1,9 +1,12 @@
-import { useEffect, useRef } from "react";
-import { GraduationCap, LogOut } from "lucide-react";
+import { useEffect, useId, useRef } from "react";
+import { AudioLines, GraduationCap, LogOut, MessageSquareText, X } from "lucide-react";
+import { IconButton } from "@/components/IconButton";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { tutorContent } from "./content";
 import { progressLabel } from "./progress";
-import type { TutorSession } from "./types";
+import type { TutorMode, TutorSession } from "./types";
+import type { VoiceUnavailable } from "./useSpeech";
 
 type TutorBannerProps = {
   session: TutorSession;
@@ -11,11 +14,31 @@ type TutorBannerProps = {
   focusOnMount: boolean;
   exiting: boolean;
   onExit: () => void;
+  switchingMode: boolean;
+  onModeChange: (mode: TutorMode) => void;
+  // Why voice isn't on, after the learner asked for it.
+  voiceNotice: VoiceUnavailable | null;
+  onDismissVoiceNotice: () => void;
 };
 
-export function TutorBanner({ session, focusOnMount, exiting, onExit }: TutorBannerProps) {
+const MODES: { mode: TutorMode; Icon: typeof AudioLines }[] = [
+  { mode: "voice", Icon: AudioLines },
+  { mode: "text", Icon: MessageSquareText },
+];
+
+export function TutorBanner({
+  session,
+  focusOnMount,
+  exiting,
+  onExit,
+  switchingMode,
+  onModeChange,
+  voiceNotice,
+  onDismissVoiceNotice,
+}: TutorBannerProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
-  const { banner } = tutorContent;
+  const modeLabelId = useId();
+  const { banner, voice } = tutorContent;
 
   useEffect(() => {
     if (focusOnMount) headingRef.current?.focus();
@@ -23,7 +46,7 @@ export function TutorBanner({ session, focusOnMount, exiting, onExit }: TutorBan
 
   return (
     <div className="shrink-0 border-y border-border bg-card px-4 py-2 md:px-6">
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-2 sm:gap-x-4">
         <h2
           ref={headingRef}
           tabIndex={-1}
@@ -36,9 +59,36 @@ export function TutorBanner({ session, focusOnMount, exiting, onExit }: TutorBan
           </span>
           <span className="truncate text-secondary-foreground">{session.subject}</span>
         </h2>
-        <p className="mr-auto text-sm text-secondary-foreground sm:mr-0">
-          {progressLabel(session)}
-        </p>
+        <p className="mr-auto text-sm text-secondary-foreground sm:mr-0">{progressLabel(session)}</p>
+        {/* A two-button toggle: the pressed one is the current mode. */}
+        <div role="group" aria-labelledby={modeLabelId} className="flex items-center rounded-lg border border-input p-0.5">
+          <span id={modeLabelId} className="sr-only">
+            {banner.modeLabel}
+          </span>
+          {MODES.map(({ mode, Icon }) => {
+            const pressed = session.mode === mode;
+            return (
+              <Button
+                key={mode}
+                type="button"
+                variant="ghost"
+                size="sm"
+                aria-pressed={pressed}
+                disabled={switchingMode}
+                onClick={() => !pressed && onModeChange(mode)}
+                className={cn(
+                  "h-7 rounded-md px-2 sm:px-2.5 pointer-coarse:h-11",
+                  pressed
+                    ? "bg-accent font-semibold text-foreground hover:bg-accent"
+                    : "text-secondary-foreground hover:text-foreground",
+                )}
+              >
+                <Icon aria-hidden="true" />
+                {banner[mode]}
+              </Button>
+            );
+          })}
+        </div>
         <Button
           type="button"
           variant="outline"
@@ -52,9 +102,16 @@ export function TutorBanner({ session, focusOnMount, exiting, onExit }: TutorBan
           {banner.exit}
         </Button>
       </div>
-      {session.requestedMode === "voice" && (
-        <p className="mt-1 text-xs text-muted-foreground">{banner.voiceComingSoon}</p>
-      )}
+      <div role="status">
+        {voiceNotice && (
+          <div className="mt-2 flex items-start gap-2 rounded-lg border border-input bg-background px-3 py-2 text-sm leading-6 text-secondary-foreground">
+            <p className="flex-1">{voice.fallback[voiceNotice]}</p>
+            <IconButton label={banner.dismiss} onClick={onDismissVoiceNotice} tooltipSide="left" className="-my-1">
+              <X aria-hidden="true" />
+            </IconButton>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

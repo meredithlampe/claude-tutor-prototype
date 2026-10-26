@@ -2,14 +2,16 @@ import { useEffect, useRef } from "react";
 import { tutorContent } from "./content";
 import { InstructionCard } from "./InstructionCard";
 import { QuestionCard } from "./QuestionCard";
-import { SessionCompleteCard } from "./SessionCompleteCard";
 import type { CurrentItem, TutorSession } from "./types";
 import type { TutorState } from "./useTutorSession";
 import { WorkbookStatus } from "./WorkbookStatus";
+import { WrapUp } from "./WrapUp";
 
 type WorkbookProps = {
   session: TutorSession;
   tutor: TutorState;
+  // Exit from the wrap-up; the same as the banner's Exit.
+  onExit: () => void;
 };
 
 function itemHeading(item: CurrentItem, session: TutorSession): { title: string; counter?: string } {
@@ -23,27 +25,43 @@ function itemHeading(item: CurrentItem, session: TutorSession): { title: string;
       return { title: sections.final, counter: counter(session.position + 1, session.counts.finalCheck) };
     case "bonus":
       return { title: sections.bonus, counter: tutorContent.workbook.optional };
+    case "practice":
+      return { title: sections.practice, counter: counter(session.practicePosition + 1, session.counts.morePractice) };
   }
 }
 
-export function Workbook({ session, tutor }: WorkbookProps) {
+export function Workbook({ session, tutor, onExit }: WorkbookProps) {
   const { workbook } = tutorContent;
   const item = session.current;
-  const questionId = item?.question.id;
+  const shown = tutor.holding ? undefined : session.status === "wrap_up" ? "wrap_up" : item?.question.id;
+  const fadeIn = tutor.revealing ? "motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300" : "";
 
-  // When a new item replaces the one the learner was on, move focus to its heading. Not on
-  // first render, so loading or reloading the page doesn't move focus.
+  // When a new item (or the wrap-up) replaces the one the learner was on, move focus to its
+  // heading. Not on first render, so loading or reloading the page doesn't move focus.
   const headingRef = useRef<HTMLHeadingElement>(null);
-  const shownRef = useRef(questionId);
+  const shownRef = useRef(shown);
   useEffect(() => {
-    if (shownRef.current === questionId) return;
-    shownRef.current = questionId;
-    if (questionId) headingRef.current?.focus();
-  }, [questionId]);
+    if (shownRef.current === shown) return;
+    shownRef.current = shown;
+    if (shown) headingRef.current?.focus();
+  }, [shown]);
 
   let body;
-  if (session.status === "wrap_up") {
-    body = <SessionCompleteCard exiting={tutor.busy === "exit"} onExit={tutor.exit} />;
+  if (tutor.holding) {
+    body = <WorkbookStatus kind="waiting" />;
+  } else if (session.status === "wrap_up") {
+    body = (
+      <WrapUp
+        headingRef={headingRef}
+        wrapUp={session.wrapUp}
+        busy={tutor.busy}
+        onSubmitSummary={tutor.submitSummary}
+        onRetrySummary={tutor.retrySummary}
+        onConsent={tutor.setConsent}
+        onMorePractice={tutor.morePractice}
+        onExit={onExit}
+      />
+    );
   } else if (session.status === "scoping") {
     body = <WorkbookStatus kind="empty" />;
   } else if (session.building && session.generationError) {
@@ -54,7 +72,7 @@ export function Workbook({ session, tutor }: WorkbookProps) {
     const heading = itemHeading(item, session);
     const role = item.question.role;
     body = (
-      <article className="flex flex-col gap-5" aria-labelledby="tutor-item-heading">
+      <article className={`flex flex-col gap-5 ${fadeIn}`} aria-labelledby="tutor-item-heading">
         <header className="flex flex-col gap-2">
           <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
             <h3
@@ -80,13 +98,17 @@ export function Workbook({ session, tutor }: WorkbookProps) {
             {workbook.kindHelp[role]}
           </p>
         </header>
-        {item.step && (
+        {item.step?.instruction && (
           <InstructionCard instruction={item.step.instruction} artifact={item.step.artifact} />
         )}
         <QuestionCard
           key={item.question.id}
           item={item}
-          isLastStep={item.section === "step" && (item.stepIndex ?? 0) + 1 >= session.counts.steps}
+          isLastStep={
+            item.section === "practice"
+              ? session.practicePosition + 1 >= session.counts.morePractice
+              : item.section === "step" && (item.stepIndex ?? 0) + 1 >= session.counts.steps
+          }
           busy={tutor.busy}
           onSubmit={tutor.submit}
           onReveal={(via) => tutor.revealAnswer(item.question.id, via)}

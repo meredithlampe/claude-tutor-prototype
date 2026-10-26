@@ -5,7 +5,14 @@ import {
   getConversation,
   listConversations,
 } from "../repo/conversations";
-import { collectCallOptions, notifyReplyDone, type ChatTurn, type FeatureEvent } from "../features";
+import {
+  collectCallOptions,
+  handleTurnByFeature,
+  notifyReplyDone,
+  shouldWithholdReply,
+  type ChatTurn,
+  type FeatureEvent,
+} from "../features";
 import { streamReply } from "../services/claude";
 
 type StreamEvent =
@@ -13,6 +20,8 @@ type StreamEvent =
   | { type: "done" }
   | { type: "refusal" }
   | { type: "error" }
+  // A feature withheld the reply: the client clears the text that streamed.
+  | { type: "discard" }
   | FeatureEvent;
 
 function sendEvent(res: Response, event: StreamEvent) {
@@ -75,13 +84,21 @@ conversationsRouter.post("/:id/messages", async (req, res) => {
   }
 
   const turn: ChatTurn = { conversation, message: content };
-  const { system, tools, toolOwners } = await collectCallOptions(turn);
 
   res.writeHead(200, {
     "Content-Type": "text/event-stream",
     "Cache-Control": "no-cache",
     Connection: "keep-alive",
   });
+
+  // A feature may answer the turn itself (no Claude call, nothing stored).
+  if (await handleTurnByFeature(turn, (event) => sendEvent(res, event))) {
+    sendEvent(res, { type: "done" });
+    res.end();
+    return;
+  }
+
+  const { system, tools, toolOwners } = await collectCallOptions(turn);
 
   const abortController = new AbortController();
   res.on("close", () => {
@@ -104,7 +121,9 @@ conversationsRouter.post("/:id/messages", async (req, res) => {
   }
 
   if (result.type === "done") {
-    const stored = result.text
+    const withheld = shouldWithholdReply(result.text, result.toolUses, toolOwners, turn);
+    if (withheld) sendEvent(res, { type: "discard" });
+    const stored = result.text && !withheld
       ? (await appendMessage(conversation.id, "assistant", result.text))?.messages.at(-1)
       : undefined;
     // Feature events arrive before "done", so the client still has the reply open.

@@ -86,7 +86,9 @@ export function ChatThread({ conversationId, newChat: newChatProp }: ChatThreadP
     stickToBottomRef.current = true;
 
     const send =
-      featureSlotsRef.current.find((slots) => slots.active)?.sendMessage ?? sendMessage;
+      options.sendMessage ??
+      featureSlotsRef.current.find((slots) => slots.active)?.sendMessage ??
+      sendMessage;
     let status: ChatMessageStatus = "error";
     try {
       for await (const event of send(conversationId, {
@@ -99,6 +101,8 @@ export function ChatThread({ conversationId, newChat: newChatProp }: ChatThreadP
           for (const slots of featureSlotsRef.current) slots.onEvent?.(event, reply.id);
         } else if (event.type === "text") {
           updateReply((message) => ({ ...message, content: message.content + event.text }));
+        } else if (event.type === "discard") {
+          updateReply((message) => ({ ...message, content: "" }));
         } else {
           status = event.type === "done" ? "complete" : event.type;
           break;

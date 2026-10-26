@@ -38,6 +38,19 @@ export function setWorkbookDraft(conversationId: string, draft: WorkbookDraft) {
   workbookDrafts.set(conversationId, draft);
 }
 
+// No thanks: the server records the decline and streams Claude's normal answer, which the
+// offer had stood in for.
+export async function* declineAndAnswer(
+  conversationId: string,
+  { signal }: SendMessageOptions,
+): AsyncGenerator<StreamEvent | FeatureEvent> {
+  const response = await fetch(`${base(conversationId)}/decline`, { method: "POST", signal });
+  if (!response.ok || !response.body) throw new Error(`POST tutor decline failed with ${response.status}`);
+  for await (const chunk of readSseData(response.body)) {
+    yield JSON.parse(chunk) as StreamEvent | FeatureEvent;
+  }
+}
+
 // The Tutor chat turn: a typed message and/or a workbook event, plus the workbook draft.
 export async function* sendTutorMessage(
   conversationId: string,

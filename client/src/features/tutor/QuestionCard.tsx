@@ -3,6 +3,7 @@ import { Markdown } from "@/components/chat/Markdown";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { AnswerFeedback } from "./AnswerFeedback";
+import { ArtifactView } from "./ArtifactView";
 import { tutorContent } from "./content";
 import { OptionGroup } from "./OptionGroup";
 import type { AnswerInput, Confidence, CurrentItem, WorkbookDraft } from "./types";
@@ -94,7 +95,11 @@ export function QuestionCard({
     onDraftChange({ questionId: question.id, text: value });
   }
 
-  const nextLabel = item.section === "step" ? (isLastStep ? copy.toFinalCheck : copy.nextStep) : copy.next;
+  const nextLabels: Partial<Record<CurrentItem["section"], string>> = {
+    step: isLastStep ? copy.toFinalCheck : copy.nextStep,
+    practice: isLastStep ? copy.finishPractice : copy.nextPractice,
+  };
+  const nextLabel = nextLabels[item.section] ?? copy.next;
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
@@ -103,6 +108,8 @@ export function QuestionCard({
           <Markdown>{question.resource}</Markdown>
         </div>
       )}
+
+      {question.artifact && <ArtifactView artifact={question.artifact} />}
 
       {question.kind === "multiple_choice" && question.options ? (
         <OptionGroup
@@ -153,7 +160,12 @@ export function QuestionCard({
       )}
 
       {practice && (
-        <div ref={feedbackRef} tabIndex={-1} className="flex flex-col gap-3 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <div
+          ref={feedbackRef}
+          tabIndex={-1}
+          // Where focus returns after the tutor answers a wrong answer in the chat.
+          data-tutor-return={last || reveal ? "" : undefined}
+          className="flex flex-col gap-3 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring">
           <AnswerFeedback
             attempt={last}
             partialIsFinal={last?.result === "partial" && !canSubmit}

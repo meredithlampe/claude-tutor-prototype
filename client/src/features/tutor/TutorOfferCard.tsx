@@ -32,15 +32,16 @@ export function TutorOfferCard({
   const { offer } = tutorContent;
 
   if (declined) {
-    return <p className="text-sm leading-6 text-secondary-foreground">{offer.declined}</p>;
+    return <p className="self-stretch text-sm leading-6 text-secondary-foreground">{offer.declined}</p>;
   }
 
-  const disabled = busy === "start" || busy === "decline";
+  const disabled = busy === "start";
   return (
     <section
       ref={cardRef}
       aria-labelledby={titleId}
-      className="flex flex-col gap-3 rounded-2xl border border-input bg-card p-4 sm:p-5"
+      // self-stretch: it can follow the user's own message, which is right-aligned.
+      className="mt-3 flex flex-col gap-3 self-stretch rounded-2xl border border-input bg-card p-4 sm:p-5"
     >
       <h3 id={titleId} className="flex items-center gap-2 font-medium text-foreground">
         <GraduationCap className="size-5 text-brand" aria-hidden="true" />

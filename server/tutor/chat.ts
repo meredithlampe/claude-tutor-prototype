@@ -4,8 +4,9 @@ import { appendMessage, getConversation } from "../repo/conversations";
 import { streamReply } from "../services/claude";
 import { tutorSystemPrompt } from "./prompts";
 import { getLatestSession, updateSession } from "./repo";
-import { describeWorkbook, ensureBuilt, isActive, publicSession } from "./session";
+import { describeWorkbook, ensureBuilt, isActive, publicSession, trackReply } from "./session";
 import { getTopic } from "./topics";
+import type { Conversation } from "../types";
 import type { TutorSession, WorkbookDraft, WorkbookEvent } from "./types";
 
 interface ChatBody {
@@ -22,6 +23,8 @@ const EVENT_TYPES = new Set<WorkbookEvent["type"]>([
   "explain_my_thinking",
   "final_check_started",
   "battery_complete",
+  "practice_started",
+  "session_resumed",
 ]);
 
 function readBody(body: unknown): ChatBody {
@@ -65,30 +68,38 @@ function eventText(event: WorkbookEvent): string {
       return "[Workbook event: the final check started.]";
     case "battery_complete":
       return "[Workbook event: the learner finished the workbook.]";
+    case "practice_started":
+      return "[Workbook event: the More practice questions appeared in the workbook.]";
+    case "session_resumed":
+      return "[Workbook event: the learner resumed this Tutor session.]";
   }
 }
 
 function turnInstruction(session: TutorSession, event: WorkbookEvent | undefined, scopedNow: boolean): string | undefined {
   if (event?.type === "session_started") {
-    return `The learner just switched this conversation to Tutor mode. Write your opening message. First acknowledge that they already have an answer from earlier in the conversation, along the lines of "You have the answer. Let's make sure you could solve the next one." Then ask what they're working toward. Tappable choices appear below your message (homework, an exam, curiosity), and they can also type. Two or three sentences in total, and ask only this one question.`;
+    return `The learner just asked the question above and chose Tutor mode instead of a straight answer, so they haven't been given an answer. Write your opening message: in one short sentence, say you'll work through their question together so they can solve ones like it; then ask what they're working toward. Tappable choices appear below your message (homework, an exam, curiosity). Two short sentences in total. Don't answer or start solving their question.`;
   }
   if (session.status === "scoping" && session.scoping.goal && !session.scoping.time) {
     return `The learner's goal: "${session.scoping.goal}". Acknowledge it in a few words, then ask how much time they have. Tappable choices appear below your message (about 10 minutes, about 20 minutes, as long as it takes). One or two sentences.`;
   }
   if (scopedNow) {
-    return `Scoping is done (goal: "${session.scoping.goal}", time: "${session.scoping.time}"). The workbook now shows a short opening check: one question about what feels unclear, then two questions. In two sentences, tell the learner to start it in the workbook; that it's a check, so you can give hints but not answers; and that it's fine to guess. Don't ask them anything else.`;
+    return `Scoping is done (goal: "${session.scoping.goal}", time: "${session.scoping.time}"). The workbook now shows a short opening check: one question about what feels unclear, then two questions. In at most two short sentences, tell the learner to start it in the workbook; that it's a check, so you can give hints but not answers; and that it's fine to guess. Don't ask them anything else.`;
   }
   switch (event?.type) {
     case "step_started":
-      return `Step ${event.stepIndex + 1} just appeared in the workbook. Introduce it in one or two sentences: the one idea it covers and how it connects to what they've done so far. Point them to the instruction and question in the workbook. Don't explain the content yourself or hint at the answer.`;
+      return `Step ${event.stepIndex + 1} appears in the workbook as soon as you finish. Introduce it in one short sentence: the one idea it covers and how it connects to what they've done so far. Point them to its visual in the workbook. Don't explain the content yourself or hint at the answer.`;
     case "wrong_answer":
-      return "The learner just answered the practice question above incorrectly, and the workbook showed them one line of feedback. In one or two sentences, be encouraging and ask one question that helps them see their error, without giving the answer. The workbook also offers Show answer and Explain my thinking.";
+      return "The learner just answered the practice question above incorrectly, and the workbook showed them one line of feedback. In one or two short sentences, be encouraging and ask one question that helps them see their error, without giving the answer. The workbook also offers Show answer and Explain my thinking.";
     case "explain_my_thinking":
       return "The learner tapped Explain my thinking on the practice question above. In one sentence, ask them to walk you through how they got their answer. Don't correct them yet. (After this discussion, the workbook offers them a similar question.)";
     case "final_check_started":
-      return "The final check just started in the workbook: two questions with no instruction before them, then an optional bonus question. In one or two sentences, tell them it works like the opening check: hints only, and it's fine to be unsure.";
+      return "The final check appears in the workbook as soon as you finish: two questions with no instruction before them, then an optional bonus question. In one short sentence, tell them it works like the opening check: hints only, and it's fine to be unsure.";
     case "battery_complete":
-      return "The learner just finished the whole workbook. In two or three sentences, congratulate them on what they worked through (without revealing any check answers or scores) and tell them they can leave Tutor mode with Exit.";
+      return "The learner just finished the workbook's questions. The workbook now asks them to write a short summary of what they learned, and then shows yours. In one or two short sentences, congratulate them on what they worked through (without revealing any check answers or scores) and point them to the summary box in the workbook. Don't summarize the session yourself.";
+    case "practice_started":
+      return "The learner chose More practice, and a few more practice questions appear in the workbook as soon as you finish. They mix ideas from the session. In one sentence, tell them these are practice, so you can work through them together.";
+    case "session_resumed":
+      return "The learner just resumed this Tutor session after pausing it. In one sentence, welcome them back and say where they are in the workbook, using the workbook state above.";
     default:
       return undefined;
   }
@@ -142,7 +153,25 @@ export async function handleChat(req: Request<{ conversationId: string }>, res: 
   res.on("close", () => {
     if (!res.writableEnded) abortController.abort();
   });
+  // Exit waits for this, so its card goes after a reply it stopped.
+  let replyStored = () => {};
+  trackReply(conversationId, new Promise<void>((resolve) => (replyStored = resolve)));
+  try {
+    await streamTutorReply(res, { session, conversation, body, scopedNow, signal: abortController.signal });
+  } finally {
+    replyStored();
+  }
+}
 
+interface ReplyInput {
+  session: TutorSession;
+  conversation: Conversation;
+  body: ChatBody;
+  scopedNow: boolean;
+  signal: AbortSignal;
+}
+
+async function streamTutorReply(res: Response, { session, conversation, body, scopedNow, signal }: ReplyInput) {
   // The workbook may have changed (scoping recorded, assessment built).
   sendEvent(res, { type: "tutor_session", session: publicSession(session) });
 
@@ -159,16 +188,16 @@ export async function handleChat(req: Request<{ conversationId: string }>, res: 
   const result = await streamReply({
     messages,
     system,
-    signal: abortController.signal,
+    signal,
     onText: (text) => sendEvent(res, { type: "text", text }),
   });
 
   if (result.type === "aborted") {
-    if (result.text.trim()) await appendMessage(conversationId, "assistant", result.text);
+    if (result.text.trim()) await appendMessage(conversation.id, "assistant", result.text);
     return;
   }
   if (result.type === "done") {
-    if (result.text) await appendMessage(conversationId, "assistant", result.text);
+    if (result.text) await appendMessage(conversation.id, "assistant", result.text);
     sendEvent(res, { type: "done" });
   } else {
     sendEvent(res, { type: result.type });

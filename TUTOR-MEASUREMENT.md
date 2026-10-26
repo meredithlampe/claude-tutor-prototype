@@ -55,7 +55,7 @@ Latané and Darley's diffusion of responsibility and their decision model of hel
 
 - **Fixed, not generated:** assessment probes and final-check items come from the topic file. Generated checks would change from person to person, so a gain couldn't be told apart from a change in item difficulty. The 3 teaching steps stay generated, because they're the feature under test, but they're told to stay consistent with the topic's vetted notes.
 - **Counterbalanced:** Form 1 gives the A items in the assessment and the F items in the final check. Form 2 gives the reverse. Sessions alternate forms.
-- **Opening message:** the test script's opening problem uses different numbers or a different scenario from A1. Claude's normal answer comes before the assessment, so the baseline is "after a normal Claude answer".
+- **Opening message:** the test script's opening problem uses different numbers or a different scenario from A1. When Tutor is offered, Claude's answer is not shown first (the offer replaces it), so the assessment measures what the learner knows before any explanation.
 - **Confidence:** each check question has a "How sure are you?" control: *Sure / Think so / Guessing*.
 - **Freeform scoring:** 0, 1 or 2 points. In the workbook, 2 = correct, 1 = partially correct and 0 = incorrect. Check items also record a misconception tag.
 

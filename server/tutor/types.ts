@@ -6,6 +6,7 @@ export type TutorStatus =
   | "teaching"
   | "final_check"
   | "wrap_up"
+  | "more_practice"
   | "complete"
   | "paused";
 
@@ -41,6 +42,8 @@ export interface TutorQuestion {
   role: QuestionRole;
   // Shown before the question, e.g. the bonus item's embedded resource. Markdown.
   resource?: string;
+  // The question's own visual: its scenario, never its answer.
+  artifact?: TutorArtifact;
   options?: TutorOption[];
   // Server only: the worked answer shown on reveal (MC), or a model answer (freeform).
   answer?: string;
@@ -72,6 +75,9 @@ export interface TutorBattery {
   steps?: TutorStep[];
   finalCheck?: TutorQuestion[];
   bonus?: TutorQuestion;
+  // Added a round at a time when the learner chooses More practice after the wrap-up.
+  // Steps with no instruction or visual.
+  morePractice?: TutorStep[];
 }
 
 export interface Attempt {
@@ -112,11 +118,15 @@ export interface TutorSession {
   topicId?: string;
   reason: string;
   trigger: "keyword" | "detected";
-  // The assistant message the offer card is shown after.
+  // The message the offer card is shown after: the user's message that triggered it (the offer
+  // replaces Claude's answer).
   offerMessageId?: string;
+  // After No thanks: Claude's normal answer, written then. The decline note follows it.
+  declineMessageId?: string;
   form?: 1 | 2;
   mode: TutorMode;
-  // What the learner chose on the offer card. Voice isn't built yet, so it runs as text.
+  // What the learner chose on the offer card. `mode` can differ: voice falls back to text when
+  // the browser can't recognise speech or the microphone is blocked, and the banner switches it.
   requestedMode?: TutorMode;
   previousSettings: { responseStyle: string; voice: boolean };
   status: TutorStatus;
@@ -127,11 +137,22 @@ export interface TutorSession {
   currentQuestionId?: string;
   answers: AnswerRecord[];
   stepProgress: StepProgress[];
+  // Progress through battery.morePractice, by index.
+  practiceProgress?: StepProgress[];
+  // Where the current More practice round starts in battery.morePractice. Each round is
+  // counted on its own ("1 of 3"), not across rounds.
+  practiceRoundStart?: number;
   // When each item was first shown, by question id, for time-on-item.
   shownAt: Record<string, string>;
-  generation: { assessmentMs?: number; stepsMs?: number; error?: string };
+  // stepsMs: step 1 (what the learner waits for); laterStepsMs: steps 2 and 3, in the background.
+  generation: { assessmentMs?: number; stepsMs?: number; laterStepsMs?: number; practiceMs?: number; error?: string; summaryError?: string };
   learnerSummary?: string;
+  tutorSummary?: string;
   delayedCheckConsent?: boolean;
+  // Set on Exit: the status to return to on Resume ("paused" only), and the conversation's last
+  // assistant message then, which the paused (or complete) card is shown after.
+  pausedFrom?: TutorStatus;
+  exitedAfterMessageId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -143,6 +164,8 @@ export interface TopicItem {
   bloomLevel?: BloomLevel;
   prompt: string;
   resource?: string;
+  // Hand-drawn: shows the item's scenario without giving away the answer.
+  artifact?: { title: string; description: string; svg: string };
   options?: TutorOption[];
   answer?: string;
   rubric?: FreeformRubric;
@@ -177,4 +200,6 @@ export type WorkbookEvent =
   | { type: "wrong_answer"; questionId: string }
   | { type: "explain_my_thinking"; questionId: string }
   | { type: "final_check_started" }
-  | { type: "battery_complete" };
+  | { type: "battery_complete" }
+  | { type: "practice_started" }
+  | { type: "session_resumed" };

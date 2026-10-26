@@ -47,7 +47,7 @@ type SendMessageOptions = {
   signal: AbortSignal;
 };
 
-const CORE_EVENT_TYPES = new Set<string>(["text", "done", "refusal", "error"]);
+const CORE_EVENT_TYPES = new Set<string>(["text", "done", "refusal", "error", "discard"]);
 
 // Anything else is a feature's event.
 export function isCoreEvent(event: StreamEvent | FeatureEvent): event is StreamEvent {

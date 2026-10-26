@@ -25,7 +25,7 @@ We may throw Tutor away and rebuild it on the same clone, so it should come out 
 ## Flow
 
 1. **User sends a message** in a normal chat.
-2. **Offer:** if the message shows the user trying to learn an academic subject, Claude answers normally and an offer card appears after the answer:
+2. **Offer:** if the message shows the user trying to learn an academic subject, the offer card appears **instead of** Claude's answer, so it can't be missed below a long reply. If the user picks No thanks, Claude's normal answer is generated and shown then. On the "tutor" keyword, the server shows the offer without calling Claude at all:
 
    > Tutor mode uses education best practices to assist with deeper comprehension and recall. You may switch back to normal chat at any time. Try it out?
 
@@ -58,11 +58,11 @@ Topics come from a topic library (`server/tutor/topics/`, one file per topic; se
 ### Practice and checks
 
 - **Practice** (the 3 steps and More practice): the learner can work answers out with the tutor in the chat.
-- **Checks** (the assessment and the final check): the tutor gives hints only and never confirms or gives an answer before it's submitted. The workbook marks check questions so the learner knows. Each check question has a confidence control (*Sure / Think so / Guessing*).
+- **Checks** (the assessment and the final check): the tutor gives hints only and never confirms or gives an answer before it's submitted. The workbook marks check questions so the learner knows. Each check question has a confidence control (*Sure / Think so / Guessing*). Check answers show only "Answer recorded"; the wrap-up shows a before/after summary (assessment probes vs. final check, per item, with a total).
 
 ### Steps
 
-- **One idea per step:** a few sentences of instruction with a visual, then a question (Rosenshine: small steps, check for understanding, aim for about 80% success). See `docs/reference/principles-of-instruction.webp`.
+- **One idea per step:** 1–2 sentences of instruction with a visual that carries the explanation, then a question (Rosenshine: small steps, check for understanding, aim for about 80% success). See `docs/reference/principles-of-instruction.webp`.
 - **The steps climb Bloom's levels:** roughly Understand, then Apply, then Analyze or Evaluate. Step 3 is freeform ("explain why", "spot the error") so the learner explains in their own words.
 - **"Show me"** on every practice question reveals the answer and explanation. The step then counts as not mastered.
 - The learner moves to the next step with a **Next** button once the step is answered or revealed.
@@ -120,10 +120,13 @@ type TutorArtifact = { kind: "svg"; title: string; description: string; content:
 
 - Claude generates self-contained SVG (diagrams, number lines, graphs, labelled figures). It's rendered as an image (`<img src="data:image/svg+xml,...">`), so no scripts run and no new dependencies are needed.
 - Every visual has a title and a text description for screen readers.
-- Each visual must support its step's instruction, and the instruction refers to it.
+- **Visuals carry the explanation:** every instruction and every question has one, with about a quarter of the text we'd otherwise use. The instruction refers to its visual.
+- **Check questions get hand-authored visuals** in the topic files. They show the scenario without giving away the answer.
 - Interactive visuals (sandboxed HTML) are out of scope for now.
 
 ## Chat and workbook together
+
+- **One place to look at a time:** the session tracks whether the learner should be looking at the chat or the workbook. The surface in focus gets a slightly lighter background, and the other is dimmed but stays usable. The tutor's chat message finishes before the next workbook item appears, so the learner never has to read both at once.
 
 - **The tutor sees the workbook:** every Tutor chat turn sends the current workbook state: the step, the question, what the learner has selected or typed but not submitted, and past results.
 - **Workbook events can prompt the tutor to speak:** a step starting (the tutor introduces it), a wrong answer, "Explain my thinking", or the battery finishing. The client sends the event to the chat endpoint, and the tutor replies in the chat.
@@ -144,7 +147,7 @@ Chosen on the offer card: **Start with voice (recommended)** or **Start with tex
 ## Tutor system prompt
 
 - The learner does the thinking. Don't solve the problem the student came with; guide them to it.
-- Be concise. One idea at a time. Aim for about 80% success; after two wrong answers in a row, make the steps smaller.
+- Be concise: chat messages are at most 2 short sentences unless the learner asks for more. One idea at a time. Aim for about 80% success; after two wrong answers in a row, make the steps smaller.
 - Ask, don't tell. Feedback is one sentence and names the specific error.
 - Follow the practice and checks rules: help freely on practice, give hints only on checks.
 - Fade hints as the learner gets answers right.

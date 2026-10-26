@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { tutorContent } from "./content";
 import type { TutorTab } from "./types";
@@ -9,14 +10,25 @@ type TutorLayoutProps = {
   tab: TutorTab;
   onTabChange: (tab: TutorTab) => void;
   unseen: Record<TutorTab, boolean>;
+  // The surface in focus. Side by side (lg up), it's highlighted and the other is dimmed, but
+  // both stay fully usable. 70% opacity keeps the faintest text at 3:1.
+  focus: TutorTab;
+  onLearnerFocus: (tab: TutorTab) => void;
 };
+
+function surfaceClasses(inFocus: boolean) {
+  return cn(
+    "motion-safe:transition-[opacity,background-color] motion-safe:duration-300",
+    inFocus ? "lg:bg-card/60" : "lg:opacity-70",
+  );
+}
 
 const panelClasses =
   "mt-0 flex min-h-0 flex-1 flex-col data-[state=inactive]:hidden lg:data-[state=inactive]:flex";
 
 // Chat on the left, workbook on the right (the wider of the two) from lg up. Below that, the
 // same two panels become Chat / Workbook tabs. Both stay mounted, so switching keeps state.
-export function TutorLayout({ thread, workbook, tab, onTabChange, unseen }: TutorLayoutProps) {
+export function TutorLayout({ thread, workbook, tab, onTabChange, unseen, focus, onLearnerFocus }: TutorLayoutProps) {
   const { layout } = tutorContent;
   const tabs: TutorTab[] = ["chat", "workbook"];
 
@@ -44,11 +56,20 @@ export function TutorLayout({ thread, workbook, tab, onTabChange, unseen }: Tuto
           value="chat"
           forceMount
           tabIndex={-1}
-          className={`${panelClasses} lg:border-r lg:border-border`}
+          onPointerDownCapture={() => onLearnerFocus("chat")}
+          onFocusCapture={() => onLearnerFocus("chat")}
+          className={cn(panelClasses, "lg:border-r lg:border-border", surfaceClasses(focus === "chat"))}
         >
           {thread}
         </TabsContent>
-        <TabsContent value="workbook" forceMount tabIndex={-1} className={panelClasses}>
+        <TabsContent
+          value="workbook"
+          forceMount
+          tabIndex={-1}
+          onPointerDownCapture={() => onLearnerFocus("workbook")}
+          onFocusCapture={() => onLearnerFocus("workbook")}
+          className={cn(panelClasses, surfaceClasses(focus === "workbook"))}
+        >
           {workbook}
         </TabsContent>
       </div>

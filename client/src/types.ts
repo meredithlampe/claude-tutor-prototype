@@ -37,7 +37,9 @@ export type StreamEvent =
   | { type: "text"; text: string }
   | { type: "done" }
   | { type: "refusal" }
-  | { type: "error" };
+  | { type: "error" }
+  // A feature withheld this reply: clear the text that streamed so far.
+  | { type: "discard" };
 
 // Mirrors FeatureEvent in server/features.ts: an event a feature sends alongside the above.
 export type FeatureEvent = { type: string } & Record<string, unknown>;

@@ -17,6 +17,9 @@ export interface SendOptions {
   silent?: boolean;
   // Passed through to the active feature's sendMessage.
   data?: Record<string, unknown>;
+  // Streams this one reply through the given sender, even when no feature is active (e.g. a
+  // feature's own endpoint that answers on the user's behalf).
+  sendMessage?: SendMessage;
 }
 
 export interface SendMessageOptions extends SendOptions {

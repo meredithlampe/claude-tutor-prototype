@@ -22,8 +22,14 @@ export interface ChatFeature {
   id: string;
   // Mounted at /api/<id>.
   router?: Router;
+  // Answers a turn itself, without calling Claude, by emitting its own events. Return true when
+  // it did; the clone then stores no reply and ends the turn. The first feature to claim wins.
+  handleTurn?: (turn: ChatTurn, emit: (event: FeatureEvent) => void) => Promise<boolean>;
   // Adds instructions and tools to a normal chat turn. Return undefined to add nothing.
   callOptions?: (turn: ChatTurn) => Promise<FeatureCallOptions | undefined>;
+  // Return true to withhold Claude's text for this turn (e.g. the feature replaces it with its
+  // own UI). The clone then doesn't store it, and sends "discard" so the client clears it.
+  withholdReply?: (reply: { text: string; toolUses: Anthropic.ToolUseBlock[] }, turn: ChatTurn) => boolean;
   // Called once per finished turn, after the reply is stored, whether or not Claude called
   // one of this feature's tools. Events emitted here reach the client before "done".
   onReplyDone?: (reply: FeatureReply, turn: ChatTurn, emit: (event: FeatureEvent) => void) => Promise<void>;
@@ -41,6 +47,37 @@ export const tutorEnabled = process.env.TUTOR_ENABLED !== "false";
 
 // The enabled features. Removing a feature's line here turns it off.
 export const features: ChatFeature[] = [...(tutorEnabled ? [tutorFeature] : [])];
+
+// A failing feature is logged and skipped, so normal chat carries on.
+export async function handleTurnByFeature(turn: ChatTurn, emit: (event: FeatureEvent) => void): Promise<boolean> {
+  for (const feature of features) {
+    if (!feature.handleTurn) continue;
+    try {
+      if (await feature.handleTurn(turn, emit)) return true;
+    } catch (error) {
+      console.error(`Feature "${feature.id}": handleTurn failed`, error);
+    }
+  }
+  return false;
+}
+
+export function shouldWithholdReply(
+  text: string,
+  toolUses: Anthropic.ToolUseBlock[],
+  toolOwners: Map<string, ChatFeature>,
+  turn: ChatTurn,
+): boolean {
+  return features.some((feature) => {
+    if (!feature.withholdReply) return false;
+    const ownToolUses = toolUses.filter((toolUse) => toolOwners.get(toolUse.name) === feature);
+    try {
+      return feature.withholdReply({ text, toolUses: ownToolUses }, turn);
+    } catch (error) {
+      console.error(`Feature "${feature.id}": withholdReply failed`, error);
+      return false;
+    }
+  });
+}
 
 export interface TurnOptions {
   system?: string;

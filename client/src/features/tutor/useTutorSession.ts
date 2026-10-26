@@ -1,9 +1,10 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { ChatContext } from "@/features/types";
 import type { FeatureEvent } from "@/types";
-import { fetchTutorSession, postTutor, setWorkbookDraft } from "./api";
+import { declineAndAnswer, fetchTutorSession, postTutor, setWorkbookDraft } from "./api";
 import { tutorContent } from "./content";
 import { progressLabel } from "./progress";
+import { checkVoice, type VoiceUnavailable } from "./useSpeech";
 import {
   ACTIVE_STATUSES,
   type AnswerInput,
@@ -16,6 +17,14 @@ import {
 
 type QueuedEvent = { event: WorkbookEvent; text?: string };
 
+// What's on screen in the workbook, for deciding when something new has arrived.
+function workbookKey(session: TutorSession | null): string | undefined {
+  return session?.status === "wrap_up" ? "wrap_up" : session?.current?.question.id;
+}
+
+// How long a newly revealed workbook item fades in, during which no tutor reply starts.
+const REVEAL_MS = 400;
+
 export type TutorAction =
   | "start"
   | "decline"
@@ -25,7 +34,12 @@ export type TutorAction =
   | "parallel"
   | "advance"
   | "build"
-  | "exit";
+  | "summary"
+  | "consent"
+  | "practice"
+  | "mode"
+  | "exit"
+  | "resume";
 
 export function useTutorSession(chat: ChatContext) {
   const { conversationId } = chat;
@@ -41,12 +55,39 @@ export function useTutorSession(chat: ChatContext) {
   const [scopingAsked, setScopingAsked] = useState(false);
   const [justStarted, setJustStarted] = useState(false);
   const [queueVersion, setQueueVersion] = useState(0);
+  // Why voice isn't running, when the learner chose it. Shown in the banner until dismissed.
+  const [voiceNotice, setVoiceNotice] = useState<VoiceUnavailable | null>(null);
+  // Voice was turned on by a click in this page, so the browser will let it speak.
+  const [voiceArmed, setVoiceArmed] = useState(false);
+  // The answer streamed after No thanks, before a reload gives it its stored id.
+  const [liveDeclineReplyId, setLiveDeclineReplyId] = useState<string>();
+  // The reply the paused card follows, before a reload gives it its stored id.
+  const [liveExitReplyId, setLiveExitReplyId] = useState<string>();
+
+  // One place to look at a time: the surface in focus is highlighted and the other dimmed.
+  const [focus, setFocusState] = useState<TutorTab>("chat");
+  const focusRef = useRef<TutorTab>("chat");
+  function setFocus(surface: TutorTab) {
+    focusRef.current = surface;
+    setFocusState(surface);
+  }
+  // A new workbook item waits while the tutor's message about it streams, then appears.
+  const [heldKey, setHeldKey] = useState<string | null>(null);
+  const [revealing, setRevealing] = useState(false);
+  const heldKeyRef = useRef<string | null>(null);
+  // Whether the reply streaming now answers a workbook event (then the workbook comes back
+  // into focus after it) or the learner's own message (focus stays on the chat).
+  const replyKindRef = useRef<"workbook" | "chat">("chat");
+  const wasStreamingRef = useRef(false);
 
   const composerInputRef = useRef<HTMLTextAreaElement>(null);
   const sessionRef = useRef(session);
   const chatRef = useRef(chat);
   const queueRef = useRef<QueuedEvent[]>([]);
   const buildRequestedRef = useRef<string | null>(null);
+  const summaryRequestedRef = useRef<string | null>(null);
+  // The last Tutor reply in this page (its client id), for placing the paused card.
+  const lastReplyIdRef = useRef<string | undefined>(undefined);
   useLayoutEffect(() => {
     sessionRef.current = session;
     chatRef.current = chat;
@@ -65,14 +106,74 @@ export function useTutorSession(chat: ChatContext) {
     return () => controller.abort();
   }, [conversationId]);
 
-  // Workbook events are sent once Tutor's sendMessage is in place (after the render that made
-  // the session active) and no other reply is streaming.
+  // Moves focus between the chat and the workbook for the learner: highlights the surface,
+  // shows it on narrow screens, moves keyboard focus there (unless they're typing), and
+  // announces the change. `revealed` means the workbook just showed a new item, whose heading
+  // the workbook focuses itself.
+  function moveFocus(surface: TutorTab, revealed = false) {
+    const changed = focusRef.current !== surface;
+    setFocus(surface);
+    setTab(surface);
+    if (changed || revealed) {
+      setAnnouncement(
+        surface === "chat"
+          ? tutorContent.announcements.focusChat
+          : tutorContent.announcements.focusWorkbook(sessionRef.current ? progressLabel(sessionRef.current) : ""),
+      );
+    }
+    // After the render that shows the surface. A timeout, not requestAnimationFrame: rAF is
+    // paused in background tabs, and a late move would steal focus. Dropped if focus has
+    // moved on since.
+    setTimeout(() => {
+      if (focusRef.current !== surface) return;
+      const current = document.activeElement;
+      const typing =
+        (current instanceof HTMLTextAreaElement || current instanceof HTMLInputElement) &&
+        current.type !== "radio" &&
+        current.value.trim() !== "";
+      if (typing) return;
+      if (surface === "chat") composerInputRef.current?.focus({ preventScroll: true });
+      else if (!revealed) {
+        const target = document.querySelector<HTMLElement>("[data-tutor-return]") ?? document.getElementById("tutor-item-heading");
+        target?.focus();
+      }
+    }, 50);
+  }
+
+  function reveal() {
+    heldKeyRef.current = null;
+    setHeldKey(null);
+    setRevealing(true);
+    setTimeout(() => setRevealing(false), REVEAL_MS);
+    moveFocus("workbook", true);
+  }
+
+  // A tutor reply starting brings the chat into focus; when it finishes, a held workbook item
+  // appears (focus moves there), or focus returns to the workbook after a workbook event.
+  // Defined before the queue below, so it sees whether another event is about to be sent.
   useEffect(() => {
-    if (!active || chat.isStreaming) return;
+    if (!active) return;
+    const started = chat.isStreaming && !wasStreamingRef.current;
+    const finished = !chat.isStreaming && wasStreamingRef.current;
+    wasStreamingRef.current = chat.isStreaming;
+    if (started) moveFocus("chat");
+    if (!finished || queueRef.current.length > 0) return;
+    if (heldKeyRef.current) reveal();
+    else if (replyKindRef.current === "workbook") moveFocus("workbook");
+    replyKindRef.current = "chat";
+    // moveFocus and reveal only read refs, state setters and the latest focus.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, chat.isStreaming]);
+
+  // Workbook events are sent once Tutor's sendMessage is in place (after the render that made
+  // the session active), no other reply is streaming, and no new item is fading in.
+  useEffect(() => {
+    if (!active || chat.isStreaming || revealing) return;
     const next = queueRef.current.shift();
     if (!next) return;
+    replyKindRef.current = next.event.type === "explain_my_thinking" ? "chat" : "workbook";
     chatRef.current.send(next.text ?? "", { silent: !next.text, data: { event: next.event } });
-  }, [active, chat.isStreaming, queueVersion]);
+  }, [active, chat.isStreaming, queueVersion, revealing]);
 
   function queueEvent(event: WorkbookEvent, text?: string) {
     queueRef.current.push({ event, text });
@@ -97,6 +198,7 @@ export function useTutorSession(chat: ChatContext) {
         queueEvent({ type: "step_started", stepIndex: after.stepIndex ?? 0 });
       }
       if (after.section === "final" && before?.section !== "final") queueEvent({ type: "final_check_started" });
+      if (after.section === "practice" && before?.section !== "practice") queueEvent({ type: "practice_started" });
       if (tab === "chat") setUnseen((current) => ({ ...current, workbook: true }));
     }
     if (next.building && next.building !== previous?.building) {
@@ -105,6 +207,18 @@ export function useTutorSession(chat: ChatContext) {
     if (next.status === "wrap_up" && previous?.status !== "wrap_up") {
       queueEvent({ type: "battery_complete" });
       if (tab === "chat") setUnseen((current) => ({ ...current, workbook: true }));
+    }
+
+    // Something new for the workbook: if the tutor is talking (or about to), it waits until
+    // the tutor has finished; otherwise it appears now, with the workbook in focus.
+    const key = workbookKey(next);
+    if (key && key !== workbookKey(previous) && ACTIVE_STATUSES.includes(next.status)) {
+      if (chatRef.current.isStreaming || queueRef.current.length > 0) {
+        heldKeyRef.current = key;
+        setHeldKey(key);
+      } else if (previous && ACTIVE_STATUSES.includes(previous.status)) {
+        reveal();
+      }
     }
   }
 
@@ -147,23 +261,32 @@ export function useTutorSession(chat: ChatContext) {
     });
   }
 
-  async function start(mode: TutorMode) {
-    const next = await run("start", () => postTutor(conversationId, "start", { mode }));
+  async function start(requestedMode: TutorMode) {
+    // Voice needs speech recognition and the microphone; without them, start in text and say why.
+    // The offer's buttons stay disabled while the browser asks for the microphone.
+    setBusy("start");
+    const unavailable = requestedMode === "voice" ? await checkVoice() : undefined;
+    const mode = unavailable ? "text" : requestedMode;
+    const next = await run("start", () => postTutor(conversationId, "start", { mode, requestedMode }));
     if (!next || !ACTIVE_STATUSES.includes(next.status)) return;
+    setVoiceNotice(unavailable ?? null);
+    setVoiceArmed(mode === "voice");
     setJustStarted(true);
     setTab("chat");
     queueEvent({ type: "session_started" });
   }
 
+  // The answer streams into the thread as a reply (no user message); the server records the
+  // decline first and tells us through a tutor_session event.
   function decline() {
-    void run("decline", () => postTutor(conversationId, "decline"));
+    chat.send("", { silent: true, sendMessage: declineAndAnswer });
   }
 
   async function submit(input: AnswerInput) {
     const before = sessionRef.current?.current;
     const next = await run("answer", () => postTutor(conversationId, "answer", input));
     if (!next || !before) return;
-    if (before.section !== "step") {
+    if (!before.practice) {
       setAnnouncement(tutorContent.announcements.recorded);
       return;
     }
@@ -196,10 +319,88 @@ export function useTutorSession(chat: ChatContext) {
     void run("advance", () => postTutor(conversationId, "advance", { fromQuestionId }));
   }
 
+  async function switchMode(mode: TutorMode) {
+    if (mode === "voice") {
+      const unavailable = await checkVoice();
+      if (unavailable) {
+        setVoiceNotice(unavailable);
+        return;
+      }
+      setVoiceArmed(true);
+    }
+    setVoiceNotice(null);
+    await run("mode", () => postTutor(conversationId, "mode", { mode }));
+  }
+
+  // Speech recognition failed part-way (e.g. the microphone was blocked): carry on in text.
+  function fallbackToText(reason: VoiceUnavailable) {
+    setVoiceNotice(reason);
+    void run("mode", () => postTutor(conversationId, "mode", { mode: "text" }));
+  }
+
+  function submitSummary(text: string) {
+    void run("summary", () => postTutor(conversationId, "summary", { text })).then((next) => {
+      if (next?.wrapUp.tutorSummary) setAnnouncement(tutorContent.announcements.summaryReady);
+    });
+  }
+
+  function retrySummary() {
+    void run("summary", () => postTutor(conversationId, "summary"));
+  }
+
+  function setConsent(consented: boolean) {
+    void run("consent", () => postTutor(conversationId, "consent", { consented }));
+  }
+
+  function morePractice() {
+    void run("practice", () => postTutor(conversationId, "practice"));
+  }
+
+  // Exit from anywhere, with no confirmation. A reply in progress stops, and voice goes quiet
+  // as the session leaves voice mode.
   function exit() {
     queueRef.current = [];
-    void run("exit", () => postTutor(conversationId, "exit"));
+    if (chat.isStreaming) chat.stop();
+    const replyId = lastReplyIdRef.current;
+    void run("exit", () => postTutor(conversationId, "exit")).then((next) => {
+      if (next && !ACTIVE_STATUSES.includes(next.status)) setLiveExitReplyId(replyId);
+    });
   }
+
+  async function resume() {
+    const next = await run("resume", () => postTutor(conversationId, "resume"));
+    if (!next || !ACTIVE_STATUSES.includes(next.status)) return;
+    setLiveExitReplyId(undefined);
+    setVoiceArmed(next.mode === "voice");
+    setJustStarted(true);
+    setTab("chat");
+    queueEvent({ type: "session_resumed" });
+  }
+
+  // A freeform check may still be grading when the wrap-up shows its scores: check again.
+  const scoresPending = session?.status === "wrap_up" && session.wrapUp.scores?.pending;
+  useEffect(() => {
+    if (!scoresPending) return;
+    const timer = setInterval(() => {
+      fetchTutorSession(conversationId)
+        .then((loaded) => loaded && setSession(loaded))
+        .catch(() => {});
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [scoresPending, conversationId]);
+
+  // The tutor's summary is written after the learner's. If the page was reloaded part-way,
+  // ask again (the server shares a summary that's still being written).
+  const summaryPending =
+    session?.status === "wrap_up" && session.wrapUp.learnerSummary && !session.wrapUp.tutorSummary && !session.wrapUp.summaryFailed;
+  useEffect(() => {
+    if (!summaryPending || !session || busy === "summary") return;
+    if (summaryRequestedRef.current === session.id) return;
+    summaryRequestedRef.current = session.id;
+    retrySummary();
+    // retrySummary only reads refs and setters.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [summaryPending, session?.id, busy]);
 
   // Stream events from the clone's chat route (the offer) and Tutor's chat route.
   function onEvent(event: FeatureEvent, replyId: string) {
@@ -207,6 +408,12 @@ export function useTutorSession(chat: ChatContext) {
       setLiveOfferReplyId(replyId);
       void fetchTutorSession(conversationId).then(setSession).catch(() => {});
     } else if (event.type === "tutor_session" && event.session) {
+      if ((event.session as TutorSession).status === "declined") {
+        setLiveDeclineReplyId(replyId);
+        setSession(event.session as TutorSession);
+        return;
+      }
+      lastReplyIdRef.current = replyId;
       // Sent as each tutor reply starts. Chips hide while it streams, then answer its question.
       const next = event.session as TutorSession;
       if (next.status === "scoping") setScopingAsked(true);
@@ -218,6 +425,11 @@ export function useTutorSession(chat: ChatContext) {
   return {
     session,
     active,
+    focus,
+    // The learner clicked or moved into a surface: it takes focus (nothing else moves).
+    focusByLearner: (surface: TutorTab) => setFocus(surface),
+    holding: heldKey !== null && heldKey === workbookKey(session),
+    revealing,
     liveOfferReplyId,
     busy,
     failed,
@@ -237,6 +449,18 @@ export function useTutorSession(chat: ChatContext) {
     tryParallel,
     next,
     exit,
+    resume,
+    liveExitReplyId,
+    liveDeclineReplyId,
+    voiceNotice,
+    dismissVoiceNotice: () => setVoiceNotice(null),
+    voiceArmed,
+    switchMode,
+    fallbackToText,
+    submitSummary,
+    retrySummary,
+    setConsent,
+    morePractice,
     retryBuild,
     onEvent,
   };

@@ -1,12 +1,13 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import type { ChatFeature, ChatTurn } from "../features";
 import { titleFromMessage } from "../repo/conversations";
+import { matchSubject } from "./battery";
 import { OFFER_TOOL_NAME, detectionInstruction } from "./prompts";
 import { createSession, listSessions } from "./repo";
 import { tutorRouter } from "./routes";
 import { isActive } from "./session";
 import { topics } from "./topics";
-import type { Topic } from "./types";
+import type { Topic, TutorSession } from "./types";
 
 // "tutor", "tutoring", "tutored"... anywhere in the message.
 export function hasTutorKeyword(message: string): boolean {
@@ -16,7 +17,7 @@ export function hasTutorKeyword(message: string): boolean {
 const offerTool: Anthropic.Tool = {
   name: OFFER_TOOL_NAME,
   description:
-    "Offer to switch this conversation into Tutor mode. Call it after your full answer, when the user is trying to learn an academic subject or asks for tutoring.",
+    "Offer to switch this conversation into Tutor mode. Call it immediately, without writing an answer, when the user is trying to learn an academic subject.",
   strict: true,
   input_schema: {
     type: "object",
@@ -62,52 +63,64 @@ interface OfferInput {
   topicId?: unknown;
 }
 
+// The offer is shown in place of Claude's answer, after the user's message. If they decline,
+// the answer is written then (see /decline).
+async function createOffer(turn: ChatTurn, trigger: TutorSession["trigger"], input: OfferInput): Promise<TutorSession> {
+  const topic = topics.find((candidate) => candidate.id === input.topicId) ?? matchTopic(turn);
+  const subject =
+    typeof input.subject === "string" && input.subject.trim()
+      ? input.subject.trim()
+      : (topic?.title ?? titleFromMessage(turn.message));
+  const userMessage = turn.conversation.messages.filter((message) => message.role === "user").at(-1);
+  return createSession({
+    conversationId: turn.conversation.id,
+    userId: "",
+    subject,
+    topicId: topic?.id,
+    reason: typeof input.reason === "string" ? input.reason : "",
+    trigger,
+    offerMessageId: userMessage?.id,
+    mode: "text",
+    previousSettings: { responseStyle: "default", voice: false },
+    status: "offered",
+    scoping: {},
+    position: 0,
+    answers: [],
+    stepProgress: [],
+    shownAt: {},
+    generation: {},
+  });
+}
+
 export const tutorFeature: ChatFeature = {
   id: "tutor",
   router: tutorRouter,
 
-  async callOptions(turn) {
-    const allowed = await eligibility(turn);
-    if (allowed === "no") return undefined;
-    return {
-      system: detectionInstruction(topics, allowed === "keyword_only"),
-      tools: [offerTool],
-    };
+  // "tutor" in the message always offers, before any answer: no Claude call at all.
+  async handleTurn(turn, emit) {
+    if (!hasTutorKeyword(turn.message) || (await eligibility(turn)) === "no") return false;
+    // Keywords first; otherwise a quick call matches the subject to the library.
+    const input: OfferInput = matchTopic(turn)
+      ? {}
+      : await matchSubject(turn.message, topics).catch(() => ({}));
+    const session = await createOffer(turn, "keyword", input);
+    emit({ type: "tutor_offer", sessionId: session.id, messageId: session.offerMessageId });
+    return true;
   },
 
+  // Detection on other turns. Keyword turns never get here (handleTurn took them).
+  async callOptions(turn) {
+    if ((await eligibility(turn)) !== "detect") return undefined;
+    return { system: detectionInstruction(topics), tools: [offerTool] };
+  },
+
+  // When Claude offers, whatever it wrote before the call isn't shown or stored.
+  withholdReply: (reply) => reply.toolUses.length > 0,
+
   async onReplyDone(reply, turn, emit) {
-    const keyword = hasTutorKeyword(turn.message);
     const toolUse = reply.toolUses[0];
-    // "tutor" always offers, even if Claude didn't call the tool.
-    if (!toolUse && !keyword) return;
-    if ((await eligibility(turn)) === "no" || !reply.message) return;
-
-    const input = (toolUse?.input ?? {}) as OfferInput;
-    const topic =
-      topics.find((candidate) => candidate.id === input.topicId) ?? (toolUse ? undefined : matchTopic(turn));
-    const subject =
-      typeof input.subject === "string" && input.subject.trim()
-        ? input.subject.trim()
-        : (topic?.title ?? titleFromMessage(turn.message));
-
-    const session = await createSession({
-      conversationId: turn.conversation.id,
-      userId: "",
-      subject,
-      topicId: topic?.id,
-      reason: typeof input.reason === "string" ? input.reason : "",
-      trigger: keyword ? "keyword" : "detected",
-      offerMessageId: reply.message.id,
-      mode: "text",
-      previousSettings: { responseStyle: "default", voice: false },
-      status: "offered",
-      scoping: {},
-      position: 0,
-      answers: [],
-      stepProgress: [],
-      shownAt: {},
-      generation: {},
-    });
-    emit({ type: "tutor_offer", sessionId: session.id, messageId: reply.message.id });
+    if (!toolUse || (await eligibility(turn)) === "no") return;
+    const session = await createOffer(turn, "detected", toolUse.input as OfferInput);
+    emit({ type: "tutor_offer", sessionId: session.id, messageId: session.offerMessageId });
   },
 };

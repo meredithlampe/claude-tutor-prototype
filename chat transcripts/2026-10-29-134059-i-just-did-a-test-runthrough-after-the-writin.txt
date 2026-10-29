@@ -1,0 +1,1174 @@
+▗ ▗   ▖ ▖  Claude Code v2.1.311
+           Opus 5.5 · Claude Pro
+ ▘▘   ▝▝   ~/Git/claude-tutor-prototype
+
+
+❯ - I just did a test runthrough. After the 'writing your next three steps,     
+  baesd on your answers' prompt, I was given the first workbook question        
+  (correct). However, After answering the first workbook question, I then saw   
+  that 'writing your next three steps, based on your answers' prompt again. I   
+  should have been given the second question                                    
+  - We should provide more context for what the 'check' and 'workbook' portions 
+  are. The tutor should say that the check is meant to evaluate current         
+  understanding, the workbook will be to learn the concepts, and the final      
+  check is to evaluate progress                                                 
+
+  Searched for 3 patterns, listed 1 directory, ran 2 shell commands (ctrl+o to expand)
+
+⏺ The timing issue likely stems from steps 2-3 generating in the background
+  after step 1, so reaching step 2 early could trigger a duplicate message. I'll
+  verify this by checking your test session's timing data.
+
+  Searched for 1 pattern, ran 2 shell commands (ctrl+o to expand)
+
+⏺ I found the cause of both issues. Nothing is changed yet; I need one decision
+  from you before I hand this to the frontend-engineer agent.
+
+  1. The repeated "Writing your next three steps" message
+
+  Your answers weren't lost. The app writes step 1 first, then writes steps 2
+  and 3 in the background, which takes about 95 seconds. If you finish step 1
+  before they're ready, the workbook waits for them. The bug is that it shows
+  the same "Writing your next three steps…" message from the step 1 wait
+  (WorkbookStatus.tsx:45), so it looks like the app went back a step. In your
+  two most recent saved sessions, steps 2–3 took 93s and 97s to write.
+
+  Ways to fix it:
+  - A. Copy only. Show a different message for this wait, like "Getting step 2
+    ready…". The wait itself stays.
+  - B. Start steps 2–3 earlier. Write them at the same time as step 1, so
+    they're usually ready before you finish step 1. The catch: they won't see
+    step 1's text, so steps might repeat each other a little. The prompt already
+    tells them how the steps build on each other, which should limit that.
+  - C. Write all three before showing step 1. No wait mid-workbook, but the
+    first wait grows from about 65s to about 2.5 minutes.
+
+  I'd recommend A + B. Most people would never wait, and anyone who does gets an
+  accurate message.
+
+  2. Explaining the check, the workbook steps and the final check
+
+  This is a change to the tutor's instructions in server/tutor/chat.ts:
+  - When the opening check appears (line 135): the tutor says the check is to
+    see what they already understand.
+  - When step 1 appears (line 139): the tutor says the steps are where they
+    learn the concepts.
+  - When the final check appears (line 145): the tutor says it measures how much
+    they've learned since the opening check.
+
+  Each of these messages stays short, as it is now. I won't change the intro
+  dialog unless you want me to.
+
+  Should I go ahead with A + B and the tutor wording?
+
+✻ Baked for 39s · done Wednesday 4:48 PM
+
+❯ 1. Just do A, and let's add a progress bar in the header of tutor mode that   
+  shows check 1, workbook questions 1, 2 and 3, and final check. Each node in   
+  the progress bar should have a state for 'generating' and a state for         
+  'ready'. the node should then have another state for 'commpleted'             
+  2. do this as well                                                            
+
+⏺ frontend-engineer(Tutor progress bar and copy fixes)
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+⏺ I've handed all three changes to the frontend-engineer agent, and it's working
+  on them now:
+
+  1. Waiting message: a separate message like "Getting step 2 ready…" for the
+     wait before steps 2–3. Step 1's wait keeps the current message. I told it
+     not to change when the steps are written.
+  2. Progress bar: five nodes in the Tutor header: Opening check, Steps 1–3 and
+     Final check. Each node shows generating, ready or completed, and the
+     current node is marked.
+     - I also asked for a "not started" state, for nodes whose writing hasn't
+       begun yet.
+     - Bonus, wrap-up and More practice aren't nodes.
+     - I asked it to keep the existing text label (e.g. "Step 1 of 3") unless
+       the bar makes it redundant, and to tell us which it chose.
+  3. Tutor explanations: when each part appears, the tutor says what it's for:
+     the opening check sees what you already understand, the steps are where you
+     learn, and the final check measures how much you've learned since the
+     opening check.
+
+  It won't commit, and it will test on a port other than 5173. I'll pass on what
+  it reports when it finishes.
+
+✻ Worked for 21s · done Wednesday 4:54 PM
+
+⏺ Agent "Tutor progress bar and copy fixes" is waiting on its own background
+work · 4m 9s
+
+⏺ The agent has made its changes and is now running a test of the flow in a
+  browser. I'll report back once it finishes.
+
+✻ Cooked for 1s · done Wednesday 4:58 PM
+
+⏺ Agent "Tutor progress bar and copy fixes" is waiting on its own background
+work · 4m 11s
+
+⏺ The agent is still running its browser test. A test session has started and
+  it's waiting for the workbook to finish building.
+
+✻ Crunched for 4m 30s · done Wednesday 4:58 PM
+
+⏺ Agent "Tutor progress bar and copy fixes" is waiting on its own background
+work · 6m 12s
+
+⏺ The browser test is still running.
+
+✻ Brewed for 1s · done Wednesday 5:00 PM
+
+⏺ Agent "Tutor progress bar and copy fixes" is waiting on its own background
+work · 6m 18s
+
+⏺ The browser test has reached the opening check. Still waiting on the agent to
+  get through the steps.
+
+✻ Sautéed for 0s · done Wednesday 5:00 PM
+
+⏺ Agent "Tutor progress bar and copy fixes" is waiting on its own background
+work · 6m 23s
+
+⏺ The browser test is still running.
+
+✻ Worked for 0s · done Wednesday 5:00 PM
+
+⏺ Agent "Tutor progress bar and copy fixes" is waiting on its own background
+work · 6m 27s
+
+⏺ The browser test is still running.
+
+✻ Sautéed for 0s · done Wednesday 5:00 PM
+
+⏺ Agent "Tutor progress bar and copy fixes" is waiting on its own background
+work · 6m 32s
+
+⏺ So far the progress bar is showing the right states. After the opening check,
+  both Step 1 and Final check show as being written, which is what should happen
+  for this topic. The agent is waiting for step 1 to appear so it can test the
+  wait before step 2.
+
+✻ Worked for 6s · done Wednesday 5:00 PM
+
+⏺ Agent "Tutor progress bar and copy fixes" is waiting on its own background
+work · 7m 45s
+
+⏺ Step 1 has appeared in the test. The agent is now waiting to reach the step 2
+  wait.
+
+✻ Sautéed for 0s · done Wednesday 5:01 PM
+
+⏺ Agent "Tutor progress bar and copy fixes" is waiting on its own background
+work · 7m 46s
+
+⏺ The browser test is still running.
+
+✻ Cooked for 0s · done Wednesday 5:01 PM
+⏺ Agent "Tutor progress bar and copy fixes" is waiting on its own background
+work · 8m 0s
+
+⏺ The agent made another code change during the test and is waiting for the run
+  to reach steps 2–3 and the final check.
+
+✻ Cooked for 15s · done Wednesday 5:01 PM
+
+⏺ Agent "Tutor progress bar and copy fixes" is waiting on its own background
+work · 9m 35s
+
+⏺ In the test, step 2 appeared after the wait. The agent is now working through
+  the rest of the workbook.
+
+✻ Sautéed for 0s · done Wednesday 5:03 PM
+
+⏺ Agent "Tutor progress bar and copy fixes" is waiting on its own background
+work · 9m 36s
+
+⏺ The browser test is still running.
+
+✻ Cogitated for 1s · done Wednesday 5:03 PM
+
+⏺ Agent "Tutor progress bar and copy fixes" is waiting on its own background
+work · 9m 43s
+
+⏺ The browser test is still running.
+
+✻ Cooked for 0s · done Wednesday 5:03 PM
+
+⏺ Agent "Tutor progress bar and copy fixes" is waiting on its own background
+work · 9m 44s
+
+⏺ The browser test is still running.
+
+✻ Brewed for 2s · done Wednesday 5:03 PM
+
+⏺ Agent "Tutor progress bar and copy fixes" is waiting on its own background
+work · 9m 51s
+
+⏺ The browser test is still running.
+
+✻ Crunched for 0s · done Wednesday 5:03 PM
+
+⏺ Agent "Tutor progress bar and copy fixes" is waiting on its own background
+work · 9m 55s
+
+⏺ The browser test is still running.
+
+✻ Cogitated for 0s · done Wednesday 5:03 PM
+
+⏺ Agent "Tutor progress bar and copy fixes" is waiting on its own background
+work · 9m 59s
+
+⏺ The browser test is nearly finished; the agent is waiting for it to reach the
+  wrap-up.
+
+✻ Sautéed for 1s · done Wednesday 5:03 PM
+
+⏺ Agent "Tutor progress bar and copy fixes" is waiting on its own background
+work · 13m 26s
+
+⏺ The agent has started a second browser test, this time with a topic the tutor
+  writes from scratch. It hasn't reported its results yet.
+
+✻ Crunched for 1s · done Wednesday 5:07 PM
+
+※ recap: You asked for a step-wait message fix, a header progress bar, and tutor explanations; the agent has built them and is on a second browser test. When it finishes, I'll pass on its results so you can review. (disable recaps in /config)
+
+⏺ Agent "Tutor progress bar and copy fixes" is waiting on its own background
+work · 17m 9s
+
+⏺ All three changes are in. Typecheck, lint and build pass, and the agent ran
+  the full workbook in a headless browser. Your dev server on 5173 is untouched
+  and nothing is committed.
+
+  1. Waiting message: when steps 2–3 aren't ready yet, the workbook now says
+  "Getting step 2 ready…". The browser test hit a real wait of about 105 seconds
+  and showed the new message.
+  - Agent's call: during that wait, the header text used to say "Building your
+    workbook", which gave the same going-backwards impression. It now says "Step
+    2 of 3".
+
+  2. Progress bar: it's a second row in the header with the five nodes. Each
+  state (not started, being written, ready, completed) has its own icon and
+  style, so it doesn't rely on colour alone. The current node is marked. It fits
+  at 360px wide without scrolling sideways.
+
+  A few judgment calls by the agent:
+  - When a step counts as completed: as soon as you finish it, before you press
+    Next.
+  - Bonus, wrap-up and More practice: all five nodes show completed.
+  - Failed build: the node shows "not started", and the workbook still offers
+    the existing retry.
+  - New background check: the browser now checks with the server every 5
+    seconds, only while something is being written. Without it, steps 2–3 would
+    stay on "being written" after they were ready.
+  - Text label kept: "Step 1 of 3" etc. stays, because it covers question
+    counts, the bonus and wrap-up, which the bar doesn't.
+
+  3. Tutor explanations: in the test, the tutor said:
+  - Opening check: "it shows what you already understand"
+  - Step 1: "The workbook steps are where you'll learn the concepts"
+  - Final check: "This final check shows how much you've learned since the
+    opening check"
+
+  To keep the step 1 message short, it no longer says how the step connects to
+  the opening check. Steps 2 and 3 are unchanged.
+
+  Not tested yet:
+  - A real screen reader such as VoiceOver; the agent only checked what one
+    would be given.
+  - Tabbing through the page, though the bar has nothing you can focus.
+  - Voice mode.
+  - A topic the tutor writes from scratch, past step 1. The agent's test script
+    broke at that point. The rest of that flow runs the same code as the full
+    run, which passed.
+
+  Screenshots are in /private/tmp/claude-501/-Users-meredithlampe-Git-claude-tut
+  or-prototype/e7d081e3-4dfe-4bdc-8456-f619a37b5e85/scratchpad/pw/shots/.
+
+  Since this is a new UI element, should I run the design-reviewer agent on the
+  progress bar before your next test?
+
+✻ Brewed for 8s · done Wednesday 5:11 PM
+
+❯ yes please                                                                    
+
+⏺ design-reviewer(Review new tutor progress bar)
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+⏺ I've started the design-reviewer agent on the progress bar and the new waiting
+  message. It only reports findings and won't edit any code. I asked it to look
+  at the test screenshots, including narrow widths, and check:
+
+  - whether learners can tell "not started", "being written" and "ready" apart
+    at a glance
+  - whether showing "being written" to learners helps or confuses
+  - overlap between the bar and the text label
+  - crowding in the header on narrow screens
+  - accessibility
+
+  I'll pass on its findings when it's done.
+
+✻ Sautéed for 9s · done Wednesday 7:51 PM
+
+⏺ Agent "Review new tutor progress bar" finished · 59s
+
+⏺ The design-reviewer agent found nothing blocking, but six Major issues it
+  recommends fixing before participants see the bar. Its biggest recommendation
+  conflicts with what you asked for, so I need your call on that.
+
+  Your call: show fewer node states?
+  You asked for "generating" and "ready" states on each node. The reviewer
+  recommends only three: done, current and upcoming. The spinner would appear
+  only on the current node, and only while the learner is actually waiting for
+  it. Its reasons:
+  - While a learner is on Step 1, Steps 2–3 spin and pulse in the header for
+    about a minute. That pulls attention from the question, and it's noise in
+    your study.
+  - Learners can't act on "being written". It may make them wonder whether
+    something is broken.
+  - When Final check shows "ready" during Step 1, it can look like they can jump
+    to it.
+
+  I'd go with the reviewer. If you want the generating and ready states visible
+  for your own testing, I could show them only when the Debug menu is on.
+
+  Other Major issues (my recommended fix for each):
+  - The current node looks clickable. It has a bright ring around it. Mark it
+    with brand colour and the bold label instead.
+  - "Ready" and "not started" are hard to tell apart. "Not started" also looks
+    further along than "ready". Going to three states fixes this.
+  - The text label clashes with the bar. "Step 1 of 3" sits next to five nodes,
+    and "Step 1" appears three times on screen. I'd hide the text while the bar
+    shows, and keep it only for scoping, wrap-up and More practice.
+  - The header is too tall on mobile. It's about 180px at 360px wide, and the
+    long labels wrap. Below the small breakpoint, show only the current node's
+    label.
+
+  Minor issues (I'd fix all three):
+  - Upcoming bars have too little contrast in both light and dark mode.
+  - The screenshots of the step-2 wait were taken before the banner fix landed.
+    That screen needs re-checking.
+  - Nothing on the bar says the workbook is finished.
+
+  The reviewer said screen-reader support and the "Getting step 2 ready…"
+  message are fine.
+
+  Should the frontend-engineer agent apply these with the three-state bar, or
+  keep your four states?
+
+✻ Baked for 1m 15s · done Wednesday 7:52 PM
+
+※ recap: You asked for the Tutor fixes, the new progress bar and the tutor explanations; they're built and design-reviewed. Next you need to decide whether the bar keeps your generating/ready states or goes to the reviewer's simpler three states. (disable recaps in /config)
+❯ no that's ok. I've already taken my screen recordings for my presentation so  
+  we shouldn't change the design. let's write a code review agent to review our 
+  code and architecture. they should be aware that this is a prototype -- it    
+  should demonstrate best practices but we don't need to worry about it being   
+  too robust                                                                    
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Write(.claude/agents/code-reviewer.md)
+  ⎿  Wrote 53 lines to .claude/agents/code-reviewer.md
+      1 ---
+      2 name: code-reviewer
+      3 description: Senior engineer who reviews the prototype's code and
+         architecture for correctness, clarity, and adherence to the proj
+        ect's conventions. Use after a feature or fix lands, or before co
+        mmitting a larger change. Calibrated for a prototype - flags what
+         a reader would learn bad habits from, not missing production har
+        dening. Read-only. Reports findings, doesn't edit code.
+      4 tools: Read, Grep, Glob, Bash
+      5 ---
+     … +48 lines (ctrl+o to expand)
+
+⏺ Update(CLAUDE.md)
+  ⎿  Added 1 line
+      12  
+      13  - `frontend-engineer`: all building in `client/` and `server/`
+      14  - `design-reviewer`: review UI after changes or before user tes
+          ting
+      15 +- `code-reviewer`: review code and architecture after a feature
+         + lands or before a larger commit                               
+      16  - `user-researcher`: learning-feature flows and tutoring behavi
+          or
+      17  - `data-scientist`: measuring whether learning happened
+      18  
+
+⏺ I've added a code-reviewer agent in .claude/agents/code-reviewer.md, set up
+  the same way as design-reviewer. It's read-only: it reports findings with file
+  and line and doesn't edit code. I also added it to the agents list in
+  CLAUDE.md.
+
+  The prototype guidance in it:
+  - It reviews: bugs a participant could hit, code in the wrong place (such as
+    Tutor code leaking into the clone, or data access that skips server/repo/),
+    client and server disagreeing on data shapes, hard to follow code, project
+    conventions, and type safety, accessibility and exposed API keys.
+  - It ignores: scaling, retries, rate limiting, exhaustive input validation,
+    monitoring, swapping out the JSON files for a database, and missing tests
+    unless the logic is genuinely risky.
+  - Rule of thumb when it's unsure: would a participant hit this, or would a
+    developer reading the code as an example pick up a bad habit? If neither, it
+    leaves the issue out.
+
+  Findings come back grouped as Blocker, Major and Minor, and it confirms each
+  one against the code before reporting it.
+
+  New agents may not show up until you restart Claude Code. Should I run it on
+  today's uncommitted changes once it's available?
+
+✻ Brewed for 24s · done Wednesday 10:21 PM
+
+※ recap: We fixed the misleading step-2 wait message, added the header progress bar and the tutor's explanations, and created a code-reviewer agent; nothing is committed. Next: restart Claude Code and have it review today's uncommitted changes. (disable recaps in /config)
+
+❯ yes                                                                           
+  ⎿  1 agent type available
+  ⎿  2 skills available
+
+⏺ code-reviewer(Review uncommitted tutor changes)
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+⏺ The code-reviewer agent is now reviewing today's uncommitted changes. I told
+  it the progress bar design is final, so it won't comment on visuals. Its focus
+  is:
+
+  - The new 5-second background check: that it starts and stops cleanly and
+    can't clash with a learner's action.
+  - Bar states: whether they match how the server actually writes each part,
+    including failed builds and topics the tutor writes from scratch.
+  - Client and server agreement: whether both sides expect the same data.
+  - Project conventions: whether the changes follow them.
+
+  I'll pass on its findings when it's done.
+
+✻ Worked for 8s · done 9:55 AM
+
+⏺ Agent "Review uncommitted tutor changes" finished · 2m 16s
+
+⏺ The code review found no blockers and no major issues, just six minor ones.
+  Typecheck and lint pass, and the reviewer confirmed the 5-second background
+  check and the bar states work correctly.
+
+  1. Screen readers still hear the old message. When a learner reaches step 2
+     before it's ready, screen readers still announce "Building your workbook",
+     even though the screen now says "Getting step 2 ready…". This is the one
+     that affects users.
+  2. The same check is written twice. "Waiting on a later step" appears in
+     Workbook.tsx and progress.ts. Fixing #1 would make it three copies, so it
+     should be one shared helper.
+  3. A fragile link inside the server. The code that reports "steps 2–3 being
+     written" depends on an internal name written out in two places in
+     session.ts. If one copy is renamed, the bar silently stops showing "being
+     written" and the background check never starts.
+  4. Unused code for paused sessions. It's half-finished, and the bar is never
+     shown while paused, so it has no effect. It should be removed or noted in a
+     comment.
+  5. A missing comment on the background check. It's safe now, but a comment
+     should say why, so nobody copies it somewhere it wouldn't be.
+  6. Progress bar types defined in the wrong place. They're defined inside
+     session.ts instead of server/tutor/types.ts with the other Tutor types.
+
+  None of these change how anything looks, so your recordings still match. I'd
+  fix all six. They're small, and #1 matters for screen-reader users. Should I
+  have the frontend-engineer agent apply them?
+
+✻ Baked for 2m 28s · done 9:58 AM
+
+※ recap: We're fixing issues from your Tutor test run; the waiting message, progress bar and tutor explanations are done, and the code review found six minor issues with no visual impact. Should the frontend-engineer agent fix all six?
+
+❯ I'd rather not change the code at this point as I'm going to submit soon.     
+  Since they're minor we can ignore. Can you confirm if the starting check      
+  always has two questions, three questions, or can have either two or three    
+  questions?                                                                    
+
+  Searched for 2 patterns, ran 1 shell command (ctrl+o to expand)
+
+⏺ The opening check always has three questions, never two:
+
+  1. A self-report question about how well the learner already understands the
+     topic. There's no right answer.
+  2. Two scored check questions.
+
+  This holds for both kinds of topic:
+  - Topics from the library: the questions come from the topic file
+    (server/tutor/battery.ts:58). Form 1 uses the A1 and A2 items, and Form 2
+    uses F1 and F2.
+  - Topics the tutor writes from scratch: if Claude doesn't return exactly two
+    check questions, the build fails with an error rather than producing a
+    shorter check (battery.ts:561).
+
+  None of the three can be skipped; only the bonus question after the final
+  check is optional. That's why the header reads "Opening check 1 of 3" to "3 of
+  3".
+
+  If your presentation describes it as "two questions", that's consistent with
+  the tutor's own wording, which counts only the two scored ones (chat.ts:135).
+
+✻ Brewed for 10s · done 10:03 AM
+
+※ recap: You're getting the tutor prototype ready to submit, and the step-2 waiting message, progress bar and tutor explanations are built but not committed. Next, decide whether to commit these changes before you submit; the six minor review findings stay unfixed.
+
+❯ Summarize tech stack in bullets                                               
+
+  Listed 1 directory (ctrl+o to expand)
+
+⏺ - Front end:
+    - React 19 and TypeScript, built with Vite
+    - React Router for pages
+    - Tailwind CSS v4, with shadcn/ui components built on Radix
+    - lucide-react for icons
+    - react-markdown and remark-gfm to format Claude's replies
+  - Back end:
+    - Node with Express 5 and TypeScript, run with tsx
+    - The Anthropic SDK to call the Claude API for chat and to write the tutor's
+      workbook questions
+  - Data: JSON files in server/data/, read and written only through a small
+    repository layer, standing in for a real database.
+  - Voice: the browser's built-in speech recognition for listening, and
+    ElevenLabs for the tutor's spoken voice, called from the server.
+  - Workbook visuals: SVG images built on the server.
+  - Hosting: a single Render web service that builds itself from main. A
+    persistent disk holds the data, and a site password protects access.
+
+✻ Churned for 6s · done 10:25 AM
+
+※ recap: You're getting the Tutor prototype ready to submit, and today's progress bar, waiting message, tutor explanations and new code-reviewer agent are all done but uncommitted. Next, decide whether you want me to commit them before you submit.
+
+❯ Diff between what we have locally and what's been pushed ?                    
+
+  Listed 1 directory, ran 1 shell command (ctrl+o to expand)
+
+⏺ Here's what isn't on GitHub yet: one commit that's committed but not pushed,
+  plus everything uncommitted.
+
+  Committed, not pushed
+  - 732d0a1 Update CLAUDE.md status, open items and gotchas
+
+  Uncommitted: this session's work
+  - Waiting message, progress bar and tutor explanations:
+    - client/src/features/tutor/TutorProgressBar.tsx (new)
+    - TutorBanner.tsx, Workbook.tsx, WorkbookStatus.tsx, content.ts,
+      progress.ts, types.ts, useTutorSession.ts in client/src/features/tutor/
+    - server/tutor/chat.ts, server/tutor/session.ts
+  - New code-reviewer agent: .claude/agents/code-reviewer.md (new) and its line
+    in CLAUDE.md.
+
+  Uncommitted: other changes
+  - Test data: server/data/conversations.json, tutor-sessions.json and
+    tutor-users.json changed from local test runs. Leave them out of the commit
+    unless you want that data pushed. Render keeps its data on its own disk, so
+    this local data isn't what the deployed site uses.
+  - Session transcripts: the three .txt files show as deleted from the repo root
+    and untracked in chat transcripts/, so they look like they've moved. That
+    folder also has a new file, anthropic-education-research-chat.md. Committing
+    the folder records them as moved.
+  - .claude/skills/: untracked and stays uncommitted, per CLAUDE.md.
+
+  Pushing to main triggers a Render deploy. Should I commit the feature work,
+  the new agent and the moved transcripts, leaving out the test data and
+  .claude/skills/, then push?
+
+✻ Baked for 13s · done 10:30 AM
+
+❯ yes                                                                           
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+⏺ Everything is committed and pushed, and main now matches GitHub. GitHub
+  received three commits:
+
+  - 732d0a1 Update CLAUDE.md status, open items and gotchas (committed earlier,
+    not pushed until now)
+  - 9122239 Tutor: progress bar, step-2 waiting copy, explain each workbook part
+  - 07c7bd8 Add code-reviewer agent; move session transcripts to chat
+    transcripts/
+
+  Git records the transcripts as moved, and anthropic-education-research-chat.md
+  went in with them. The local test data in server/data/ and .claude/skills/
+  are still uncommitted, as planned.
+
+  The push should start a Render deploy. Check it has finished before you run a
+  test or submit.
+
+✻ Brewed for 17s · done 10:30 AM
+
+※ recap: You're getting the Tutor prototype ready to submit: the progress bar, step-2 waiting message and tutor explanations are now pushed to GitHub. Next, check that Render has finished deploying before you test or submit.
+
+❯ The hiring team may look at this prototype at any point within the next few   
+  weeks. Can we add some lightweight tests or CI to ensure that the APIs are    
+  all still working and the prototype itself remains alive and responsive?      
+  Searched for 1 pattern, ran 1 shell command (ctrl+o to expand)
+
+⏺ Two GitHub Actions workflows would cover this without adding any dependencies.
+
+  1. A check on every push. It runs typecheck, lint and build, then starts the
+  server on a throwaway data folder. A small set of tests then hits the API
+  using Node's built-in test runner:
+  - the health check
+  - the site password blocking and allowing requests
+  - loading the page
+  - the chat and Tutor endpoints that don't call Claude
+
+  It needs no API keys and costs nothing. It catches code that breaks before
+  Render deploys it.
+
+  2. A scheduled check of the live site, every 6 hours. It checks that the site
+  loads, that /api/health responds quickly, and that the password lets it
+  through to a read-only endpoint. When a run fails, GitHub emails you. By
+  default that goes to whoever last edited the workflow, which will be you once
+  you push it.
+
+  It sticks to read-only requests. The site's data is shared by everyone who
+  uses it, so creating chats or Tutor sessions would clutter what the hiring
+  team sees.
+
+  The tradeoff: also check Claude and ElevenLabs?
+  /api/health only shows that the server is up, not that the API keys still
+  work. The scheduled check could also send one tiny Claude request and check
+  the ElevenLabs key. That means adding both keys to GitHub's secret settings,
+  and costs fractions of a cent per run. GitHub keeps secrets hidden even though
+  the repo is public. I'd add it: an expired key or used-up credits is the most
+  likely way this breaks without anyone noticing.
+
+  A note on agents: the frontend-engineer agent covers client/ and server/, so
+  I'd have it write the tests. No project agent covers .github/ workflows. I can
+  write those two small files myself, or you can add an agent for it.
+
+  To go ahead, I need:
+  1. The live Render URL.
+  2. Whether to include the Claude and ElevenLabs key checks. If yes, you'll add
+     SITE_PASSWORD, ANTHROPIC_API_KEY and ELEVENLABS_API_KEY as GitHub
+     repository secrets. If no, only SITE_PASSWORD.
+  3. Whether I should write the workflow files myself.
+
+✻ Baked for 24s · done 10:41 AM
+
+❯ 1. https://claude-tutor-prototype.onrender.com/                               
+  2. yes                                                                        
+  3. yes                                                                        
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+⏺ I'll have the frontend-engineer agent write the API tests while I write the
+  two workflow files.
+
+⏺ frontend-engineer(Add server API smoke tests)
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+  Listed 1 directory (ctrl+o to expand)
+
+⏺ Write(.github/workflows/ci.yml)
+  ⎿  Wrote 26 lines to .github/workflows/ci.yml
+       1 # Typecheck, lint, build and API smoke tests on every push and p
+         ull request.
+       2 # Runs without API keys: the tests never call Claude or ElevenLa
+         bs.
+       3 name: CI
+       4 
+       5 on:
+       6   push:
+       7     branches: [main]
+       8   pull_request:
+     … +18 lines (ctrl+o to expand)
+
+⏺ Write(.github/workflows/live-check.yml)
+  ⎿  Wrote 79 lines to .github/workflows/live-check.yml
+       1 # Checks the deployed prototype every 6 hours, and on demand fro
+         m the Actions tab.
+       2 # Read-only against the site: all participants share one user, s
+         o it never creates chats
+       3 # or Tutor sessions. A failed run emails whoever last edited thi
+         s workflow.
+       4 #
+       5 # Repository secrets: SITE_PASSWORD, ANTHROPIC_API_KEY, ELEVENLA
+         BS_API_KEY (the same values
+       6 # as on Render).
+     … +73 lines (ctrl+o to expand)
+
+⏺ Both workflow files are written. Now I'm checking the live site's public
+  endpoints, which need no password, to confirm the checks match how it really
+  responds.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ The live site responds as the checks expect: the health check answers in
+  0.27s, and the API returns 401 without the password. I'm waiting for the
+  frontend-engineer agent to finish the API tests before running everything
+  together.
+
+✻ Brewed for 56s · done 10:43 AM
+
+⏺ Agent "Add server API smoke tests" finished · 1m 45s
+
+⏺ The tests are written. Now I'm running the same steps the CI workflow runs, to
+  confirm they all pass together.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ The API tests and both GitHub Actions workflows are written. Locally,
+  typecheck, lint, build and the 11 API tests all pass. Nothing is committed
+  yet. Neither workflow has run on GitHub, so their first runs will be the real
+  test.
+
+  Check on every push (.github/workflows/ci.yml)
+  - It runs typecheck, lint, build, then npm test on Node 24. It needs no
+    secrets.
+  - API tests (server/test/api.test.ts, in about 1 second):
+    - The tests start the real server on a throwaway data folder, so
+      server/data/ is never touched.
+    - They cover the health check, the password (none, wrong and right), the
+      user and chat endpoints, the Tutor endpoints that don't call Claude,
+      reset, and loading the page.
+    - None of them call Claude or ElevenLabs.
+  - The frontend-engineer agent also added npm test scripts to package.json and
+    server/package.json.
+
+  Live check every 6 hours (.github/workflows/live-check.yml)
+  - The health check must respond within 5 seconds.
+  - The API must return 401 without the password.
+  - With the password, the page, /api/user and /api/conversations must load.
+  - API keys: it sends one 1-token Claude request using the app's model, and two
+    characters of ElevenLabs speech.
+  - When it runs: it only makes read-only requests to the site. You can also run
+    it any time from the Actions tab.
+  - Already checked: I ran the two public checks against the live site just now.
+    The health check answered in 0.27s, and the API returned 401 without the
+    password. The checks that need secrets haven't run yet.
+
+  To turn it on:
+  1. Add the three secrets with the same values as on Render. Each command asks
+     you to paste the value:
+  ! gh secret set SITE_PASSWORD
+  ! gh secret set ANTHROPIC_API_KEY
+  ! gh secret set ELEVENLABS_API_KEY
+  2. Commit and push. The live check only runs once the workflow is on main.
+  3. Trigger the first live check with gh workflow run "Live check" and watch
+     that it passes.
+
+  GitHub turns off scheduled workflows after 60 days with no activity in the
+  repo. That's fine for the next few weeks, but the live check will stop on its
+  own after that.
+
+  A new transcript has appeared that I didn't create: chat 
+  transcripts/2026-10-22-madeline-hunter-teaching-techniques.md. I'll leave it
+  out unless you want it included.
+
+  Should I commit and push the tests and workflows once you've added the
+  secrets?
+
+✻ Worked for 2m 32s · done 10:45 AM
+
+! gh secret set SITE_PASSWORD                                                   
+  ⎿  (Bash completed with no output)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ SITE_PASSWORD now exists on GitHub, updated at 14:46 UTC. But you were never
+  asked to paste a value. Commands run with ! here can't prompt you, so the
+  secret may have been saved empty. I can't see secret values, so I can't check
+  this from here.
+
+  To be safe, run the three commands in a normal terminal window outside Claude
+  Code, so each one asks for its value:
+
+  gh secret set SITE_PASSWORD
+  gh secret set ANTHROPIC_API_KEY
+  gh secret set ELEVENLABS_API_KEY
+
+  You can also paste them in GitHub under the repo's Settings > Secrets and
+  variables > Actions. Avoid passing the values with --body, because that saves
+  them in your shell history.
+
+  The first live check will show if anything is wrong. An empty site password
+  fails the "Page and API load with the password" step.
+
+✻ Sautéed for 10s · done 10:46 AM
+
+❯ all thre are set                                                              
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+⏺ CI passed on GitHub (31s). The live check ran once: the site checks passed,
+  but the Claude key check failed. Commit 817b31b is pushed.
+
+  What passed
+  - CI: typecheck, lint, build and the 11 API tests.
+  - Site checks:
+    - the health check responded in time
+    - the API returned 401 without the password
+    - the page and API loaded with the password, so the SITE_PASSWORD secret is
+      correct
+
+  What failed
+  - Claude API key: Anthropic returned 401 invalid x-api-key. The
+    ANTHROPIC_API_KEY saved in GitHub isn't accepted, probably because of a
+    paste error such as an extra space or a cut-off key. It could also be a
+    different key from the one on Render.
+  - ElevenLabs key: this check didn't run at all, because a failed step stops
+    the rest of that job.
+
+  Next steps
+  1. Copy the key exactly from Render's environment settings, then set it again
+     in a normal terminal with gh secret set ANTHROPIC_API_KEY.
+  2. Re-run the check with gh workflow run "Live check", or I can trigger it.
+
+  If it still fails with the key copied from Render, the live site's key is
+  probably invalid too. In that case the tutor would be broken for anyone using
+  the site right now, so it's worth sending one chat message on the live site to
+  check.
+
+  I'd also make the ElevenLabs check run even when the Claude check fails, so
+  each run reports on both keys. That's a one-line change to the workflow.
+  Should I make it and push?
+
+✻ Worked for 1m 3s · done 10:48 AM
+
+※ recap: We're adding automated checks so the prototype stays working while the hiring team looks at it. CI and the site checks pass, but GitHub rejects the saved Claude key, so re-set ANTHROPIC_API_KEY with the exact value from Render, then re-run the live check.
+
+❯ added a new anthropic API key                                                 
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ The live check now passes on every step. The new Claude key works, and the
+  ElevenLabs key check ran and passed this time. The check will now run every 6
+  hours, and GitHub will email you if it fails.
+
+  The new key is only in GitHub. If you made it because the old one had stopped
+  working, Render probably still has the old one, and the live tutor would fail.
+  Put the new key in Render's ANTHROPIC_API_KEY setting too, then send one test
+  message on the live site to confirm.
+
+✻ Brewed for 22s · done 11:31 AM
+
+※ recap: You're getting the tutor prototype ready for the hiring team, and the tests plus a 6-hourly live check are now running and passing. Next, put your new Anthropic key into Render too, then send one test chat on the live site.
+
+❯ the latency in developing each question is becoming a bit of a problem for    
+  making the experience feel interactive. the questions take long enough to     
+  load that the user might get distracted. suggest ways we might reduce latency 
+  while generating checks and workbook questions                                
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Most of the wait is Claude writing SVG diagrams. Each step is a single Claude
+  call that writes everything at once:
+  - the step's instruction and its visual
+  - the step's question, often with its own visual
+  - a parallel question with its own visual, which only appears if the learner
+    gets the first question wrong
+
+  So step 1 can mean three SVGs written one after another. Steps 2–3 can mean
+  six, plus two final-check visuals for topics Claude writes from scratch. That
+  matches the times in your recent sessions: about 65–72s for step 1, and about
+  95s for steps 2–3.
+
+  These are ranked by impact for the effort.
+
+  1. Write the text first, then draw visuals in parallel. (biggest win)
+  - How: one call writes only the text of steps and questions. Each visual is
+    then its own small call, all running at the same time. The redraw path in
+    checkedVisual (server/tutor/battery.ts:344) already draws one visual from
+    text, so it can be reused.
+  - Result: the wait becomes "text plus one visual" instead of "text plus every
+    visual in a row". Step 1 could drop from about 70s to about 25–35s.
+  - Option: show the text as soon as it's ready, with a placeholder where the
+    visual will appear.
+
+  2. Write parallel questions only when they're needed.
+  They're only shown after a wrong answer, so most are never used. Write them in
+  the background once the step is showing, or on demand at "Try a similar
+  question". This roughly halves what each step call writes.
+
+  3. Don't make step 1 wait for grading.
+  - Now: step 1 waits for every opening-check answer to be graded first
+    (session.ts:211). Grading the written answer is itself a Claude call.
+  - Fix: start step 1 as soon as the last answer is submitted, and give Claude
+    the raw answers to judge itself in the same call.
+  - Saves: the grading time, probably 10–20s. Worth measuring.
+
+  4. Use a faster model for the mechanical parts.
+  Everything runs on Opus 5.5 with thinking on. Drawing visuals, writing missing
+  scenario sentences and redraws could use Sonnet 5.5 or Haiku 5.5 with
+  thinking off. Keep Opus for writing the steps themselves. The tradeoff is some
+  risk to SVG quality, so check them visually before switching.
+
+  5. Write steps 2 and 3 as separate calls running at the same time.
+  Both start when step 1 appears. Step 2 is ready sooner because it no longer
+  waits for step 3 to be written. The catch is that step 3 can't see step 2, so
+  it needs a short outline of the steps decided up front to avoid repeating
+  ideas.
+
+  6. Pre-write content for the library topics.
+  - How: write steps ahead of time for each likely misconception, then pick the
+    right set at runtime. The topics are fixed and the opening check already
+    comes from topic files.
+  - Pros: almost no wait for the hiring team's demo.
+  - Cons: less tailored to each learner, and more content to check by hand.
+
+  7. Make the wait feel shorter.
+  Use the gap for something useful, like the tutor asking a short reflection
+  question in chat, rather than a spinner. This doesn't cut the time, but
+  distraction is the actual problem, and it pairs with any of the above.
+
+  My recommendation: 1 + 2 + 3. Together they cut what each call writes and when
+  it starts, without changing the learning design, and I'd expect the step 1
+  wait to drop below 30s.
+
+  Before building, I'd add a timing breakdown to the server logs (grading wait,
+  Claude's thinking time, and how much each call writes) to confirm where the
+  time goes. That way we'd know the gains are real rather than estimated.
+
+  This means code changes after you've said you're submitting soon. Do you want
+  to go ahead now, or save this for after the submission?
+✻ Brewed for 27s · done 12:13 PM
+
+❯ I like 1 + 2 + 3 as well, let's do those first                                
+
+⏺ frontend-engineer(Cut tutor generation latency)
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+⏺ The frontend-engineer agent is now working on options 1–3. It will first add
+  timing logs, so the before and after numbers come from real measurements:
+
+  1. Text first, visuals in parallel: one call writes the text and a short
+     description of each visual, then every visual is drawn at the same time. It
+     reuses the existing code that redraws a single visual, and keeps the
+     current checks.
+  2. Parallel questions on demand: they're no longer written in the step call.
+     One starts writing in the background once its step is showing. If a learner
+     asks for it before it's ready, they get a short waiting message.
+  3. No waiting on grading: step 1 starts as soon as the last opening-check
+     answer is submitted, and Claude judges the raw answers itself. Grading
+     still runs in the background for the wrap-up scores.
+
+  I told it to keep the screen as it is. Each item still appears only once its
+  visuals are ready, with no placeholders, so your recordings still match. If
+  the gains look too small, showing text before its visual is the next step.
+
+  It will test real generations for a library topic and one Claude writes from
+  scratch, check the visuals by eye, and report timings. Nothing will be
+  committed. I'll pass on its results when it's done.
+
+✻ Churned for 20s · done 12:16 PM
+
+⏺ Agent "Cut tutor generation latency" finished · 23m 25s
+
+⏺ Options 1–3 are in. Step 1 is now ready in about 24–32 seconds after the
+  opening check, down from 48–65. Typecheck, lint and the tests pass, including
+  4 new ones. Nothing is committed, and your dev server and local data weren't
+  touched.
+
+  These timings come from two full test sessions each, before and after the
+  change:
+
+  ┌───────────────────────────────┬──────────────────────────┬──────────────┐
+  │                               │          Before          │    After     │
+  ├───────────────────────────────┼──────────────────────────┼──────────────┤
+  │ Step 1, base rates            │ 65s                      │ 24s          │
+  ├───────────────────────────────┼──────────────────────────┼──────────────┤
+  │ Step 1, topic Claude writes   │ 48s                      │ 32s          │
+  │ from scratch                  │                          │              │
+  ├───────────────────────────────┼──────────────────────────┼──────────────┤
+  │ Steps 2–3 ready, base rates   │ 103s (learner waited 82s │ 47s (waited  │
+  │                               │  at step 2)              │ 27s)         │
+  ├───────────────────────────────┼──────────────────────────┼──────────────┤
+  │ Steps 2–3 ready, from-scratch │ 146s (waited 126s)       │ 68s (waited  │
+  │  topic                        │                          │ 43s)         │
+  ├───────────────────────────────┼──────────────────────────┼──────────────┤
+  │ Opening check, from-scratch   │ 45s                      │ 30s          │
+  │ topic                         │                          │              │
+  └───────────────────────────────┴──────────────────────────┴──────────────┘
+
+  The tradeoff: "Try a similar question" can now take a moment.
+  - Before: the similar question appeared instantly, because it was written with
+    the step.
+  - Now: it starts writing as soon as its step appears, and is ready 23–43
+    seconds later.
+  - In the test: learners waited 4–10 seconds on multiple choice, and about 20
+    seconds on step 3's written question.
+  - Real learners: they usually take longer before getting a question wrong, so
+    the wait should be shorter.
+  - On screen: they see a new "Getting a similar question ready…" message.
+    That's the one visible change compared with your recordings.
+
+  A problem the agent found and fixed
+  - The problem: when visuals are drawn separately and quickly, Claude sometimes
+    wrote an SVG that broke partway through. It was then redrawn, or left out.
+  - The fix: two new drawing rules.
+  - Result: after the fix, every visual in the test drawings and the second full
+    run passed.
+  - Visual quality: the agent checked every visual by eye against its text.
+    Quality is similar to before, and the numbers match.
+
+  Other judgment calls
+  - Wasted similar questions: one is written for every step even if the learner
+    never gets it wrong. It costs the same as before.
+  - If writing one fails: the learner gets the existing "Try again" message.
+  - Small server fix: this stops the waiting message getting stuck.
+
+  Not tested live
+  - the retry path when a similar question fails to write
+  - More practice, which uses the same code as the steps
+  - tabbing through the new waiting message with a keyboard
+
+  Since this changes how the workbook is built, I'd run the code-reviewer agent
+  before committing. Should I run it, or go straight to commit and push? Pushing
+  redeploys the live site.
+
+✻ Cooked for 23m 50s · done 12:40 PM
+
+※ recap: We're cutting the wait for Tutor workbook questions, and step 1 now loads in about 24–32 seconds instead of 48–65. Next, you choose whether I run the code-reviewer first or commit and push, which redeploys the live site.
+
+❯ yes run it                                                                    
+
+⏺ code-reviewer(Review latency changes)
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+⏺ The code-reviewer agent is now reviewing the speed changes. I asked it to
+  focus on the riskiest part, the similar questions now written in the
+  background:
+
+  - Timing problems: what happens if a learner clicks twice, moves on before the
+    question is ready, or the server restarts partway through.
+  - Failures: what happens when one of several visuals running at the same time
+    fails.
+  - Leftover code: anything that still expects every step to have a similar
+    question.
+  - Progress bar and background check: whether they stay in step with the new
+    waiting state.
+
+  It will also run typecheck, lint and the tests. I'll pass on its findings when
+  it's done.
+
+✻ Brewed for 10s · done 12:53 PM
+
+⏺ Agent "Review latency changes" finished · 3m 33s
+
+⏺ The code review found no blockers, but two Major bugs. Both appear only after
+  the background build of steps 2–3 has failed, and both are one-line fixes.
+  Typecheck, lint and all 15 tests pass.
+
+  Major
+  1. A false "Couldn't build the workbook" message.
+     - When: steps 2–3 fail to build in the background, then the learner clicks
+       "Try a similar question".
+     - What happens: the old error shows instead of the waiting message. The
+       question gets written anyway, but the learner only sees it after clicking
+       Retry.
+     - Cause: this was introduced by the speed changes.
+     - Fix: clear the old error when the learner asks for a similar question.
+  2. Next does nothing on step 1.
+     - When: the learner clicks Next after that same background failure.
+     - Cause: the bug is older, but sits on the line this change edited
+       (routes.ts:254).
+     - Fix: the check should only stop on an error from the request being
+       handled.
+
+  Minor
+  - Paused during More practice: if a similar question finishes while the
+    session is paused from More practice, the learner may need to click "Try a
+    similar question" again after resuming.
+  - Empty drawing instructions: step visuals with no plan send an empty title
+    and description to Claude.
+  - Unused grading list: a list of grades in progress is now only used for a log
+    line, and its comment is wrong.
+  - Generic failure message: a failed similar question shows "Couldn't build the
+    workbook" rather than a message about the similar question.
+  - Keyboard focus: after "Try a similar question", focus drops to the page body
+    for up to about 30 seconds. This is a new case of the known open issue,
+    which I'd note in CLAUDE.md.
+
+  The reviewer confirmed the riskiest parts work: double clicks, moving past a
+  step early, a server restart partway through, and one visual failing among
+  several.
+
+  I'd fix both Majors and the first two Minors, which are all small and change
+  nothing on screen. The rest can be noted as open items. Should I have the
+  frontend-engineer agent apply those, then commit and push?
+
+✻ Cogitated for 3m 48s · done 12:57 PM
+
+※ recap: Workbook questions were taking too long to load, so we cut step 1's wait from about 65 seconds to 25, and a code review then found two small bugs. Next, decide whether the frontend-engineer agent should fix them, then commit and push.
+
+❯ yes                                                                           
+
+⏺ frontend-engineer(Fix review findings on latency)
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+⏺ While the frontend-engineer agent applies the fixes, I'll add the remaining
+  items to the open list in CLAUDE.md.
+
+⏺ Update(CLAUDE.md)
+  ⎿  Added 3 lines, removed 1 line
+      29  - Next: Tutor step 9 (event log per `TUTOR-MEASUREMENT.md`, del
+          ayed check, Form C items), then step 10 (user-researcher and de
+          sign-reviewer reviews).
+      30  - Open:
+      31    - Practice visuals can give away the answer (e.g. "40 real + 
+          60 false" above "what share has it?"). The proposed fix: visual
+          s show the setup and leave the last step to the learner. Not ye
+          t approved.
+      32 -  - Keyboard focus drops to the page body while the workbook bu
+         -ilds the next item.                                            
+      32 +  - Keyboard focus drops to the page body while the workbook bu
+         +ilds the next item. This now includes "Try a similar question",
+         + which waits up to ~30s if the similar question isn't written y
+         +et.                                                            
+      33 +  - A failed similar question shows the generic "Couldn't build
+         + the workbook." copy (client and `describeWorkbook`).          
+      34 +  - `pendingGrades` in `server/tutor/session.ts` is only used f
+         +or a log line now that step 1 doesn't wait on grading; remove i
+         +t or fix its comment.                                          
+      35    - The topic citations in `server/tutor/topics/` need checking
+           against the sources.
+      36    - Voice: still to test with a real mic in Safari and Firefox,
+           along with real-mic timing for the countdown.
+      37  - Gotchas:
+
+⏺ I've added the three remaining items to the open list in CLAUDE.md. The
+  frontend-engineer agent is still applying the four fixes. Once it's done I'll
+  check that the tests pass, then commit and push. Pushing will redeploy the
+  live site.
+
+✻ Churned for 10s · done 1:01 PM
+
+⏺ Agent "Fix review findings on latency" finished · 27s
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+⏺ The four fixes are in, and everything is committed and pushed as 255287c
+  ("Tutor: cut workbook generation latency"). Locally, typecheck, lint and all
+  15 tests pass, and CI passed on GitHub in 35s.
+
+  What the fixes do
+  - No false failure message: asking for a similar question no longer shows
+    "Couldn't build the workbook" after the background steps 2–3 build fails.
+  - Next always works: Next on step 1 now moves on even after that failure, and
+    reaching step 2 retries the build.
+  - Paused sessions: a similar question that finishes while the session is
+    paused no longer moves the paused session on. Resuming takes the learner to
+    it.
+  - Drawing instructions: step visuals with no plan no longer send an empty
+    title and description to Claude.
+
+  The agent didn't add tests for these fixes. Testing them would need a refactor
+  to keep test writes out of the real data files.
+
+  Also in the commit: the three remaining review items are now on the open list
+  in CLAUDE.md:
+  - keyboard focus dropping during "Try a similar question"
+  - the generic failure message when a similar question fails
+  - the unused grading list in session.ts
+
+  Left uncommitted, as before:
+  - the local test data in server/data/
+  - .claude/skills/
+  - the new Madeline Hunter transcript
+
+  Render should now be redeploying. The faster generation hasn't run on the live
+  site yet, so once the deploy finishes, run one Tutor session there to check
+  it before the hiring team sees it.
+
+✻ Cogitated for 1m 35s · done 1:02 PM
+
+※ recap: We're getting the Tutor prototype ready for the hiring team, and the faster workbook generation is now pushed, with CI passing. Next, once Render finishes deploying, run one Tutor session on the live site to check it.

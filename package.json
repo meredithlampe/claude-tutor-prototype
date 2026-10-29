@@ -14,7 +14,8 @@
     "build": "npm run build -w client",
     "start": "npm run start -w server",
     "typecheck": "npm run typecheck --workspaces",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "npm test -w server"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

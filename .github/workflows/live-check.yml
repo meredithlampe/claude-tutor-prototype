@@ -1,0 +1,79 @@
+# Checks the deployed prototype every 6 hours, and on demand from the Actions tab.
+# Read-only against the site: all participants share one user, so it never creates chats
+# or Tutor sessions. A failed run emails whoever last edited this workflow.
+#
+# Repository secrets: SITE_PASSWORD, ANTHROPIC_API_KEY, ELEVENLABS_API_KEY (the same values
+# as on Render).
+name: Live check
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+env:
+  SITE_URL: https://claude-tutor-prototype.onrender.com
+  # Slower than this counts as unresponsive.
+  MAX_SECONDS: 5
+
+jobs:
+  site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      SITE_PASSWORD: ${{ secrets.SITE_PASSWORD }}
+    steps:
+      - name: Health check responds quickly
+        run: |
+          body=$(curl -fsS --max-time 30 -w '\n%{time_total}' "$SITE_URL/api/health")
+          seconds=$(echo "$body" | tail -n1)
+          echo "$body" | head -n1 | grep -q '"ok":true' || { echo "Unexpected health response: $body"; exit 1; }
+          echo "Health check took ${seconds}s"
+          awk -v s="$seconds" -v max="$MAX_SECONDS" 'BEGIN { exit !(s < max) }' || { echo "Slower than ${MAX_SECONDS}s"; exit 1; }
+
+      - name: Password is required
+        run: |
+          status=$(curl -sS --max-time 30 -o /dev/null -w '%{http_code}' "$SITE_URL/api/user")
+          [ "$status" = 401 ] || { echo "Expected 401 without a password, got $status"; exit 1; }
+
+      - name: Page and API load with the password
+        run: |
+          [ -n "$SITE_PASSWORD" ] || { echo "SITE_PASSWORD secret isn't set"; exit 1; }
+          curl -fsS --max-time 30 -u "check:$SITE_PASSWORD" "$SITE_URL/" | grep -q '<div id="root">' \
+            || { echo "The page didn't load"; exit 1; }
+          curl -fsS --max-time 30 -u "check:$SITE_PASSWORD" "$SITE_URL/api/user" > /dev/null
+          curl -fsS --max-time 30 -u "check:$SITE_PASSWORD" "$SITE_URL/api/conversations" > /dev/null
+
+  # The keys can expire or run out of credit while the site itself stays up.
+  api-keys:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Claude API key works
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          [ -n "$ANTHROPIC_API_KEY" ] || { echo "ANTHROPIC_API_KEY secret isn't set"; exit 1; }
+          status=$(curl -sS --max-time 60 -o response.json -w '%{http_code}' https://api.anthropic.com/v1/messages \
+            -H "x-api-key: $ANTHROPIC_API_KEY" \
+            -H "anthropic-version: 2023-06-01" \
+            -H "content-type: application/json" \
+            -d '{"model":"claude-opus-5-5","max_tokens":1,"messages":[{"role":"user","content":"Hi"}]}')
+          if [ "$status" != 200 ]; then
+            echo "Claude API responded $status"
+            jq -r '.error.message // empty' response.json
+            exit 1
+          fi
+
+      - name: ElevenLabs API key works
+        env:
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+        run: |
+          [ -n "$ELEVENLABS_API_KEY" ] || { echo "ELEVENLABS_API_KEY secret isn't set"; exit 1; }
+          # The app's default voice and model; two characters of speech.
+          status=$(curl -sS --max-time 60 -o /dev/null -w '%{http_code}' \
+            "https://api.elevenlabs.io/v1/text-to-speech/JBFqnCBsd6RMkjVDRZzb?output_format=mp3_44100_64" \
+            -H "xi-api-key: $ELEVENLABS_API_KEY" \
+            -H "content-type: application/json" \
+            -d '{"text":"Hi","model_id":"eleven_flash_v2_5"}')
+          [ "$status" = 200 ] || { echo "ElevenLabs responded $status"; exit 1; }

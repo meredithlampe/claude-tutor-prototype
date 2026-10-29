@@ -12,6 +12,7 @@ Delegate to the project subagents in `.claude/agents/`:
 
 - `frontend-engineer`: all building in `client/` and `server/`
 - `design-reviewer`: review UI after changes or before user testing
+- `code-reviewer`: review code and architecture after a feature lands or before a larger commit
 - `user-researcher`: learning-feature flows and tutoring behavior
 - `data-scientist`: measuring whether learning happened
 

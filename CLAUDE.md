@@ -29,7 +29,9 @@ Delegate to the project subagents in `.claude/agents/`:
 - Next: Tutor step 9 (event log per `TUTOR-MEASUREMENT.md`, delayed check, Form C items), then step 10 (user-researcher and design-reviewer reviews).
 - Open:
   - Practice visuals can give away the answer (e.g. "40 real + 60 false" above "what share has it?"). The proposed fix: visuals show the setup and leave the last step to the learner. Not yet approved.
-  - Keyboard focus drops to the page body while the workbook builds the next item.
+  - Keyboard focus drops to the page body while the workbook builds the next item. This now includes "Try a similar question", which waits up to ~30s if the similar question isn't written yet.
+  - A failed similar question shows the generic "Couldn't build the workbook." copy (client and `describeWorkbook`).
+  - `pendingGrades` in `server/tutor/session.ts` is only used for a log line now that step 1 doesn't wait on grading; remove it or fix its comment.
   - The topic citations in `server/tutor/topics/` need checking against the sources.
   - Voice: still to test with a real mic in Safari and Firefox, along with real-mic timing for the countdown.
 - Gotchas:

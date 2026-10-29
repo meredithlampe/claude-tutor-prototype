@@ -93,6 +93,7 @@ async function structuredCall<T>(
   schema: Record<string, unknown>,
   effort: Effort,
 ): Promise<T> {
+  const started = Date.now();
   try {
     // Streamed because battery output (several steps with SVG) can be long.
     const final = await getClient()
@@ -105,6 +106,10 @@ async function structuredCall<T>(
         messages: [{ role: "user", content: prompt }],
       })
       .finalMessage();
+    // Timing for each generation call, so changes to generation can be compared.
+    console.log(
+      `Tutor timing: ${label} ${Date.now() - started}ms, ${final.usage.output_tokens} output tokens (${effort} effort, ${final.stop_reason})`,
+    );
 
     if (final.stop_reason === "refusal") throw new Error(`${label}: Claude declined`);
     if (final.stop_reason === "max_tokens") throw new Error(`${label}: output was cut off`);
@@ -178,6 +183,22 @@ const artifactSchema = {
   },
 };
 
+// What the text call writes for each visual. Each one is then drawn by its own call (see
+// checkedVisual), all at once, which is much faster than writing every SVG in the text call.
+const visualPlanSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["title", "description"],
+  properties: {
+    title: { type: "string", description: "A short title, shown as the visual's caption." },
+    description: {
+      type: "string",
+      description:
+        "What the visual shows, in 1 to 3 sentences: the kind of diagram, its key labels and every number in it. It's read to screen-reader users and is the brief the visual is drawn from.",
+    },
+  },
+};
+
 // Shown above the instruction or prompt, so an item makes sense without its visual or the chat.
 const scenarioDescription =
   'One plain sentence that states the situation and its numbers in words (e.g. "A thousand people take a screening test: 100 have the condition, the test flags 80 of them, and it also wrongly flags 180 healthy people."). The text after it doesn\'t repeat it.';
@@ -185,7 +206,7 @@ const scenarioDescription =
 const questionSchema = {
   type: "object",
   additionalProperties: false,
-  required: ["kind", "scenario", "prompt", "artifact", "options", "answer", "rubric"],
+  required: ["kind", "scenario", "prompt", "visual", "options", "answer", "rubric"],
   properties: {
     kind: { type: "string", enum: ["multiple_choice", "freeform"] },
     scenario: {
@@ -193,9 +214,9 @@ const questionSchema = {
       description: `${scenarioDescription} Empty only for a step's question that asks about the step's own scenario and visual, shown right above it.`,
     },
     prompt: { type: "string", description: "One or two short sentences, after the scenario. Refers to the question's visual." },
-    artifact: {
-      ...artifactSchema,
-      description: "The question's own visual: its scenario and given numbers, never its answer. All fields empty when it has none.",
+    visual: {
+      ...visualPlanSchema,
+      description: "The question's own visual: its scenario and given numbers, never its answer. Both fields empty when it has none.",
     },
     options: {
       type: "array",
@@ -216,7 +237,7 @@ const KNOWLEDGE_TYPES: KnowledgeType[] = ["factual", "conceptual", "procedural",
 const stepSchema = {
   type: "object",
   additionalProperties: false,
-  required: ["scenario", "instruction", "bloomLevel", "knowledgeType", "artifact", "question", "parallel"],
+  required: ["scenario", "instruction", "bloomLevel", "knowledgeType", "visual", "question"],
   properties: {
     scenario: { type: "string", description: scenarioDescription },
     instruction: {
@@ -225,9 +246,8 @@ const stepSchema = {
     },
     bloomLevel: { type: "string", enum: BLOOM_LEVELS },
     knowledgeType: { type: "string", enum: KNOWLEDGE_TYPES },
-    artifact: artifactSchema,
+    visual: visualPlanSchema,
     question: questionSchema,
-    parallel: questionSchema,
   },
 };
 
@@ -248,13 +268,18 @@ interface GeneratedArtifact {
   svg: string;
 }
 
+// Empty title and description mean none.
+interface VisualPlan {
+  title: string;
+  description: string;
+}
+
 interface GeneratedQuestion {
   kind: TutorQuestion["kind"];
   // Empty only for a step's question about the step's own scenario.
   scenario: string;
   prompt: string;
-  // An empty svg means none.
-  artifact: GeneratedArtifact;
+  visual: VisualPlan;
   options: GeneratedOption[];
   answer: string;
   // Empty strings for multiple choice.
@@ -266,9 +291,8 @@ interface GeneratedStep {
   instruction: string;
   bloomLevel: BloomLevel;
   knowledgeType: KnowledgeType;
-  artifact: GeneratedArtifact;
+  visual: VisualPlan;
   question: GeneratedQuestion;
-  parallel: GeneratedQuestion;
 }
 
 function shuffle<T>(items: T[]): T[] {
@@ -331,33 +355,40 @@ function toArtifact(artifact: GeneratedArtifact): ArtifactResult {
   return { artifact: { kind: "svg", title, description, content: cleaned.svg } };
 }
 
-// What a visual is for, so a redraw can match it.
+// What a visual is for, so its drawing can match it.
 interface VisualFor {
   label: string;
   // "instruction" visuals explain; "question" visuals show the scenario without the answer.
   kind: "instruction" | "question";
   text: string;
+  // What the text call planned. A required visual with no plan is drawn from the text alone.
+  plan?: VisualPlan;
 }
 
-// A visual that fails validation (or a required one that's missing) gets one redraw. If that
-// fails too, the item goes without it and its text stands alone.
+function hasPlan(plan: VisualPlan): boolean {
+  return Boolean(plan.title.trim() || plan.description.trim());
+}
+
+// Each visual is drawn by its own call, from the item's text and the text call's plan. One that
+// fails validation (or whose call fails) gets one redraw. If that fails too, the item goes
+// without it and its text stands alone.
 async function checkedVisual(
-  artifact: GeneratedArtifact | null,
   target: VisualFor,
   topic: Topic | undefined,
   required: boolean,
 ): Promise<TutorArtifact | undefined> {
-  let reason = "it had none";
-  if (artifact) {
-    const first = toArtifact(artifact);
+  if (!target.plan && !required) return undefined;
+  let reason: string;
+  try {
+    const first = toArtifact(await drawVisual(target, topic));
     if ("artifact" in first) return first.artifact;
-    reason = `it was rejected: ${first.reason}`;
-  } else if (!required) {
-    return undefined;
+    reason = `the first drawing was rejected: ${first.reason}`;
+  } catch {
+    reason = "the first drawing failed";
   }
   console.warn(`Tutor: ${target.label} visual needed a redraw (${reason})`);
   try {
-    const redrawn = toArtifact(await redrawVisual(target, reason, topic));
+    const redrawn = toArtifact(await drawVisual(target, topic, reason));
     if ("artifact" in redrawn) return redrawn.artifact;
     console.warn(`Tutor: ${target.label} redraw rejected (${redrawn.reason}); no visual`);
   } catch {
@@ -366,12 +397,18 @@ async function checkedVisual(
   return undefined;
 }
 
-function redrawVisual(target: VisualFor, reason: string, topic: Topic | undefined) {
-  const prompt = `A workbook ${target.kind === "instruction" ? "step" : "question"} needs a visual (${reason}). Draw one that matches this text exactly:
+function drawVisual(target: VisualFor, topic: Topic | undefined, redrawReason?: string) {
+  const { plan } = target;
+  const prompt = `A workbook ${target.kind === "instruction" ? "step" : "question"} needs a visual${redrawReason ? ` (${redrawReason})` : ""}. Draw one that matches this text exactly:
 """${target.text}"""
-${target.kind === "question" ? "\nIt shows the question's scenario and given numbers only, never the answer or a solved result.\n" : ""}${topic ? `\nVisual ideas for this topic:\n${topic.visualSuggestions.map((idea) => `- ${idea}`).join("\n")}\n` : ""}
+${plan ? `\nThe planned visual. Use this title and description, changing the description only where your drawing differs:\nTitle: ${plan.title}\nDescription: ${plan.description}\n` : ""}${target.kind === "question" ? "\nIt shows the question's scenario and given numbers only, never the answer or a solved result.\n" : ""}${topic ? `\nVisual ideas for this topic:\n${topic.visualSuggestions.map((idea) => `- ${idea}`).join("\n")}\n` : ""}
 ${VISUAL_RULES}`;
-  return structuredCall<GeneratedArtifact>("visual redraw", prompt, artifactSchema, "low");
+  return structuredCall<GeneratedArtifact>(
+    `${redrawReason ? "redraw" : "visual"} ${target.label}`,
+    prompt,
+    artifactSchema,
+    "low",
+  );
 }
 
 function questionText(question: GeneratedQuestion): string {
@@ -429,13 +466,13 @@ async function checkedQuestion(
   topic: Topic | undefined,
   needs: QuestionNeeds,
 ): Promise<TutorQuestion> {
-  const ownVisual = question.artifact.svg.trim() ? question.artifact : null;
+  const plan = hasPlan(question.visual) ? question.visual : undefined;
   const [artifact, context] = await Promise.all([
-    checkedVisual(ownVisual, { label: prefix, kind: "question", text: questionText(question) }, topic, needs.visual),
+    checkedVisual({ label: prefix, kind: "question", text: questionText(question), plan }, topic, needs.visual),
     checkedScenario(
       question.scenario,
-      { label: prefix, text: questionText(question), visual: ownVisual?.description },
-      needs.scenario || (role === "practice" && Boolean(ownVisual)),
+      { label: prefix, text: questionText(question), visual: plan?.description },
+      needs.scenario || (role === "practice" && Boolean(plan)),
     ),
   ]);
   return toQuestion(question, role, prefix, artifact, context);
@@ -479,26 +516,37 @@ function assessmentResults(session: TutorSession): string {
       const record = session.answers.find((answer) => answer.questionId === question.id);
       const attempt = record?.attempts.at(-1);
       if (!attempt) return `${describeItem(question, true)}\nLearner: (no answer)`;
+      // Step 1 is written without waiting for background grading, so a freeform answer may not
+      // be graded yet: the rubric goes with it, and Claude judges the answer itself.
+      const rubric = question.kind === "freeform" && question.rubric
+        ? `\nRubric: 2 points = ${question.rubric.full}; 1 point = ${question.rubric.partial}; 0 points = ${question.rubric.none}`
+        : "";
+      const grade = attempt.result
+        ? ` -> ${attempt.result}${attempt.misconceptionTag ? ` (${attempt.misconceptionTag})` : ""}`
+        : question.kind === "freeform" ? " -> not graded yet; judge it against the rubric" : "";
       const result =
-        question.role === "self_report"
-          ? ""
-          : ` -> ${attempt.result ?? "not graded"}${attempt.misconceptionTag ? ` (${attempt.misconceptionTag})` : ""}${attempt.confidence ? `, confidence: ${attempt.confidence}` : ""}`;
-      return `${describeItem(question, true)}\nLearner: "${attempt.response}"${result}`;
+        question.role === "self_report" ? "" : `${grade}${attempt.confidence ? `, confidence: ${attempt.confidence}` : ""}`;
+      return `${describeItem(question, true)}${rubric}\nLearner: "${attempt.response}"${result}`;
     })
     .join("\n\n");
 }
 
-// Shared by every call that draws visuals.
+// For the calls that draw visuals (see drawVisual).
 const VISUAL_RULES = `Visual rules. Each visual is a simple SVG diagram (a frequency tree, icon array, flowchart, graph, number line, labelled figure or a plain picture of a situation). Where the topic lists visual ideas, use them. Visuals carry the explanation, so the text around them stays short.
 - A step's visual shows the step's one idea; the instruction points at it. A question's visual shows the question's scenario and given numbers, never its answer or a solved result.
-- Root element: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 W H">, with W from 360 to 480 (400 is ideal) and H no more than 1.2 times W. No width or height attributes.
-- Padding: keep everything, including the full width of every label, at least 16 units inside the viewBox. A label is about 0.55 times its font size wide per character, so check that long labels fit, and split them over two lines with <tspan x="…" dy="1.2em"> when they don't. Don't rotate or transform text.
+- Root element: <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 W H'>, with W from 360 to 480 (400 is ideal) and H no more than 1.2 times W. No width or height attributes.
+- Padding: keep everything, including the full width of every label, at least 16 units inside the viewBox. A label is about 0.55 times its font size wide per character, so check that long labels fit, and split them over two lines with <tspan x='…' dy='1.2em'> when they don't. Don't rotate or transform text.
 - Text: font-family="system-ui, sans-serif"; font-size 16 for labels, 18 to 20 for headings and key numbers, never below 14. Labels are a few words.
 - Colours: it's shown on a dark background (#1d1d1d), so don't draw a background rect. Text #EDECE9; secondary text #BBBAAF; lines and axes #8A8983; accents #E8906F (orange), #7DB4EA (blue), #8DC891 (green), #E6C46A (yellow). Boxes behind text: fill #2A2A28 with an accent or #8A8983 stroke. Never put text on a light fill.
 - Don't rely on colour alone: label groups directly or with a legend, and also vary shape or fill (solid versus outlined).
 - First children: <title> (the visual's title) and <desc> (its text description).
 - Self-contained and small: no scripts, event handlers, <style>, <image>, <foreignObject>, links or external references. Keep it under 8 KB. For many repeated marks (like an icon array of 1,000 people), fill a rect with a <pattern> or <use> one shape from <defs>; never write hundreds of separate elements.
+- Layout: plan coordinates before drawing. Keep at least 8 units between any label and any line, arrow or box it isn't inside; arrows start and end at box edges, never on text.
+- Write every attribute value in single quotes (x='40'), never double quotes, so the SVG needs no escaping inside the JSON string. (Double quotes there can end the string early and cut the SVG off.)
 - Every number in the visual matches the text and is arithmetically correct.`;
+
+// For calls that write text: each visual is planned here and drawn by its own call.
+const VISUAL_PLAN_RULES = `Visuals: don't draw them. For each one, write a title and a description; a separate call draws it from them, so be precise. Each is a simple diagram (a frequency tree, icon array, flowchart, graph, number line, labelled figure or a plain picture of a situation); where the topic lists visual ideas, use them. The description names the kind of diagram, its key labels and every number in it, and every number matches the text and is arithmetically correct. Visuals carry the explanation, so the text around them stays short. A step's visual shows the step's one idea; the instruction points at it. A question's visual shows the question's scenario and given numbers, never its answer or a solved result.`;
 
 const MC_RULES = `Multiple choice: exactly 4 short options and exactly one correct. Each wrong option's rationale names the misconception behind it in one sentence, written to the learner, without giving away the right answer. The correct option's rationale says briefly why it's right.`;
 
@@ -507,15 +555,14 @@ function stepRules(first: boolean): string {
 - Steps climb Bloom's levels: step 1 "understand", step 2 "apply", step 3 "analyze" or "evaluate". Each step teaches one idea${first ? "" : ", building on step 1 without repeating it"}.
 - Every step opens with a scenario: one plain sentence that states the situation and its numbers in words, so the step makes sense to someone who can't see the visual and hasn't read the chat (e.g. "A thousand people take a screening test: 100 have the condition, the test flags 80 of them, and it also wrongly flags 180 healthy people."). It comes before any text that refers to the visual.
 - Instruction: after the scenario, 1 or 2 short sentences (under 40 words) that point at the step's visual, e.g. "Of the 1,000 people in the grid, find the ones who test positive." The visual does the explaining.
-- Every step has a visual (see the visual rules).
+- Every step has a visual (see the visual rules below).
 - Then one question that checks the step's idea, in one or two short sentences. Steps 1 and 2 are multiple choice. ${MC_RULES}
 - Step 3 is freeform, asking the learner to explain in their own words ("explain why…", "spot the error in…"), with a rubric for 2 / 1 / 0 points. Set options to [].
-- Question visuals: when the step's question asks about the step's scenario and visual (shown right above it), leave the question's scenario and artifact fields empty. When it uses a new scenario, give it its own scenario sentence and its own visual.
-- Each step also has a parallel question: same idea, same kind, similar difficulty, but a different scenario or numbers, so it can't be answered by eliminating options already tried. It's shown on its own, so every parallel question has its own scenario sentence and its own visual of that scenario.
+- Question visuals: when the step's question asks about the step's scenario and visual (shown right above it), leave the question's scenario and visual fields empty. When it uses a new scenario, give it its own scenario sentence and its own visual.
 - Pitch the steps at the level the opening check showed, aiming for about 80% first-try success. Build toward the learner's own question, without solving it outright.
 - Every question must have one defensible correct answer. Double-check any arithmetic.
 
-${VISUAL_RULES}`;
+${VISUAL_PLAN_RULES}`;
 }
 
 export async function generateAssessment(
@@ -533,7 +580,7 @@ Write the opening check for a short Tutor session on this subject:
 2. Two probe questions that show what the learner understands now: one multiple choice ("apply" level; ${MC_RULES}) and one freeform ("understand" level, explain in their own words, with a rubric). Each probe has its own visual that pictures the scenario plainly and never gives away the answer.
 Use a different scenario from the learner's question, so the probes test transfer.
 
-${VISUAL_RULES}`;
+${VISUAL_PLAN_RULES}`;
 
   const schema = {
     type: "object",
@@ -615,7 +662,7 @@ ${topic ? topicContext(topic) : "There are no vetted notes for this subject. Be 
 
 ${openingExchange(messages)}
 
-The learner's opening check (correct options marked; the learner's answers follow each):
+The learner's opening check (correct options marked; the learner's answers follow each). Judge what the learner understands from their answers yourself, a freeform answer against its rubric:
 ${assessmentResults(session)}
 ${avoid}${earlierText}
 ${stepRules(first)}${finalRules}`;
@@ -639,25 +686,22 @@ ${stepRules(first)}${finalRules}`;
   );
 
   if (result.steps.length !== count) throw new Error(`${label}: expected ${count}, got ${result.steps.length}`);
-  result.steps.forEach((step, index) => {
-    checkQuestion(step.question, `step ${earlier.length + index + 1}`);
-    checkQuestion(step.parallel, `step ${earlier.length + index + 1} parallel`);
-  });
+  result.steps.forEach((step, index) => checkQuestion(step.question, `step ${earlier.length + index + 1}`));
   if (!first && result.steps.at(-1)?.question.kind !== "freeform") throw new Error("steps: step 3 must be freeform");
   if (withFinalCheck) {
     if (result.finalCheck?.length !== 2) throw new Error("final check: expected 2 questions");
     result.finalCheck.forEach((question, index) => checkQuestion(question, `final check ${index + 1}`));
   }
 
-  const steps = await Promise.all(
+  // Every visual (steps, their questions and the final check) is drawn at once.
+  const stepsReady = Promise.all(
     result.steps.map(async (step, index): Promise<TutorStep> => {
       const number = earlier.length + index + 1;
       const text = questionStem({ context: step.scenario, prompt: step.instruction });
-      const [artifact, context, question, parallel] = await Promise.all([
-        checkedVisual(step.artifact, { label: `step ${number}`, kind: "instruction", text }, topic, true),
-        checkedScenario(step.scenario, { label: `step ${number}`, text, visual: step.artifact.description }, true),
+      const [artifact, context, question] = await Promise.all([
+        checkedVisual({ label: `step ${number}`, kind: "instruction", text, plan: hasPlan(step.visual) ? step.visual : undefined }, topic, true),
+        checkedScenario(step.scenario, { label: `step ${number}`, text, visual: step.visual.description }, true),
         checkedQuestion(step.question, "practice", `step${number}`, topic, { visual: false, scenario: false }),
-        checkedQuestion(step.parallel, "practice", `step${number}-parallel`, topic, { visual: true, scenario: true }),
       ]);
       return {
         id: `step-${number}`,
@@ -667,17 +711,17 @@ ${stepRules(first)}${finalRules}`;
         bloomLevel: step.bloomLevel,
         knowledgeType: step.knowledgeType,
         question,
-        parallel,
       };
     }),
   );
-  const finalCheck = result.finalCheck
-    ? await Promise.all(
+  const finalReady = result.finalCheck
+    ? Promise.all(
         result.finalCheck.map((question, index) =>
           checkedQuestion(question, "check", `final${index + 1}`, topic, { visual: true, scenario: false }),
         ),
       )
     : undefined;
+  const [steps, finalCheck] = await Promise.all([stepsReady, finalReady]);
   return { steps, finalCheck };
 }
 
@@ -772,24 +816,22 @@ They asked for more practice. Write ONE practice question (number ${index + 1} o
 ${earlierItems.map((item) => `  - ${questionStem(item)}`).join("\n")}
 - ${kindRule}
 - Aim for about 80% first-try success, a little harder than the steps.
-- Add a parallel question: same idea, same kind, similar difficulty, different scenario or numbers, with its own scenario sentence and its own visual.
 - One defensible correct answer. Double-check any arithmetic.
 
-${VISUAL_RULES}`;
+${VISUAL_PLAN_RULES}`;
 
   const itemSchema = {
     type: "object",
     additionalProperties: false,
-    required: ["bloomLevel", "knowledgeType", "question", "parallel"],
+    required: ["bloomLevel", "knowledgeType", "question"],
     properties: {
       bloomLevel: { type: "string", enum: BLOOM_LEVELS },
       knowledgeType: { type: "string", enum: KNOWLEDGE_TYPES },
       question: questionSchema,
-      parallel: questionSchema,
     },
   };
 
-  const item = await structuredCall<Omit<GeneratedStep, "scenario" | "instruction" | "artifact">>(
+  const item = await structuredCall<Pick<GeneratedStep, "bloomLevel" | "knowledgeType" | "question">>(
     `more practice ${index + 1}`,
     prompt,
     itemSchema,
@@ -797,13 +839,55 @@ ${VISUAL_RULES}`;
   );
   if (item.question.kind !== kind) throw new Error(`more practice ${index + 1}: expected ${kind}`);
   checkQuestion(item.question, `more practice ${index + 1}`);
-  checkQuestion(item.parallel, `more practice ${index + 1} parallel`);
   const id = newId("practice");
-  const [question, parallel] = await Promise.all([
-    checkedQuestion(item.question, "practice", id, topic, { visual: true, scenario: true }),
-    checkedQuestion(item.parallel, "practice", `${id}-parallel`, topic, { visual: true, scenario: true }),
-  ]);
-  return { id, instruction: "", bloomLevel: item.bloomLevel, knowledgeType: item.knowledgeType, question, parallel };
+  const question = await checkedQuestion(item.question, "practice", id, topic, { visual: true, scenario: true });
+  return { id, instruction: "", bloomLevel: item.bloomLevel, knowledgeType: item.knowledgeType, question };
+}
+
+// ---------------------------------------------------------------------------------------
+// A parallel question, shown only after a wrong answer ("Try a similar question"). Written in
+// the background once its step (or More practice question) is shown, not with the step.
+
+export async function generateParallel(
+  session: TutorSession,
+  topic: Topic | undefined,
+  step: TutorStep,
+  earlierItems: TutorQuestion[],
+): Promise<TutorQuestion> {
+  const { question } = step;
+  const kindRule =
+    question.kind === "multiple_choice"
+      ? MC_RULES
+      : "Freeform: ask the learner to explain or apply the idea in their own words, with a rubric for 2 / 1 / 0 points. Leave options empty.";
+  const stepText = step.instruction
+    ? `It's the question of this teaching step (${step.bloomLevel}): ${questionStem({ context: step.context, prompt: step.instruction })}${step.artifact ? `\nThe step's visual: ${step.artifact.description}` : ""}\n\n`
+    : "";
+  const rubric = question.rubric
+    ? `\nRubric: 2 points = ${question.rubric.full}; 1 point = ${question.rubric.partial}; 0 points = ${question.rubric.none}`
+    : "";
+  const prompt = `Subject: ${session.subject}${topic ? ` (library topic: ${topic.title})` : ""}
+
+${topic ? topicContext(topic) : "There are no vetted notes for this subject. Be careful to stay accurate."}
+
+A learner is working on this practice question. If they get it wrong, they'll be offered a similar question to try next.
+${stepText}${describeItem(question, true)}${rubric}
+${question.artifact ? `Its visual: ${question.artifact.description}\n` : ""}Answer: ${question.answer ?? "(none)"}
+
+Write that similar (parallel) question. Rules:
+- Same idea, same kind (${question.kind === "multiple_choice" ? "multiple choice" : "freeform"}), similar difficulty, but a different scenario and numbers, so it can't be answered by eliminating options already tried.
+- It's shown on its own, so it opens with a scenario: one plain sentence that states the situation and its numbers in words, before any text that refers to the visual. Then the prompt: one or two short sentences that refer to the question's own visual of that scenario.
+- ${kindRule}
+- Don't reuse the scenarios, numbers or wording of these questions from the session:
+${earlierItems.map((item) => `  - ${questionStem(item)}`).join("\n")}
+- One defensible correct answer. Double-check any arithmetic.
+
+${VISUAL_PLAN_RULES}`;
+
+  const label = `parallel ${step.id}`;
+  const generated = await structuredCall<GeneratedQuestion>(label, prompt, questionSchema, "medium");
+  if (generated.kind !== question.kind) throw new Error(`${label}: expected ${question.kind}`);
+  checkQuestion(generated, label);
+  return checkedQuestion(generated, "practice", `${step.id}-parallel`, topic, { visual: true, scenario: true });
 }
 
 // ---------------------------------------------------------------------------------------

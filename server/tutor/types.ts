@@ -71,8 +71,9 @@ export interface TutorStep {
   bloomLevel: BloomLevel;
   knowledgeType: KnowledgeType;
   question: TutorQuestion;
-  // Server only until offered: a similar question for after a wrong answer.
-  parallel: TutorQuestion;
+  // Server only until offered: a similar question for after a wrong answer. Written in the
+  // background once the step is shown, so it's missing until then.
+  parallel?: TutorQuestion;
 }
 
 export interface TutorBattery {
@@ -108,6 +109,8 @@ export interface StepProgress {
   // The question being worked on: the step's question, or its parallel after a miss.
   activeQuestionId: string;
   misses: number;
+  // The learner asked for the parallel question before it was written; they wait on it.
+  parallelRequested?: boolean;
   partialRetryUsed: boolean;
   explainRequested: boolean;
   revealed: boolean;

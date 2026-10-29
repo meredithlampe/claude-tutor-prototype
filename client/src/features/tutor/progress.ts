@@ -11,7 +11,8 @@ export function progressLabel(session: TutorSession): string {
   if (session.building === "steps" && session.position > 0) {
     return progress.step(session.position + 1, session.counts.steps);
   }
-  if (session.building) return progress.building;
+  // Waiting on a similar question: the learner is still on the same step.
+  if (session.building && session.building !== "parallel") return progress.building;
   const current = session.current;
   if (!current) return progress.building;
   switch (current.section) {

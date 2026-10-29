@@ -129,7 +129,9 @@ export const tutorContent = {
     // Waiting on a step written after step 1 (steps 2 and 3 are written in the background).
     buildingLaterStep: (index: number) => `Getting step ${index} ready…`,
     buildingPractice: "Writing a few more practice questions…",
+    buildingParallel: "Getting a similar question ready…",
     buildingHint: "This can take about a minute. You can keep chatting with your tutor meanwhile.",
+    buildingParallelHint: "It's usually ready within half a minute. You can keep chatting with your tutor meanwhile.",
     waitingTitle: "Up next in a moment",
     waitingBody: "Your tutor is introducing it in the chat.",
     buildFailed: "Couldn't build the workbook.",
@@ -241,6 +243,7 @@ export const tutorContent = {
   announcements: {
     recorded: "Answer recorded.",
     building: "Building your workbook.",
+    buildingParallel: "Getting a similar question ready.",
     summaryReady: "Your tutor's summary is ready.",
     focusChat: "Your tutor is replying in the chat.",
     focusWorkbook: (label: string) => (label ? `Workbook: ${label}.` : "Workbook."),

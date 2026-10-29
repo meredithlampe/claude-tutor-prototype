@@ -251,8 +251,11 @@ tutorRouter.post("/:conversationId/parallel", (req: Request<Params>, res) =>
 tutorRouter.post("/:conversationId/advance", (req: Request<Params>, res) =>
   withActiveSession(req, res, async (session) => {
     const built = await ensureBuilt(session);
-    if (built !== session || built.generation.error) return built;
-    return advance(session, optionalString(field(req.body, "fromQuestionId")));
+    if (built !== session) return built;
+    const fromQuestionId = optionalString(field(req.body, "fromQuestionId"));
+    // A build request (no question) whose build finished in the background: nothing to wait for.
+    if (fromQuestionId === undefined) return session;
+    return advance(session, fromQuestionId);
   }),
 );
 

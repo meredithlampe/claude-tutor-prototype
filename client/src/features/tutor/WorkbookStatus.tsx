@@ -6,7 +6,7 @@ type WorkbookStatusProps =
   | { kind: "empty" }
   | { kind: "waiting" }
   // `laterStep`: the step number being waited on, after step 1 (steps 2 and 3 are written later).
-  | { kind: "building"; part: "assessment" | "steps" | "practice"; laterStep?: number }
+  | { kind: "building"; part: "assessment" | "steps" | "practice" | "parallel"; laterStep?: number }
   | { kind: "failed"; retrying: boolean; onRetry: () => void };
 
 // The workbook before there's a question to show: empty during scoping, loading while it's
@@ -46,9 +46,13 @@ export function WorkbookStatus(props: WorkbookStatusProps) {
               ? props.laterStep
                 ? workbook.buildingLaterStep(props.laterStep)
                 : workbook.buildingSteps
-              : workbook.buildingPractice}
+              : props.part === "parallel"
+                ? workbook.buildingParallel
+                : workbook.buildingPractice}
         </p>
-        <p className="text-sm leading-6 text-secondary-foreground">{workbook.buildingHint}</p>
+        <p className="text-sm leading-6 text-secondary-foreground">
+          {props.part === "parallel" ? workbook.buildingParallelHint : workbook.buildingHint}
+        </p>
       </div>
     );
   }

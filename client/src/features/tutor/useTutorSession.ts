@@ -237,7 +237,8 @@ export function useTutorSession(chat: ChatContext) {
       if (tab === "chat") setUnseen((current) => ({ ...current, workbook: true }));
     }
     if (next.building && next.building !== previous?.building) {
-      setAnnouncement(tutorContent.announcements.building);
+      const { announcements } = tutorContent;
+      setAnnouncement(next.building === "parallel" ? announcements.buildingParallel : announcements.building);
     }
     if (wasActive && next.status === "wrap_up" && previous?.status !== "wrap_up") {
       queueEvent({ type: "battery_complete" });

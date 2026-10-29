@@ -5,6 +5,7 @@ import {
   fixedFinalCheck,
   generateAssessment,
   generateMorePractice,
+  generateParallel,
   generateSteps,
   generateTutorSummary,
   gradeFreeform,
@@ -67,7 +68,7 @@ export function currentItem(session: TutorSession): CurrentItem | undefined {
     const step = practiceSteps(session)[session.position];
     const progress = practiceProgress(session)[session.position];
     if (!step || !progress) return undefined;
-    const question = progress.activeQuestionId === step.parallel.id ? step.parallel : step.question;
+    const question = step.parallel && progress.activeQuestionId === step.parallel.id ? step.parallel : step.question;
     const section = session.status === "teaching" ? "step" : "practice";
     return { section, question, step, stepIndex: session.position, progress };
   }
@@ -96,7 +97,8 @@ function isPractice(item: CurrentItem | undefined): item is CurrentItem & { step
   return Boolean(item && (item.section === "step" || item.section === "practice") && item.step && item.progress);
 }
 
-type BuildPart = "assessment" | "steps" | "practice";
+// "parallel": the learner asked for a step's similar question before it was written.
+type BuildPart = "assessment" | "steps" | "practice" | "parallel";
 
 // Which part of the battery the session is waiting on, if any.
 export function pendingBuild(session: TutorSession): BuildPart | undefined {
@@ -106,6 +108,10 @@ export function pendingBuild(session: TutorSession): BuildPart | undefined {
   if (session.status === "teaching" && (session.battery?.steps?.length ?? 0) <= session.position) return "steps";
   if (session.status === "more_practice" && (session.battery?.morePractice?.length ?? 0) <= session.position) {
     return "practice";
+  }
+  if (session.status === "teaching" || session.status === "more_practice") {
+    const step = practiceSteps(session)[session.position];
+    if (step && !step.parallel && practiceProgress(session)[session.position]?.parallelRequested) return "parallel";
   }
   return undefined;
 }
@@ -134,7 +140,8 @@ function newStepProgress(step: TutorStep): StepProgress {
 // Building the battery. One build per session and part at a time; later callers share it.
 
 const builds = new Map<string, Promise<TutorSession>>();
-// Background grading of check answers, which the steps build waits for.
+// Background grading of check answers. Step 1 doesn't wait for it (its prompt has the raw
+// answers and rubrics); the wrap-up scores and measurement use the grades.
 const pendingGrades = new Map<string, Set<Promise<unknown>>>();
 
 export function ensureBuilt(session: TutorSession): Promise<TutorSession> {
@@ -179,16 +186,15 @@ async function runBuild(session: TutorSession, part: BuildPart): Promise<TutorSe
       });
     }
 
+    if (part === "parallel") {
+      const step = practiceSteps(session)[session.position];
+      await parallelFor(session.id, step.id);
+      console.log(`Tutor: learner waited ${Date.now() - started}ms for ${step.id}'s similar question`);
+      return await updateSession(session.id, moveToRequestedParallel);
+    }
+
     if (part === "practice") {
-      const battery = session.battery!;
-      const earlier = [
-        ...battery.assessment,
-        ...(battery.steps ?? []).flatMap((step) => [step.question, step.parallel]),
-        ...(battery.finalCheck ?? []),
-        ...(battery.bonus ? [battery.bonus] : []),
-        ...(battery.morePractice ?? []).flatMap((step) => [step.question, step.parallel]),
-      ].filter((question) => question.role !== "self_report");
-      const practice = await generateMorePractice(session, topic, earlier);
+      const practice = await generateMorePractice(session, topic, sessionQuestions(session.battery!));
       const ms = Date.now() - started;
       console.log(`Tutor: more practice ready in ${ms}ms`);
       return await updateSession(session.id, (current) => {
@@ -200,16 +206,15 @@ async function runBuild(session: TutorSession, part: BuildPart): Promise<TutorSe
         current.position = start;
         current.generation.practiceMs = ms;
         return markShown(current);
-      });
+      }).then(prepareParallel);
     }
 
     if (session.battery?.steps?.length) return await laterSteps(session.id);
 
-    await Promise.allSettled([...(pendingGrades.get(session.id) ?? [])]);
-    // Re-read after grading so the prompt sees the graded assessment.
-    const graded = await updateSession(session.id, (current) => current);
-    const laterItems = topic && graded.form ? [...fixedFinalCheck(topic, graded.form), fixedBonus(topic)] : [];
-    const generated = await generateSteps(graded, messages, topic, laterItems, []);
+    // Not waited for: the step 1 prompt judges ungraded answers from their rubrics.
+    console.log(`Tutor timing: step 1 started with ${pendingGrades.get(session.id)?.size ?? 0} check answers still grading (not waited for)`);
+    const laterItems = topic && session.form ? [...fixedFinalCheck(topic, session.form), fixedBonus(topic)] : [];
+    const generated = await generateSteps(session, messages, topic, laterItems, []);
     const ms = Date.now() - started;
     console.log(`Tutor: step 1 ready in ${ms}ms`);
     const withFirst = await updateSession(session.id, (current) => {
@@ -221,7 +226,7 @@ async function runBuild(session: TutorSession, part: BuildPart): Promise<TutorSe
       current.stepProgress = [newStepProgress(generated.steps[0])];
       current.generation.stepsMs = ms;
       return markShown(current);
-    });
+    }).then(prepareParallel);
     void laterSteps(session.id);
     return withFirst;
   } catch (error) {
@@ -273,7 +278,7 @@ async function runLaterSteps(sessionId: string): Promise<TutorSession> {
         if (step) current.stepProgress[current.position] = newStepProgress(step);
       }
       return markShown(current);
-    });
+    }).then(prepareParallel);
   } catch (error) {
     console.error("Tutor: steps 2-3 build failed", error);
     return updateSession(sessionId, (current) => {
@@ -281,6 +286,77 @@ async function runLaterSteps(sessionId: string): Promise<TutorSession> {
       return current;
     });
   }
+}
+
+// Every question in the battery except the self-report, for "don't reuse these" in prompts.
+function sessionQuestions(battery: NonNullable<TutorSession["battery"]>): TutorQuestion[] {
+  const stepQuestions = (step: TutorStep) => (step.parallel ? [step.question, step.parallel] : [step.question]);
+  return [
+    ...battery.assessment,
+    ...(battery.steps ?? []).flatMap(stepQuestions),
+    ...(battery.finalCheck ?? []),
+    ...(battery.bonus ? [battery.bonus] : []),
+    ...(battery.morePractice ?? []).flatMap(stepQuestions),
+  ].filter((question) => question.role !== "self_report");
+}
+
+function findStep(session: TutorSession, stepId: string): TutorStep | undefined {
+  const battery = session.battery;
+  return [...(battery?.steps ?? []), ...(battery?.morePractice ?? [])].find((step) => step.id === stepId);
+}
+
+// A step's parallel question while it's being written, by session and step, so the background
+// build and a learner waiting on it share one call.
+const parallels = new Map<string, Promise<TutorQuestion>>();
+
+function parallelFor(sessionId: string, stepId: string): Promise<TutorQuestion> {
+  const key = `${sessionId}:${stepId}`;
+  let build = parallels.get(key);
+  if (!build) {
+    build = writeParallel(sessionId, stepId).finally(() => parallels.delete(key));
+    parallels.set(key, build);
+  }
+  return build;
+}
+
+async function writeParallel(sessionId: string, stepId: string): Promise<TutorQuestion> {
+  const started = Date.now();
+  const session = await updateSession(sessionId, (current) => current);
+  const step = findStep(session, stepId);
+  if (!step) throw new Error(`No step ${stepId}`);
+  if (step.parallel) return step.parallel;
+  try {
+    const parallel = await generateParallel(session, getTopic(session.topicId), step, sessionQuestions(session.battery!));
+    console.log(`Tutor: ${stepId} similar question ready in ${Date.now() - started}ms`);
+    await updateSession(sessionId, (current) => {
+      const target = findStep(current, stepId);
+      if (target && !target.parallel) target.parallel = parallel;
+      // A learner already waiting on it moves to it. A paused session moves on resume.
+      return isActive(current) ? moveToRequestedParallel(current) : current;
+    });
+    return parallel;
+  } catch (error) {
+    console.error(`Tutor: ${stepId} similar question failed`, error);
+    throw error;
+  }
+}
+
+// Starts writing the current step's parallel question, if it's a practice item without one.
+// Returns the session unchanged, so it can follow any update that shows a new step.
+function prepareParallel(session: TutorSession): TutorSession {
+  const item = currentItem(session);
+  if (isPractice(item) && !item.step.parallel) void parallelFor(session.id, item.step.id).catch(() => {});
+  return session;
+}
+
+// Switches the current step to its parallel question, if the learner asked for it and it's written.
+function moveToRequestedParallel(session: TutorSession): TutorSession {
+  const step = practiceSteps(session)[session.position];
+  const progress = practiceProgress(session)[session.position];
+  if (!step?.parallel || !progress?.parallelRequested) return session;
+  progress.parallelRequested = undefined;
+  progress.activeQuestionId = step.parallel.id;
+  return markShown(session);
 }
 
 // ---------------------------------------------------------------------------------------
@@ -453,16 +529,23 @@ function canTryParallel(session: TutorSession, item: CurrentItem): boolean {
   return item.question.id === item.step.question.id && item.progress.misses === 1 && !correct;
 }
 
-export function tryParallel(session: TutorSession) {
+// Moves to the parallel question, or, if it's still being written, waits on it (the workbook
+// shows it as a build, which /advance waits for).
+export async function tryParallel(session: TutorSession) {
   const item = currentItem(session);
   if (!item || !canTryParallel(session, item)) throw new TutorStateError("No similar question to try");
-  return updateSession(session.id, (current) => {
-    const step = practiceProgress(current)[current.position];
-    step.activeQuestionId = practiceSteps(current)[current.position].parallel.id;
-    step.partialRetryUsed = false;
-    step.done = false;
-    return markShown(current);
+  const updated = await updateSession(session.id, (current) => {
+    const progress = practiceProgress(current)[current.position];
+    progress.parallelRequested = true;
+    // The step is open again from here, including while the learner waits on the question.
+    progress.partialRetryUsed = false;
+    progress.done = false;
+    // An error left by a failed background steps build isn't about this wait.
+    current.generation.error = undefined;
+    return moveToRequestedParallel(current);
   });
+  if (pendingBuild(updated) === "parallel") void ensureBuilt(updated);
+  return updated;
 }
 
 // Next step, or skipping the optional bonus. Checks move on by themselves when answered.
@@ -489,7 +572,7 @@ export function advance(session: TutorSession, fromQuestionId: string | undefine
       progress[current.position] ??= newStepProgress(steps[current.position]);
     }
     return markShown(current);
-  });
+  }).then(prepareParallel);
 }
 
 // ---------------------------------------------------------------------------------------
@@ -595,7 +678,7 @@ export function resumeSession(session: TutorSession) {
     current.pausedFrom = undefined;
     current.exitedAfterMessageId = undefined;
     return markShown(current);
-  });
+  }).then(prepareParallel);
 }
 
 export function setMode(session: TutorSession, mode: TutorSession["mode"]) {
@@ -832,9 +915,12 @@ function describeWrapUp(session: TutorSession): string {
 
 export function describeWorkbook(session: TutorSession, draft: WorkbookDraft | undefined): string {
   if (session.status === "scoping") return "Empty. The workbook is built after scoping (goal and time).";
-  if (pendingBuild(session)) {
+  const pending = pendingBuild(session);
+  if (pending) {
     return session.generation.error
       ? "The workbook failed to build. The learner can retry from the workbook."
+      : pending === "parallel"
+        ? "The learner missed the question and asked for a similar one. It's being written and will appear in the workbook shortly."
       : session.status === "assessing"
         ? "The opening check is being prepared."
         : session.status === "more_practice"

@@ -87,7 +87,8 @@ export interface TutorSession {
   offerMessageId?: string;
   declineMessageId?: string;
   scoping: { goal?: string; time?: string };
-  building?: "assessment" | "steps" | "practice";
+  // "parallel": a similar question, asked for after a wrong answer, still being written.
+  building?: "assessment" | "steps" | "practice" | "parallel";
   generationError?: string;
   counts: { assessment: number; steps: number; finalCheck: number; bonus: boolean; morePractice: number };
   position: number;

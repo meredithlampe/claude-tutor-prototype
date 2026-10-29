@@ -680,6 +680,44 @@ function practiceRoundSize(session: TutorSession): number {
   return total > start ? total - start : MORE_PRACTICE_COUNT;
 }
 
+// Each part of the workbook for the banner's progress bar: not started, being written, written
+// (ready to do or in progress), or finished. Bonus, wrap-up and More practice aren't parts.
+type PartState = "not_started" | "generating" | "ready" | "completed";
+
+function outline(session: TutorSession) {
+  const battery = session.battery;
+  const steps = battery?.steps ?? [];
+  const status = session.status === "paused" ? (session.pausedFrom ?? "scoping") : session.status;
+  // A build that failed isn't being written; the workbook offers a retry.
+  const pending = session.generation.error ? undefined : pendingBuild(session);
+  const writingFirstStep = pending === "steps" && steps.length === 0;
+  const writingLaterSteps = builds.has(`${session.id}:later-steps`) || (pending === "steps" && steps.length > 0);
+  const finalLength = battery?.finalCheck?.length ?? 0;
+  const pastFinal =
+    ["wrap_up", "more_practice", "complete"].includes(status) ||
+    (status === "final_check" && finalLength > 0 && session.position >= finalLength);
+  const pastSteps = status === "final_check" || pastFinal;
+  const state = (written: boolean, writing: boolean, done: boolean): PartState =>
+    done ? "completed" : written ? "ready" : writing ? "generating" : "not_started";
+
+  return {
+    assessment: state(Boolean(battery), pending === "assessment", Boolean(battery) && !["scoping", "assessing"].includes(status)),
+    steps: Array.from({ length: STEP_COUNT }, (_, index) =>
+      state(
+        Boolean(steps[index]),
+        index === 0 ? writingFirstStep : writingLaterSteps,
+        pastSteps || Boolean(session.stepProgress[index]?.done),
+      ),
+    ),
+    // Fixed topics' final check comes with step 1; generated ones' with steps 2 and 3.
+    finalCheck: state(
+      finalLength > 0,
+      battery?.itemSource === "fixed" ? writingFirstStep : writingLaterSteps,
+      pastFinal,
+    ),
+  };
+}
+
 export function publicSession(session: TutorSession) {
   const topic = getTopic(session.topicId);
   const item = currentItem(session);
@@ -743,6 +781,7 @@ export function publicSession(session: TutorSession) {
       scores: checkScores(session),
     },
     exitedAfterMessageId: session.exitedAfterMessageId,
+    outline: outline(session),
     position: session.position,
     // Within the current More practice round, from 0.
     practicePosition: session.position - (session.practiceRoundStart ?? 0),

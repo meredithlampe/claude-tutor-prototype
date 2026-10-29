@@ -55,6 +55,19 @@ export const tutorContent = {
       practice: (index: number, total: number) => `More practice ${index} of ${total}`,
       complete: "Complete",
     },
+    // The progress bar: one node per workbook part, each with a state.
+    outline: {
+      label: "Workbook progress",
+      assessment: "Opening check",
+      step: (index: number) => `Step ${index}`,
+      final: "Final check",
+      states: {
+        not_started: "not started",
+        generating: "being written",
+        ready: "ready",
+        completed: "completed",
+      },
+    },
   },
   voice: {
     label: "Voice controls",
@@ -113,6 +126,8 @@ export const tutorContent = {
     emptyBody: "Answer a couple of quick questions in the chat first, so your tutor can set it up for you.",
     buildingAssessment: "Setting up your opening check…",
     buildingSteps: "Writing your next three steps, based on your answers.",
+    // Waiting on a step written after step 1 (steps 2 and 3 are written in the background).
+    buildingLaterStep: (index: number) => `Getting step ${index} ready…`,
     buildingPractice: "Writing a few more practice questions…",
     buildingHint: "This can take about a minute. You can keep chatting with your tutor meanwhile.",
     waitingTitle: "Up next in a moment",

@@ -5,7 +5,8 @@ import { tutorContent } from "./content";
 type WorkbookStatusProps =
   | { kind: "empty" }
   | { kind: "waiting" }
-  | { kind: "building"; part: "assessment" | "steps" | "practice" }
+  // `laterStep`: the step number being waited on, after step 1 (steps 2 and 3 are written later).
+  | { kind: "building"; part: "assessment" | "steps" | "practice"; laterStep?: number }
   | { kind: "failed"; retrying: boolean; onRetry: () => void };
 
 // The workbook before there's a question to show: empty during scoping, loading while it's
@@ -42,7 +43,9 @@ export function WorkbookStatus(props: WorkbookStatusProps) {
           {props.part === "assessment"
             ? workbook.buildingAssessment
             : props.part === "steps"
-              ? workbook.buildingSteps
+              ? props.laterStep
+                ? workbook.buildingLaterStep(props.laterStep)
+                : workbook.buildingSteps
               : workbook.buildingPractice}
         </p>
         <p className="text-sm leading-6 text-secondary-foreground">{workbook.buildingHint}</p>

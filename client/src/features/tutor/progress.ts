@@ -7,6 +7,10 @@ export function progressLabel(session: TutorSession): string {
   if (session.status === "scoping") return progress.scoping;
   if (session.status === "wrap_up") return progress.wrapUp;
   if (session.status === "complete") return progress.complete;
+  // Waiting on step 2 or 3: the learner is on that step, not back to building the workbook.
+  if (session.building === "steps" && session.position > 0) {
+    return progress.step(session.position + 1, session.counts.steps);
+  }
   if (session.building) return progress.building;
   const current = session.current;
   if (!current) return progress.building;
@@ -21,5 +25,20 @@ export function progressLabel(session: TutorSession): string {
       return progress.bonus;
     case "practice":
       return progress.practice(session.practicePosition + 1, session.counts.morePractice);
+  }
+}
+
+// Which progress-bar node the learner is on: 0 opening check, 1–3 the steps, 4 the final check.
+// None while scoping, and none after the final check (bonus, wrap-up, More practice).
+export function currentPart(session: TutorSession): number | undefined {
+  switch (session.status) {
+    case "assessing":
+      return 0;
+    case "teaching":
+      return 1 + session.position;
+    case "final_check":
+      return session.outline.finalCheck === "completed" ? undefined : 1 + session.counts.steps;
+    default:
+      return undefined;
   }
 }

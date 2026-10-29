@@ -445,6 +445,27 @@ export function useTutorSession(chat: ChatContext) {
     return () => clearInterval(timer);
   }, [scoresPending, conversationId]);
 
+  // Steps 2 and 3 (and a generated final check) are written in the background while the learner
+  // works: check now and then, so the progress bar shows when they're ready. Not while an action
+  // is in flight (its response is newer), and not while the learner waits on a build (that
+  // request returns the result).
+  const { outline } = session ?? {};
+  const writingInBackground =
+    active && !session?.building && Boolean(outline && [...outline.steps, outline.finalCheck].includes("generating"));
+  useEffect(() => {
+    if (!writingInBackground || busy) return;
+    const controller = new AbortController();
+    const timer = setInterval(() => {
+      fetchTutorSession(conversationId, controller.signal)
+        .then((loaded) => loaded && !controller.signal.aborted && setSession(loaded))
+        .catch(() => {});
+    }, 5000);
+    return () => {
+      clearInterval(timer);
+      controller.abort();
+    };
+  }, [writingInBackground, busy, conversationId]);
+
   // The tutor's summary is written after the learner's. If the page was reloaded part-way,
   // ask again (the server shares a summary that's still being written).
   const summaryPending =

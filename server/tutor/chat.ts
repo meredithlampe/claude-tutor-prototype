@@ -132,17 +132,20 @@ function turnInstruction(body: ChatBody, session: TutorSession, scopedNow: boole
     return `The learner has "${session.scoping.time}". That's their session length: acknowledge it in a few words, without asking about time again, then ask what they're working toward. Tappable choices appear below your message (homework, an exam, curiosity). One or two sentences.`;
   }
   if (scopedNow) {
-    return `Scoping is done (goal: "${session.scoping.goal}", time: "${session.scoping.time}"). The workbook now shows a short opening check: one question about what feels unclear, then two questions. In at most two short sentences, tell the learner to start it in the workbook; that it's a check, so you can give hints but not answers; and that it's fine to guess. Don't ask them anything else.`;
+    return `Scoping is done (goal: "${session.scoping.goal}", time: "${session.scoping.time}"). The workbook now shows a short opening check: one question about what feels unclear, then two questions. In at most two short sentences, tell the learner to start it in the workbook; that it's there to see what they already understand; that it's a check, so you can give hints but not answers; and that it's fine to guess. Don't ask them anything else.`;
   }
   switch (event?.type) {
     case "step_started":
+      if (event.stepIndex === 0) {
+        return "Step 1 appears in the workbook as soon as you finish. In at most two short sentences, tell them the workbook steps are where they learn the concepts, then introduce step 1: the one idea it covers. Point them to its visual in the workbook. Don't explain the content yourself or hint at the answer.";
+      }
       return `Step ${event.stepIndex + 1} appears in the workbook as soon as you finish. Introduce it in one short sentence: the one idea it covers and how it connects to what they've done so far. Point them to its visual in the workbook. Don't explain the content yourself or hint at the answer.`;
     case "wrong_answer":
       return "The learner just answered the practice question above incorrectly, and the workbook showed them one line of feedback. In one or two short sentences, be encouraging and ask one question that helps them see their error, without giving the answer. The workbook also offers Show answer and Explain my thinking.";
     case "explain_my_thinking":
       return "The learner tapped Explain my thinking on the practice question above. In one sentence, ask them to walk you through how they got their answer. Don't correct them yet. (After this discussion, the workbook offers them a similar question.)";
     case "final_check_started":
-      return "The final check appears in the workbook as soon as you finish: two questions with no instruction before them, then an optional bonus question. In one short sentence, tell them it works like the opening check: hints only, and it's fine to be unsure.";
+      return "The final check appears in the workbook as soon as you finish: two questions with no instruction before them, then an optional bonus question. In one or two short sentences, tell them it measures how much they've learned since the opening check, and that it works like the opening check: hints only, and it's fine to be unsure.";
     case "battery_complete":
       return "The learner just finished the workbook's questions. The workbook now asks them to write a short summary of what they learned, and then shows yours. In one or two short sentences, congratulate them on what they worked through (without revealing any check answers or scores) and point them to the summary box in the workbook. Don't summarize the session yourself.";
     case "practice_started":

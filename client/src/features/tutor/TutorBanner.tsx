@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { tutorContent } from "./content";
 import { progressLabel } from "./progress";
+import { TutorProgressBar } from "./TutorProgressBar";
 import type { TutorMode, TutorSession } from "./types";
 import type { VoiceUnavailable } from "./useSpeech";
 
@@ -102,6 +103,7 @@ export function TutorBanner({
           {banner.exit}
         </Button>
       </div>
+      <TutorProgressBar session={session} />
       <div role="status">
         {voiceNotice && (
           <div className="mt-2 flex items-start gap-2 rounded-lg border border-input bg-background px-3 py-2 text-sm leading-6 text-secondary-foreground">

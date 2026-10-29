@@ -67,7 +67,9 @@ export function Workbook({ session, tutor, onExit }: WorkbookProps) {
   } else if (session.building && session.generationError) {
     body = <WorkbookStatus kind="failed" retrying={tutor.busy === "build"} onRetry={tutor.retryBuild} />;
   } else if (session.building || !item) {
-    body = <WorkbookStatus kind="building" part={session.building ?? "assessment"} />;
+    // Past step 1, the wait is for a step written in the background, not the whole set.
+    const laterStep = session.building === "steps" && session.position > 0 ? session.position + 1 : undefined;
+    body = <WorkbookStatus kind="building" part={session.building ?? "assessment"} laterStep={laterStep} />;
   } else {
     const heading = itemHeading(item, session);
     const role = item.question.role;

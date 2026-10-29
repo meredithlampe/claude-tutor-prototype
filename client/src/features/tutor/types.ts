@@ -103,7 +103,11 @@ export interface TutorSession {
   };
   // After Exit: the last stored message then, which the paused (or complete) card follows.
   exitedAfterMessageId?: string;
+  // Each part of the workbook, for the banner's progress bar.
+  outline: { assessment: PartState; steps: PartState[]; finalCheck: PartState };
 }
+
+export type PartState = "not_started" | "generating" | "ready" | "completed";
 
 // Opening-check probes beside their final-check pairs (MC 0–1, freeform 0–2). A null score
 // is unanswered or, with `pending`, still being graded.
